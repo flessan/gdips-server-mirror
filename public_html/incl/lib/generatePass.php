@@ -127,10 +127,12 @@ class GeneratePass {
 	}
 
 	public static function isValidToken($auth) {
+		// "none" is an unissued-token marker, never an authentication secret.
+		if(!is_string($auth) || trim($auth) === '' || strtolower(trim($auth)) === 'none') return '-3';
 		require __DIR__."/connection.php";
 		$gs = new mainLib();
-		if(self::tooManyAttemptsFromIP() || empty(trim($auth))) return '-3';
-		$query = $db->prepare("SELECT userName, accountID, isActive FROM accounts WHERE auth = :id");
+		if(self::tooManyAttemptsFromIP()) return '-3';
+		$query = $db->prepare("SELECT userName, accountID, isActive FROM accounts WHERE BINARY auth = BINARY :id");
 		$query->execute([':id' => $auth]);
 		$fetch = $query->fetch();
 		if(!$fetch) {

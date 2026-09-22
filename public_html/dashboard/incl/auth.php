@@ -8,16 +8,21 @@ class au {
     $check = $db->query("SHOW COLUMNS FROM `accounts` LIKE 'auth'");
     $exist = $check->fetchAll();
     if(empty($exist)) return 'no';
-    if($_SESSION["accountID"] != 0) {
+	$cookieAuth = $_COOKIE["auth"] ?? null;
+	if(!is_string($cookieAuth) || trim($cookieAuth) === '' || strtolower(trim($cookieAuth)) === 'none') {
+		$_SESSION["accountID"] = 0;
+		return true;
+	}
+	if(!empty($_SESSION["accountID"])) {
         $query = $db->prepare("SELECT auth FROM accounts WHERE accountID = :id");
         $query->execute([':id' => $_SESSION["accountID"]]);
         $auth = $query->fetch();
-        if($_COOKIE["auth"] != $auth["auth"]) $_SESSION["accountID"] = 0;
+        if(!$auth || !is_string($auth["auth"]) || !hash_equals($auth["auth"], $cookieAuth)) $_SESSION["accountID"] = 0;
     } else {
-        $query = $db->prepare("SELECT accountID FROM accounts WHERE auth = :id");
-        $query->execute([':id' => $_COOKIE["auth"]]);
+        $query = $db->prepare("SELECT accountID FROM accounts WHERE BINARY auth = BINARY :id AND auth != ''");
+        $query->execute([':id' => $cookieAuth]);
         $auth = $query->fetch();
-        if(!empty($auth) AND $_COOKIE["auth"] != 'none') $_SESSION["accountID"] = $auth["accountID"];
+        if(!empty($auth)) $_SESSION["accountID"] = $auth["accountID"];
     }
 	return true;
   }

@@ -33,6 +33,14 @@ $daily = $query->fetch();
 if($query->rowCount() == 0) exit("-1");
 $dailyID = $daily['feaID'] + ($type * 100000);
 $timeleft = $daily[$dailyTime] - $current;
+if(!$isEvent) {
+	$boundary = ($type == 1) ? strtotime("next monday") : strtotime("tomorrow 00:00:00");
+	$timeleft = $boundary - $current;
+	if(!$oldDailyWeekly) {
+		$expire = $daily['timestamp'] + ($type == 0 ? 86400 : 604800);
+		if($expire < $current) exit('0|'.$timeleft);
+	}
+}
 if(!$daily['webhookSent']) {
 	$gs->sendDailyWebhook($daily['levelID'], $type);
 	$sent = $db->prepare('UPDATE '.$dailyTable.' SET webhookSent = 1 WHERE feaID = :feaID');

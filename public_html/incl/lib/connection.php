@@ -1,7 +1,7 @@
 <?php
 if(!isset($db)) global $db;
 if(empty($db)) {
-	error_reporting(0);
+	error_reporting(E_ALL);
 	require dirname(__FILE__)."/../../config/connection.php";
 	require dirname(__FILE__)."/../../config/misc.php";
 	require_once dirname(__FILE__)."/../../config/security.php";

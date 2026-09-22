@@ -292,9 +292,15 @@ class mainLib {
 		require_once __DIR__ . "/exploitPatch.php";
 		require_once __DIR__ . "/GJPCheck.php";
 		if(!empty($_POST["udid"]) && $unregisteredSubmissions) {
-			$id = ExploitPatch::remove($_POST["udid"]);
+			// UDIDs become both database identifiers and data/info filenames.
+			// Reject path syntax instead of silently rewriting one ID into another.
+			if(!is_string($_POST["udid"]) || !preg_match('/\A[A-Za-z0-9_-]{1,100}\z/', $_POST["udid"])) exit("-1");
+			$id = $_POST["udid"];
 			if(is_numeric($id)) exit("-1");
-		} elseif(!empty($_POST["accountID"]) AND $_POST["accountID"] !="0") $id = GJPCheck::getAccountIDOrDie();
+		} elseif(!empty($_POST["accountID"]) AND $_POST["accountID"] !="0") {
+			$id = GJPCheck::getAccountIDOrDie();
+			if(!ctype_digit((string)$id)) exit("-1");
+		}
 		else exit("-1");
 		return $id;
 	}
@@ -305,8 +311,8 @@ class mainLib {
 		}else{
 			$register = 0;
 		}
-		$query = $db->prepare("SELECT userID FROM users WHERE extID LIKE BINARY :id");
-		$query->execute([':id' => $extID]);
+		$query = $db->prepare("SELECT userID FROM users WHERE extID = :id AND BINARY extID = BINARY :exactID");
+		$query->execute([':id' => $extID, ':exactID' => $extID]);
 		if ($query->rowCount() > 0) {
 			$userID = $query->fetchColumn();
 		} else {

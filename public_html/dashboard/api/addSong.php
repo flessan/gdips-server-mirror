@@ -47,11 +47,10 @@ if($songReupload < 0) {
 		'reuploader' => [
 			'accountID' => $reuploadID,
 			'userID' => $gs->getUserID($reuploadID, 'ObeyGDBot'),
-			// 'username' => 'ObeyGDBot'
-			'username' => 'GDIPS'
+			'username' => 'ObeyGDBot'
 		],
-		'newgrounds' => true,
-		'customSong' => false
+		'newgrounds' => false,
+		'customSong' => true
 	];
 	exit(json_encode(['dashboard' => true, 'success' => true, 'song' => $song]));
 }
