@@ -106,11 +106,15 @@ foreach($result as &$action) {
 	</div>';
 	$x++;
 }
-$pagel = '<div class="form new-form">
-<h1 style="margin-bottom:5px">'.$dl->getLocalizedString("banList").'</h1>
-<div class="form-control new-form-control">
-		'.$bans.'
-	</div></div><form name="searchform" class="form__inner">
+$pagel = '<div class="gd-pagehead">
+	<p class="gd-eyebrow">GDIPS</p>
+	<div class="gd-pagehead-row">
+		<div>
+			<h1 class="gd-display">'.$dl->getLocalizedString("banList").'</h1>
+		</div>
+	</div>
+</div>
+<div class="gd-list">'.$bans.'</div><form name="searchform" class="form__inner">
 </form>';
 $dl->printPage($pagel, true, "mod");
 ?>

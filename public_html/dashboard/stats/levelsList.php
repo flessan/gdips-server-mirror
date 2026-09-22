@@ -4,9 +4,8 @@ require "../incl/dashboardLib.php";
 require "../".$dbPath."incl/lib/connection.php";
 $dl = new dashboardLib();
 require_once "../".$dbPath."incl/lib/mainLib.php";
-require "../".$dbPath."incl/lib/exploitPatch.php";
+require_once "../".$dbPath."incl/lib/exploitPatch.php";
 $gs = new mainLib();
-require "../".$dbPath."incl/lib/connection.php";
 $dl->title($dl->getLocalizedString("levels"));
 $dl->printFooter('../');
 if(isset($_GET["page"]) AND is_numeric($_GET["page"]) AND $_GET["page"] > 0){
@@ -19,46 +18,82 @@ if(isset($_GET["page"]) AND is_numeric($_GET["page"]) AND $_GET["page"] > 0){
 if(!isset($_GET["search"])) $_GET["search"] = "";
 if(!isset($_GET["type"])) $_GET["type"] = "";
 if(!isset($_GET["ng"])) $_GET["ng"] = "";
+if(!isset($_GET["sort"])) $_GET["sort"] = "";
 $srcbtn = $levels = "";
 $pagelol = explode("/", $_SERVER["REQUEST_URI"]);
 $pagelol = $pagelol[count($pagelol)-2]."/".$pagelol[count($pagelol)-1];
 $pagelol = explode("?", $pagelol)[0];
 $modcheck = $gs->checkPermission($_SESSION["accountID"], "dashboardModTools");
 $searchValue = trim(ExploitPatch::rucharclean($_GET["search"]));
+
+/* Sort whitelist - presentation-level ordering only. */
+switch($_GET["sort"]) {
+	case "downloads": $orderBy = "downloads DESC"; break;
+	case "likes": $orderBy = "likes DESC"; break;
+	case "featured": $orderBy = "starEpic DESC, starFeatured DESC, uploadDate DESC"; break;
+	default: $_GET["sort"] = ""; $orderBy = "uploadDate DESC"; break;
+}
+$where = "unlisted = 0";
+$params = [];
 if(!empty($searchValue)) {
-	$srcbtn = '<button type="button" onclick="a(\''.$pagelol.'\', true, true, \'GET\')"  href="'.$_SERVER["SCRIPT_NAME"].'" style="width: 0%;display: flex;margin-left: 5px;align-items: center;justify-content: center;color: indianred; text-decoration:none" class="btn-primary" title="'.$dl->getLocalizedString("searchCancel").'"><i class="fa-solid fa-xmark"></i></button>';
-	$query = $db->prepare("SELECT * FROM levels WHERE unlisted = 0 AND ".(is_numeric($searchValue) ? 'levelID' : 'levelName')." LIKE '%".$searchValue."%' ORDER BY uploadDate DESC LIMIT 10 OFFSET $page");
-} else $query = $db->prepare("SELECT * FROM levels WHERE unlisted = 0 ORDER BY uploadDate DESC LIMIT 10 OFFSET $page");
-$query->execute();
+	$where .= is_numeric($searchValue) ? " AND levelID LIKE :search" : " AND levelName LIKE :search";
+	$params[':search'] = "%".$searchValue."%";
+}
+$query = $db->prepare("SELECT * FROM levels WHERE $where ORDER BY $orderBy LIMIT 10 OFFSET $page");
+$query->execute($params);
 $result = $query->fetchAll();
-if(empty($result)) die($dl->printSong('<div class="form">
-		<h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
-		<form class="form__inner" method="post" action="">
-			<p id="dashboard-error-text">'.$dl->getLocalizedString("emptyPage").'</p>
-			<button type="button" onclick="a(\'\', true, false, \'GET\')" class="btn-primary">'.$dl->getLocalizedString("dashboard").'</button>
-		</form>
-	</div>', 'browse'));
-foreach($result as &$action) $levels .= $dl->generateLevelsCard($action, $modcheck);
-$pagel = '<div class="form new-form">
-<h1 style="margin-bottom:5px">'.$dl->getLocalizedString("levels").'</h1>
-<div class="form-control new-form-control">
-		'.$levels.'
-	</div></div><form name="searchform" class="form__inner">
-	<div class="field" style="display:flex">
-		<input id="searchinput" style="border-top-right-radius: 0;border-bottom-right-radius: 0;" type="text" name="search" value="'.$searchValue.'" placeholder="'.$dl->getLocalizedString("search").'">
-		<button id="searchbutton" type="button" onclick="a(\''.$pagelol.'\', true, true, \'GET\', 69)" style="width: 6%;border-top-left-radius:0px !important;border-bottom-left-radius:0px !important" type="submit" class="btn-primary" title="'.$dl->getLocalizedString("search").'"><i class="fa-solid fa-magnifying-glass"></i></button>
-		'.$srcbtn.'
-	</div>
+
+/* search form (a(..., 69) reads form[name=searchform]) */
+$searchbar = '<form name="searchform" class="gd-searchbar" onsubmit="a(\''.$pagelol.'\', true, true, \'GET\', 69);return false;">
+	<input type="text" name="search" value="'.htmlspecialchars($searchValue).'" placeholder="'.$dl->getLocalizedString("search").'" aria-label="'.$dl->getLocalizedString("search").'">
+	<button type="submit" class="gd-btn gd-btn--secondary" title="'.$dl->getLocalizedString("search").'" aria-label="'.$dl->getLocalizedString("search").'"><i class="fa-solid fa-magnifying-glass"></i></button>'
+	.(!empty($searchValue) ? '<button type="button" class="gd-btn gd-btn--ghost" title="'.$dl->getLocalizedString("searchCancel").'" aria-label="'.$dl->getLocalizedString("searchCancel").'" onclick="a(\''.$pagelol.'\', true, true, \'GET\')"><i class="fa-solid fa-xmark"></i></button>' : '').'
 </form>';
-/*
-	bottom row
-*/
-//getting count
-if(!empty($searchValue)) $query = $db->prepare("SELECT count(*) FROM levels WHERE unlisted =  0 AND ".(is_numeric($searchValue) ? 'levelID' : 'levelName')." LIKE '%".$searchValue."%'");
-else $query = $db->prepare("SELECT count(*) FROM levels WHERE unlisted = 0");
-$query->execute();
+
+/* sort filter chips (each carries the current search term) */
+$chip = function($sortKey, $label, $icon) use ($pagelol, $searchValue, $_GET) {
+	$qs = http_build_query(array_filter(["search" => $searchValue, "sort" => $sortKey]));
+	$href = $pagelol.(!empty($qs) ? "?".$qs : "");
+	$on = ($_GET["sort"] == $sortKey OR ($sortKey == "" && $_GET["sort"] == "")) ? " is-on" : "";
+	return '<a class="gd-filter'.$on.'" href="'.htmlspecialchars($href).'" onclick="a(\''.htmlspecialchars($href).'\', true, true);return false;"><i class="fa-solid '.$icon.'"></i>'.$label.'</a>';
+};
+$filters = $chip("", $dl->getLocalizedString("sortNewest"), "fa-clock")
+	.$chip("downloads", $dl->getLocalizedString("sortDownloads"), "fa-download")
+	.$chip("likes", $dl->getLocalizedString("sortLikes"), "fa-thumbs-up")
+	.$chip("featured", $dl->getLocalizedString("featuredOnly"), "fa-star");
+
+foreach($result as &$action) $levels .= $dl->generateLevelsCard($action, $modcheck);
+
+/* total count for pagination */
+$query = $db->prepare("SELECT count(*) FROM levels WHERE $where");
+$query->execute($params);
 $packcount = $query->fetchColumn();
 $pagecount = ceil($packcount / 10);
+
+$pagel = '<div class="gd-pagehead">
+	<p class="gd-eyebrow">GDIPS</p>
+	<div class="gd-pagehead-row">
+		<div>
+			<h1 class="gd-display">'.$dl->getLocalizedString("levels").'</h1>
+			<p class="gd-pagehead-sub">'.number_format($packcount).' '.$dl->getLocalizedString("levels").'</p>
+		</div>
+	</div>
+</div>
+<div class="gd-toolbar">
+	'.$searchbar.'
+	<div class="gd-toolbar-spacer"></div>
+	<div class="gd-inlineform">'.$filters.'</div>
+</div>
+<div class="gd-list">';
+if(empty($result)) {
+	$pagel .= '<div class="gd-empty"><i class="fa-solid fa-magnifying-glass"></i><p>'.(empty($searchValue) ? $dl->getLocalizedString("emptyPage") : $dl->getLocalizedString("noResults")).'</p>'
+		.(!empty($searchValue) ? '<button type="button" class="gd-btn gd-btn--secondary" onclick="a(\''.$pagelol.'\', true, true, \'GET\')"><i class="fa-solid fa-xmark"></i>'.$dl->getLocalizedString("searchCancel").'</button>' : '')
+		.'</div>';
+} else {
+	$pagel .= $levels;
+}
+$pagel .= '</div>';
+
 $bottomrow = $dl->generateBottomRow($pagecount, $actualpage);
-$dl->printPage($pagel.$bottomrow, true, "browse");
+$dl->printPage($pagel.$bottomrow, true, "levels");
 ?>

@@ -23,7 +23,7 @@ if(!isset($_GET["type"])) $_GET["type"] = "";
 $srcbtn = $favs = $meta = "";
 if(!empty(trim(ExploitPatch::rucharclean($_GET["search"])))) {
 	$q = is_numeric(trim(ExploitPatch::rucharclean($_GET["search"]))) ? "ID LIKE '%".trim(ExploitPatch::rucharclean($_GET["search"]))."%'" : "(name LIKE '%".trim(ExploitPatch::rucharclean($_GET["search"]))."%' OR authorName LIKE '%".trim(ExploitPatch::rucharclean($_GET["search"]))."%')";
-	$srcbtn = '<button type="button" onclick="a(\''.$pagelol.'\', true, true, \'GET\')"  href="'.$_SERVER["SCRIPT_NAME"].'" style="width: 0%;display: flex;margin-left: 5px;align-items: center;justify-content: center;color: indianred; text-decoration:none" class="btn-primary" title="'.$dl->getLocalizedString("searchCancel").'"><i class="fa-solid fa-xmark"></i></button>';
+	$srcbtn = '<button type="button" onclick="a(\''.$pagelol.'\', true, true, \'GET\')" class="gd-btn gd-btn--ghost" title="'.$dl->getLocalizedString("searchCancel").'" aria-label="'.$dl->getLocalizedString("searchCancel").'"><i class="fa-solid fa-xmark"></i></button>';
 	$query = $db->prepare("SELECT * FROM sfxs WHERE isDisabled = 0 AND $q ORDER BY reuploadTime DESC LIMIT 10 OFFSET $page");
 	$query->execute();
 	$result = $query->fetchAll();
@@ -57,17 +57,21 @@ foreach($result as &$action) {
 	$x++;
 	$songs .= $dl->generateSFXCard($action);
 }
-$pagel = '<div class="form new-form">
-<h1 style="margin-bottom:5px">'.$dl->getLocalizedString("sfxs").'</h1>
-<div class="form-control new-form-control songs">
-		'.$songs.'
-	</div></div><form name="searchform" class="form__inner">
-	<div class="field" style="display:flex">
-		<input id="searchinput" style="border-top-right-radius: 0;border-bottom-right-radius: 0;" type="text" name="search" value="'.$_GET["search"].'" placeholder="'.$dl->getLocalizedString("search").'">
-		<button id="searchbutton" type="button" onclick="a(\''.$pagelol.'\', true, true, \'GET\', 69)" style="width: 6%;border-top-left-radius:0px !important;border-bottom-left-radius:0px !important" type="submit" class="btn-primary" title="'.$dl->getLocalizedString("search").'"><i class="fa-solid fa-magnifying-glass"></i></button>
-		'.$srcbtn.'
-	</div>
+$searchbar = '<form name="searchform" class="gd-searchbar" onsubmit="a(\''.$pagelol.'\', true, true, \'GET\', 69);return false;">
+	<input type="text" name="search" value="'.htmlspecialchars($_GET["search"]).'" placeholder="'.$dl->getLocalizedString("search").'" aria-label="'.$dl->getLocalizedString("search").'">
+	<button type="submit" class="gd-btn gd-btn--secondary" title="'.$dl->getLocalizedString("search").'" aria-label="'.$dl->getLocalizedString("search").'"><i class="fa-solid fa-magnifying-glass"></i></button>'
+	.$srcbtn.'
 </form>';
+$pagel = '<div class="gd-pagehead">
+	<p class="gd-eyebrow">GDIPS</p>
+	<div class="gd-pagehead-row">
+		<div>
+			<h1 class="gd-display">'.$dl->getLocalizedString("sfxs").'</h1>
+		</div>
+	</div>
+</div>
+<div class="gd-toolbar">'.$searchbar.'</div>
+<div class="gd-list">'.$songs.'</div>';
 if(!empty(trim($_GET["search"]))) $query = $db->prepare("SELECT count(*) FROM sfxs WHERE isDisabled = 0 AND $q");
 else $query = $db->prepare("SELECT count(*) FROM sfxs WHERE isDisabled = 0");
 $query->execute();

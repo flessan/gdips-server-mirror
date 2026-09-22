@@ -87,11 +87,11 @@ $webhookLang['playerTypeName1'] = 'ID игрока';
 $webhookLang['playerTypeName2'] = 'IP адрес';
 
 $webhookLang['dailyTitle'] = 'Новый ежедневный уровень!';
-$webhookLang['dailyTitleDM'] = 'Ваш уровень — ежедневный!';
+$webhookLang['dailyTitleDM'] = 'Ваш уровень - ежедневный!';
 $webhookLang['dailyDesc'] = 'Уровень попал в ежедневные уровни!';
 $webhookLang['dailyDescDM'] = 'Ваш уровень попал в ежедневные уровни! %1$s';
 $webhookLang['weeklyTitle'] = 'Новый еженедельный уровень!';
-$webhookLang['weeklyTitleDM'] = 'Ваш уровень — еженедельный!';
+$webhookLang['weeklyTitleDM'] = 'Ваш уровень - еженедельный!';
 $webhookLang['weeklyDesc'] = 'Уровень попал в еженедельные уровни!';
 $webhookLang['weeklyDescDM'] = 'Ваш уровень попал в еженедельные уровни! %1$s';
 $webhookLang['eventTitle'] = 'Новый уровень мероприятия!';

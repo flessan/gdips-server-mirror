@@ -285,7 +285,10 @@ foreach($friends AS &$friend) {
 	</button>
 	<form style="display: none" name="messengerReceiver'.$receiver.'"><input type="hidden" name="receiver" value="'.$receiver.'"></input></form>';
 }
-$dl->printSong('<div class="form-control itemsbox chatdiv" style="width: 75%;">
+$dl->printSong('<div class="gd-pagehead">
+	<p class="gd-eyebrow">GDIPS</p>
+	<h1 class="gd-display">'.$dl->getLocalizedString("messenger").'</h1>
+</div><div class="chatdiv">
 	<div class="friends-button-div">
 		<div class="itemoverflow '.($allChatsEmpty ? 'empty-itemoverflow' : '').'" id="itemoverflow">
 			<div class="itemslist" id="lastChats">
@@ -297,12 +300,11 @@ $dl->printSong('<div class="form-control itemsbox chatdiv" style="width: 75%;">
 		</div>
 		<button type="button" onclick="friendsList()" class="btn-primary friends-button"><i class="fa-solid fa-user-group"></i></button>
 	</div>
-		<div class="form another-chat-div" style="margin:0;width:150%">
+		<div class="form another-chat-div" style="margin:0">
 			<div class="chatbox">
 				'.$chatBox.'
 			</div>
 		</div>
-	</div>
 </div><script>
 	'.$pageScript.'
 	allChatsEmpty = '.($allChatsEmpty ? 'true' : 'false').';

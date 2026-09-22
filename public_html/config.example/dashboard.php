@@ -68,12 +68,12 @@ $convertSFXAPI[] = "https://converter.m336.dev";
 	
 	These confing will allow you to customize level reupload tool
 	
-	$requireAccountForReuploading — if user must enter their account credentials to reupload level
-		True — require logging in
-		False — don't require to login
-	$disallowReuploadingNotUserLevels — if user should be allowed to reupload only their levels
-		True — allow reuploading only their levels
-		False — allow reuploading any levels
+	$requireAccountForReuploading - if user must enter their account credentials to reupload level
+		True - require logging in
+		False - don't require to login
+	$disallowReuploadingNotUserLevels - if user should be allowed to reupload only their levels
+		True - allow reuploading only their levels
+		False - allow reuploading any levels
 */
 
 $requireAccountForReuploading = false;
@@ -85,11 +85,11 @@ $disallowReuploadingNotUserLevels = false;
 	Use Cobalt API to be able to reupload songs with YouTube links and etc.
 	Requires file upload to be enabled!
 	
-	$useCobalt — Should server use Cobalt to reupload songs by links
-		True — use Cobalt
-		False — don't use Cobalt
+	$useCobalt - Should server use Cobalt to reupload songs by links
+		True - use Cobalt
+		False - don't use Cobalt
 
-	$cobaltAPI[] — links to Cobalt's APIs
+	$cobaltAPI[] - links to Cobalt's APIs
 		Server will randomly pick one of Cobalt APIs when reuploading song
 		
 	Turnstile-protected APIs are currently not supported, sorry
@@ -103,10 +103,15 @@ $cobaltAPI[] = 'https://cobalt.gcs.skin';
 	
 	Dashboard shows icons of players, therefore it requires some server to get icons
 	
-	$iconsRendererServer — what server to use
+	$iconsRendererServer - what server to use
 	
 	If gdicon.oat.zone doesn't work for you for some reason, you can use icons.gcs.skin
 */
 
 $iconsRendererServer = 'https://gdicon.oat.zone';
-?>
+// Project / open source links shown in the sidebar, footer and project page.
+// Point these at YOUR fork or community so the open source identity stays honest.
+
+$projectRepo = 'https://github.com/gmdips/server'; // source code
+// $projectIssues is derived from $projectRepo + /issues
+

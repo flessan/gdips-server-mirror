@@ -118,18 +118,20 @@ if(isset($_POST["userName"]) && isset($_POST["password"])) {
 	</div>'));
 	}
 	$dl->title($dl->getLocalizedString("loginBox"));
-	$dl->printSong('<div class="form">
+	$dl->printSong('<div class="gd-authwrap"><div class="gd-authcard">
+		<div class="gd-authbrand">
+			<img src="'.$dashboardIcon.'" alt="">
+			<b>GD<i>IPS</i></b>
+			<span>Geometry Dash Indonesia</span>
+		</div>
 		<h1>'.$dl->getLocalizedString("loginBox").'</h1>
+		<p>'.$dl->getLocalizedString('loginDesc').'</p>
 		<form class="form__inner" action="" method="post">
-			<p>'.$dl->getLocalizedString('loginDesc').'</p>
-			<div class="field">
-				<input type="text" class="form-control login-input" id="loginPageUserName" name="userName" placeholder="'.$dl->getLocalizedString("enterUsername").'">
-			</div>
-			<div class="field">
-				<input type="password" class="form-control" id="loginPagePassword" name="password" placeholder="'.$dl->getLocalizedString("enterPassword").'">
-			</div>'.(!$preactivateAccounts ? ($mailEnabled ? '<button style="margin: -15px 0px;" type="button" onclick="a(\'login/forgotPassword.php\')" class="forgotPassword">'.$dl->getLocalizedString("forgotPasswordTitle").'</button>' : '<button style="margin: -15px 0px;" type="button" onclick="a(\'login/activate.php\')" class="forgotPassword">'.$dl->getLocalizedString("activateAccount").'</button>') : '').'
-			<button type="submit" class="btn-primary" id="loginPageSubmit">'.$dl->getLocalizedString("login").'</button>
+			<input type="text" id="loginPageUserName" name="userName" placeholder="'.$dl->getLocalizedString("enterUsername").'" aria-label="'.$dl->getLocalizedString("enterUsername").'" autocomplete="username">
+			<input type="password" id="loginPagePassword" name="password" placeholder="'.$dl->getLocalizedString("enterPassword").'" aria-label="'.$dl->getLocalizedString("enterPassword").'" autocomplete="current-password">'.(!$preactivateAccounts ? ($mailEnabled ? '<button style="margin: -15px 0px;" type="button" onclick="a(\'login/forgotPassword.php\')" class="forgotPassword">'.$dl->getLocalizedString("forgotPasswordTitle").'</button>' : '<button style="margin: -15px 0px;" type="button" onclick="a(\'login/activate.php\')" class="forgotPassword">'.$dl->getLocalizedString("activateAccount").'</button>') : '').'
+			<button type="submit" class="gd-btn gd-btn--primary" id="loginPageSubmit">'.$dl->getLocalizedString("login").'</button>
 		</form>
-	</div>');
+		<div class="gd-authfoot">'.$dl->getLocalizedString("noAccountYet").' <a href="login/register.php" onclick="a(\'login/register.php\', true, true);return false;">'.$dl->getLocalizedString("register").'</a></div>
+	</div></div>');
 }
 ?>

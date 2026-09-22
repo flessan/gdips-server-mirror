@@ -163,68 +163,67 @@ if(isset($_POST["settings"]) AND $_POST["settings"] == 1 AND $accid == $_SESSION
 		$query["youtubeurl"] = mb_ereg_replace("(?!^@)[^a-zA-Z0-9_]", "", $query["youtubeurl"]);
 		$query["twitter"] = mb_ereg_replace("[^a-zA-Z0-9_]", "", $query["twitter"]);
 		$query["twitch"] = mb_ereg_replace("[^a-zA-Z0-9_]", "", $query["twitch"]);
-    	exit($dl->printSong('<div class="form" style="width: 60vw;max-height: 80vh;position:relative">
-        	<div style="height: 100%;width: 100%;"><div style="display: flex;align-items: center;justify-content: center;flex-wrap:wrap">
-            	<form method="post" style="margin:0px" action=""><button type="button" onclick="a(\'profile/'.$accname.'\', true, true, \'GET\')" class="goback" style="margin-top:0px"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button></form>
-                  <div style="display: flex;flex-direction: column;align-items: center"><h1>'.$dl->getLocalizedString("settings").'</h1></div>
-                  <form method="post" style="display: flex;grid-gap:10px;width: 100%;margin-bottom: 15px">
-                          <div class="messenger" style="grid-gap: 10px;display: grid;">
-                            <div>
-                                <h2 style="text-align:left;margin:0;margin-bottom: 3px">'.$dl->getLocalizedString("allowMessagesFrom").'</h2>
-                                <select class="field field-options" style="margin: 0px" name="messages">
-                                 <option value="0">'.$dl->getLocalizedString("all").'</option>
-                                 <option value="1">'.$dl->getLocalizedString("friends").'</option>
-                                 <option value="2">'.$dl->getLocalizedString("none").'</option>
-                                </select>
-                            </div>
-                            <div>
-                            <h2 style="text-align:left;margin:0;margin-bottom: 3px">'.$dl->getLocalizedString("allowFriendReqsFrom").'</h2>
-                                <select class="field field-options" style="margin: 0px" name="friendreqs">
-                                 <option value="0">'.$dl->getLocalizedString("all").'</option>
-                                 <option value="1">'.$dl->getLocalizedString("none").'</option>
-                                </select>
-                            </div>
-                            <div>
-                            <h2 style="text-align:left;margin:0;margin-bottom: 3px">'.$dl->getLocalizedString("showCommentHistory").'</h2>
-                                <select class="field field-options" style="margin: 0px" name="comments">
-                                 <option value="0">'.$dl->getLocalizedString("all").'</option>
-                                 <option value="1">'.$dl->getLocalizedString("friends").'</option>
-                                 <option value="2">'.$dl->getLocalizedString("none").'</option>
-                                </select>
-                            </div>
-							<div>
-                            <h2 style="text-align:left;margin:0;margin-bottom: 3px">'.$dl->getLocalizedString("timezoneChoose").'</h2>
-                                <select class="field field-options" style="margin: 0px" name="timezone">
-                                  '.generate_timezone_list().'
-                                </select>
-                            </div>
-                            <script>
-                                document.getElementsByName("messages")[0].value = '.$query["mS"].';
-                                document.getElementsByName("friendreqs")[0].value = '.$query["frS"].';
-                                document.getElementsByName("comments")[0].value = '.$query["cS"].';
-								document.getElementsByName("timezone")[0].value = "'.$query["timezone"].'";
-                            </script>
-                         </div>
-                         <div class="messenger" style="grid-gap: 10px;display: grid;">
-                            <div>
-                                <h2 style="text-align:left;margin:0;margin-bottom: 3px">'.$dl->getLocalizedString("yourYouTube").'</h2>
-                                <input class="form-control" type="text" value="'.$query["youtubeurl"].'" name="youtube" placeholder="youtube.com/channel/..."></input>
-                            </div>
-                            <div>
-                                <h2 style="text-align:left;margin:0;margin-bottom: 3px">'.$dl->getLocalizedString("yourTwitter").'</h2>
-                                <input class="form-control" type="text" value="'.$query["twitter"].'" name="twitter" placeholder="twitter.com/..."></input>
-                            </div>
-                            <div>
-                                <h2 style="text-align:left;margin:0;margin-bottom: 3px">'.$dl->getLocalizedString("yourTwitch").'</h2>
-                                <input class="form-control" type="text" value="'.$query["twitch"].'" name="twitch" placeholder="twitch.tv/..."></input>
-                            </div>
-                    </div>
-                    <input type="hidden" name="ichangedsmth" value="1"></input>
-					<input type="hidden" name="settings" value="1"></input>
-                    </form>
-                <button style="margin-bottom:10px" class="btn-song" type="button" onclick="a(\'profile/'.$accname.'/settings\', true, true, \'POST\')">'.$dl->getLocalizedString("saveSettings").'</button>
+    	exit($dl->printSong('<div class="gd-pagehead" style="max-width:640px;margin:0 auto var(--sp-5)">
+            <form method="post" style="margin:0px" action=""><button type="button" onclick="a(\'profile/'.$accname.'\', true, true, \'GET\')" class="goback" aria-label="Back"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button></form>
+            <h1 class="gd-display" style="margin-top:var(--sp-3)">'.$dl->getLocalizedString("settings").'</h1>
+            <p class="gd-pagehead-sub">'.$accname.'</p>
+        </div>
+        <form method="post" style="max-width:640px;margin:0 auto;display:grid;gap:var(--sp-5)">
+            <div class="gd-card" style="display:grid;gap:var(--sp-4)">
+                <div>
+                    <label class="gd-eyebrow" for="set-messages" style="display:block">'.$dl->getLocalizedString("allowMessagesFrom").'</label>
+                    <select id="set-messages" name="messages">
+                     <option value="0">'.$dl->getLocalizedString("all").'</option>
+                     <option value="1">'.$dl->getLocalizedString("friends").'</option>
+                     <option value="2">'.$dl->getLocalizedString("none").'</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="gd-eyebrow" for="set-friendreqs" style="display:block">'.$dl->getLocalizedString("allowFriendReqsFrom").'</label>
+                    <select id="set-friendreqs" name="friendreqs">
+                     <option value="0">'.$dl->getLocalizedString("all").'</option>
+                     <option value="1">'.$dl->getLocalizedString("none").'</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="gd-eyebrow" for="set-comments" style="display:block">'.$dl->getLocalizedString("showCommentHistory").'</label>
+                    <select id="set-comments" name="comments">
+                     <option value="0">'.$dl->getLocalizedString("all").'</option>
+                     <option value="1">'.$dl->getLocalizedString("friends").'</option>
+                     <option value="2">'.$dl->getLocalizedString("none").'</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="gd-eyebrow" for="set-timezone" style="display:block">'.$dl->getLocalizedString("timezoneChoose").'</label>
+                    <select id="set-timezone" name="timezone">
+                      '.generate_timezone_list().'
+                    </select>
+                </div>
+                <script>
+                    document.getElementsByName("messages")[0].value = '.$query["mS"].';
+                    document.getElementsByName("friendreqs")[0].value = '.$query["frS"].';
+                    document.getElementsByName("comments")[0].value = '.$query["cS"].';
+                    document.getElementsByName("timezone")[0].value = "'.$query["timezone"].'";
+                </script>
             </div>
-    </div></div>'));
+            <div class="gd-card" style="display:grid;gap:var(--sp-4)">
+                <div>
+                    <label class="gd-eyebrow" for="set-youtube" style="display:block">'.$dl->getLocalizedString("yourYouTube").'</label>
+                    <input id="set-youtube" type="text" value="'.$query["youtubeurl"].'" name="youtube" placeholder="youtube.com/channel/...">
+                </div>
+                <div>
+                    <label class="gd-eyebrow" for="set-twitter" style="display:block">'.$dl->getLocalizedString("yourTwitter").'</label>
+                    <input id="set-twitter" type="text" value="'.$query["twitter"].'" name="twitter" placeholder="twitter.com/...">
+                </div>
+                <div>
+                    <label class="gd-eyebrow" for="set-twitch" style="display:block">'.$dl->getLocalizedString("yourTwitch").'</label>
+                    <input id="set-twitch" type="text" value="'.$query["twitch"].'" name="twitch" placeholder="twitch.tv/...">
+                </div>
+                <input type="hidden" name="ichangedsmth" value="1">
+                <input type="hidden" name="settings" value="1">
+            </div>
+            <button style="margin-bottom:10px" class="gd-btn gd-btn--primary" type="button" onclick="a(\'profile/'.$accname.'/settings\', true, true, \'POST\')">'.$dl->getLocalizedString("saveSettings").'</button>
+        </form>'));
     } else {
 		$getAccountData = $db->prepare("SELECT * FROM accounts WHERE accountID = :accountID");
 		$getAccountData->execute([':accountID' => $accid]);
@@ -274,21 +273,30 @@ foreach($msgs AS &$msg) {
 	if($reply < 1) $none = 'display:none';
 	$replies = '<button id="btnreply'.$msg["commentID"].'" onclick="reply('.$msg["commentID"].')" class="btn-rendel" style="padding: 7 10;margin-right: 10px;min-width: max-content;width: max-content;'.$none.'">'.$dl->getLocalizedString("replies").' ('.$reply.')</button>';
 	if($_SESSION["accountID"] != 0) $input = '<div class="field" style="display:flex;margin-right:10px"><input id="inputReply'.$msg["commentID"].'" type="text" placeholder="'.$dl->getLocalizedString("replyToComment").'"><button onclick="sendReply('.$msg["commentID"].')" id="btninput'.$msg["commentID"].'" style="width: max-content;margin-left: 10px;padding: 8px;" class="btn-rendel"><i style="color:white" class="fa-regular fa-paper-plane" aria-hidden="true"></i></button></div>';
-  	$comments .= '<div style="width: 100%;display: flex;flex-wrap: wrap;justify-content: center;">
-			<div class="profile"><div style="display:flex"><h2 class="profilenick">'.$accname.'</h2><p style="text-align:right">'.$stats.'</p></div>
-			<h3 class="profilemsg">'.$message.'</h3>
-			<h3 id="comments"><div id="replyBtn'.$msg["commentID"].'">'.$replies.'</div><i style="display: none;margin-right: 10px;color: white;font-size: 13px;" id="spin'.$msg["commentID"].'" class="fa-solid fa-spinner fa-spin"></i>'.$input.''.$dl->convertToDate($time, true).'</h3></div>
-			<div style="width: 90%;" id="reply'.$msg["commentID"].'"></div>
+  	$comments .= '<div class="gd-comment">
+			<div class="gd-comment-head">
+				<button type="button" class="gd-comment-author" style="cursor:default">'.$accname.'</button>
+				<span class="gd-chip gd-chip--ghost" style="margin-left:auto"><i class="fa-regular fa-thumbs-up"></i> '.trim($msg["likes"]).'</span>
+			</div>
+			<p class="gd-comment-body">'.$message.'</p>
+			<div class="gd-comment-foot">
+				<div id="replyBtn'.$msg["commentID"].'" style="display:contents">'.$replies.'</div>
+				<i style="display:none" id="spin'.$msg["commentID"].'" class="fa-solid fa-spinner fa-spin"></i>
+				'.$input.'
+				<span class="spacer"></span>
+				<span>'.$dl->convertToDate($time, true).'</span>
+			</div>
+			<div id="reply'.$msg["commentID"].'"></div>
 		</div>';
 }
-if(empty($comments)) $comments = '<p class="profile" style="font-size:25px;color:#c0c0c0">'.$dl->getLocalizedString("empty").'</p>';
+if(empty($comments)) $comments = '<div class="gd-empty" style="width:100%"><i class="fa-regular fa-comment-dots"></i><p>'.$dl->getLocalizedString("empty").'</p></div>';
 $msgtopl = '<form method="post" action="messenger/'.$accname.'"><button type="button" onclick="a(\'messenger/'.$accname.'\', true, true, \'GET\')" class="msgupd" name="accountID" value="'.$accid.'"><i class="fa-regular fa-comment" aria-hidden="true"></i></button></form>';
 if($accid == $_SESSION["accountID"]) {
-	if(empty($comments)) $comments = '<p class="profile" style="font-size:25px;color:#c0c0c0">'.$dl->getLocalizedString("writeSomething").'</p>';
-	$send = '<div class="field" style="margin-top:10px">
-		<form method="post" action=""><input type="text" name="msg" id="p1" placeholder="'.$dl->getLocalizedString("msg").'"></input>
-		<button type="button" onclick="a(\'profile/'.$accname.'\', true, true, \'POST\')" style="margin-top: 10px;" class="btn-primary" id="submit">'.$dl->getLocalizedString("send").'</button></form>
-	</div>';
+	if(empty($comments)) $comments = '<div class="gd-empty" style="width:100%"><i class="fa-regular fa-comment-dots"></i><p>'.$dl->getLocalizedString("writeSomething").'</p></div>';
+	$send = '<form method="post" action="" class="gd-inlineform" style="margin-top:4px">
+		<input type="text" name="msg" id="p1" placeholder="'.$dl->getLocalizedString("msg").'" aria-label="'.$dl->getLocalizedString("msg").'" style="flex:1">
+		<button type="button" onclick="a(\'profile/'.$accname.'\', true, true, \'POST\')" class="gd-btn gd-btn--primary" id="submit">'.$dl->getLocalizedString("send").'</button>
+	</form>';
 	$msgtopl = '<form method="post" name="settingsform"><input type="hidden" name="settings" value="1"><button type="button" onclick="a(\'profile/'.$accname.'/settings\', true, true, \'POST\', false, \'settingsform\')" title="'.$dl->getLocalizedString("settings").'" class="msgupd" name="settings" value="1"><i class="fa-solid fa-user-gear" aria-hidden="true"></i></button></form>';
 } else {
 	$privacySettings = $db->prepare("SELECT mS FROM accounts WHERE accountID = :receiver");
@@ -300,11 +308,12 @@ if($accid == $_SESSION["accountID"]) {
 	if(($privacySettings == 1 && !$gs->isFriends($accid, $_SESSION["accountID"])) || $privacySettings == 2 || $block > 0) $msgtopl = '';
 }
 if($_SESSION["accountID"] == 0) $msgtopl = '';
-if($res["dlPoints"] != 0) $points = '<i class="fa-solid fa-medal dlpoints"> '.$res["dlPoints"].'</i>';
+$points = '';
+if($res["dlPoints"] != 0) $points = '<span class="gd-chip gd-chip--gold" title="Creator points"><i class="fa-solid fa-medal"></i>'.$res["dlPoints"].'</span>';
 if($gs->isPlayerInClan($accid)) {
 	$claninfo = $gs->getClanInfo($res["clan"]);
 	if($claninfo["clanOwner"] == $accid) $own = '<i style="color:#ffff91" class="fa-solid fa-crown"></i>';
-	$clan = '<button type="button" onclick="a(\'clan/'.$claninfo["clan"].'\', true, true)" style="display:contents;cursor:pointer"><h2 class="music" style="grid-gap:5px;color:#'.$claninfo["color"].'">'.$claninfo["clan"].$own.'</h2></button>';
+	$clan = '<button type="button" class="gd-chip" onclick="a(\'clan/'.$claninfo["clan"].'\', true, true)" style="color:#'.$claninfo["color"].';border-color:#'.$claninfo["color"].'55"><i class="fa-solid fa-dungeon"></i>'.htmlspecialchars($claninfo["clan"]).$own.'</button>';
 }
 $kit = '<div class="icon-kit-div">
 	<img src="'.$iconsRendererServer.'/icon.png?type=cube&value='.($res['accIcon'] ? $res['accIcon'] : 1).'&color1='.$res['color1'].'&color2='.$res['color2'].($res['accGlow'] && $res['accGlow'] != 0 ? '&glow='.$res['accGlow'].'&color3='.$res['color3'] : '').'" class="icon-kit-icon icon-cube" style="opacity: 0;">
@@ -326,19 +335,38 @@ $kit = '<div class="icon-kit-div">
 	<img src="'.$iconsRendererServer.'/icon.png?type=jetpack&value='.($res['accJetpack'] ? $res['accJetpack'] : 1).'&color1='.$res['color1'].'&color2='.$res['color2'].($res['accGlow'] && $res['accGlow'] != 0 ? '&glow='.$res['accGlow'].'&color3='.$res['color3'] : '').'" class="icon-kit-icon icon-jetpack" style="opacity: 0; animation-delay: 450ms;">
 </div>';
 
-$dl->printSong('<div class="form profileform">
-    	<div style="height: 100%;width: 100%;"><div style="display: flex;align-items: center;justify-content: center;">
-        	'.$back.'
-              <div class="profilewclanname">'.$maybeban.$clan.'</div>'.$msgtopl.$points.'
+$heroAvatar = '<img class="gd-profhero-avatar" src="'.$iconsRendererServer.'/icon.png?type=cube&value='.($res['accIcon'] ? $res['accIcon'] : 1).'&color1='.$res['color1'].'&color2='.$res['color2'].($res['accGlow'] && $res['accGlow'] != 0 ? '&glow='.$res['accGlow'].'&color3='.$res['color3'] : '').'" alt="">';
+$statcell = function($icon, $value, $label) {
+	return '<div class="gd-statcell"><i class="fa-solid '.$icon.'" aria-hidden="true"></i><div><div class="gd-statcell-value">'.number_format($value).'</div><div class="gd-statcell-label">'.$label.'</div></div></div>';
+};
+$statsRow = $statcell('fa-star', $res['stars'], $dl->getLocalizedString("statStars"))
+	.$statcell('fa-moon', $res['moons'], $dl->getLocalizedString("statMoons"))
+	.$statcell('fa-gem', $res['diamonds'], $dl->getLocalizedString("statDiamonds"))
+	.$statcell('fa-coins', $res['coins'], $dl->getLocalizedString("statCoins"))
+	.$statcell('fa-coins', $res['userCoins'], $dl->getLocalizedString("statUserCoins"))
+	.$statcell('fa-dragon', $res['demons'], $dl->getLocalizedString("statDemons"))
+	.$statcell('fa-screwdriver-wrench', $res['creatorPoints'], $dl->getLocalizedString("statCreator"));
+$dl->printSong('<div class="gd-profhero gd-kawung-band">
+            '.$back.'
+            '.$heroAvatar.'
+            <div class="gd-profhero-info">
+                <h1 class="gd-profhero-name" style="color:rgb('.$gs->getAccountCommentColor($accid).')">'.$accname.$badgeImg.'</h1>
+                <div class="gd-profhero-sub">'.$clan.'</div>
+            </div>
+            <div class="gd-profhero-actions">
+                '.$points.'
+                '.$msgtopl.'
+            </div>
         </div>
-        <div class="form-control profile-stats">'.$all.'</div>
-		<div class="form-control icon-kit">'.$kit.'</div>
-        <div class="form-control dmbox profile-comments">
+        <div class="gd-statrow">'.$statsRow.'</div>
+        <div class="gd-section-head"><h2 class="gd-display">'.$dl->getLocalizedString("profileIconKit").'</h2></div>
+        <div class="gd-iconkit">'.$kit.'</div>
+        <div class="gd-section-head"><h2 class="gd-display">'.$dl->getLocalizedString("profileComments").'</h2></div>
+        <div class="gd-list" style="margin-bottom:var(--sp-4)">
         	'.$comments.'
         </div>
-		'.$send.'
-</div></div>
-<script>
+        '.$send.'
+        <script>
 '.(isset($msgTooLong) ? 'alert("You cannot post account comments above '.$maxAccountCommentLength.' characters!");':'').'
 function reply(id) {
 	document.getElementById("spin" + id).style.display = "block";
@@ -445,4 +473,3 @@ function b64DecodeUnicode(str) {
     }).join(\'\'));
 }
 </script>', 'profile');
-?>

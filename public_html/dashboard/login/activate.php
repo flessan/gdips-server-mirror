@@ -97,17 +97,24 @@ if(!empty($_POST["userName"]) && !empty($_POST["password"])){
 		</form></div>');
 	}
 } else {
-	 $dl->printSong('<div class="form">
+	 $dl->printSong('<div class="gd-authwrap"><div class="gd-authcard">
+		<div class="gd-authbrand">
+			<img src="'.$dashboardIcon.'" alt="">
+			<b>GD<i>IPS</i></b>
+			<span>Geometry Dash Indonesia</span>
+		</div>
 		<h1>'.$dl->getLocalizedString("activateAccount").'</h1>
 		<form class="form__inner" method="post" action="">
 		<p>'.$dl->getLocalizedString("activateDesc").'</p>
-		<div class="field"><input type="text" name="userName" id="p1" placeholder="'.$dl->getLocalizedString("enterUsername").'"></div>
-		<div class="field"><input type="password" name="password" id="p2" placeholder="'.$dl->getLocalizedString("enterPassword").'"></div>
+		<div class="field"><input type="text" name="userName" id="p1" placeholder="'.$dl->getLocalizedString("enterUsername").'" aria-label="'.$dl->getLocalizedString("enterUsername").'" autocomplete="username"></div>
+		<div class="field"><input type="password" name="password" id="p2" placeholder="'.$dl->getLocalizedString("enterPassword").'" aria-label="'.$dl->getLocalizedString("enterPassword").'" autocomplete="current-password"></div>
 		');
 		Captcha::displayCaptcha();
         echo '
-		<button type="submit" class="btn-primary" id="submit11">'.$dl->getLocalizedString("activate").'</button>
-	</form></div>';
+		<button type="submit" class="gd-btn gd-btn--primary" id="submit11">'.$dl->getLocalizedString("activate").'</button>
+	</form>
+	<div class="gd-authfoot"><a href="login/login.php" onclick="a(\'login/login.php\', true, true);return false;">&larr; '.$dl->getLocalizedString("loginBox").'</a></div>
+	</div></div>';
 }
 } else {
 	$dl->printSong('<div class="form">

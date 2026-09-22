@@ -33,7 +33,7 @@ if(!empty($search)) {
 				} else exit(json_encode(["dashboard" => true, "success" => false, "error" => 4]));
 			} else exit(json_encode(["dashboard" => true, "success" => false, "error" => 3]));
 		} else {
-			$explode = explode(" - ", str_replace(" — ", " - ", $search), 2);
+			$explode = explode(" - ", str_replace(" - ", " - ", $search), 2);
 			if(!$explode[1]) {
 				$author = $name = $search;
 				$separator = 'OR';

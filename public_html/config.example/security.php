@@ -60,17 +60,17 @@ $vpns['vpn'] = 'https://raw.githubusercontent.com/X4BNet/lists_vpn/main/output/v
 /*
 	GDPS automod config
 
-	$warningsPeriod — period of time in seconds, when new warnings of same type won't show to prevent warn spamming
+	$warningsPeriod - period of time in seconds, when new warnings of same type won't show to prevent warn spamming
 
-	$levelsCountModifier — modifier to yesterday levels count to avoid small levels increase warning
+	$levelsCountModifier - modifier to yesterday levels count to avoid small levels increase warning
 		if(Levels today > Levels yesterday * Levels modifier) WARNING;
-	$levelsCheckPeriod — what period of time in seconds to check
+	$levelsCheckPeriod - what period of time in seconds to check
 	
-	$accountsCountModifier — modifier to yesterday accounts count to avoid small accounts increase warning
+	$accountsCountModifier - modifier to yesterday accounts count to avoid small accounts increase warning
 		if(Accounts today > Accounts yesterday * Accounts modifier) WARNING;
-	$accountsCheckPeriod — what period of time in seconds to check
+	$accountsCheckPeriod - what period of time in seconds to check
 	
-	$commentsCheckPeriod — comments posted in this period of time in seconds will be checked
+	$commentsCheckPeriod - comments posted in this period of time in seconds will be checked
 		600 is 10 minutes, so comments posted in last 10 minutes would be checked
 */
 

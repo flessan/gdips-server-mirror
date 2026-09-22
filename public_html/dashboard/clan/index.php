@@ -447,30 +447,36 @@ if(!empty($clan)) {
     if($dontmind == 1) $dm = 0; elseif($dontmind < 5 AND $dontmind > 0) $dm = 1; else $dm = 2;
     if($membercount > 9 AND $membercount < 20) $dm = 2;
 	$clanDescription = $dl->parseMessage(htmlspecialchars($clan["desc"]));
-    if($_SESSION["accountID"] != 0 AND $clan["clanOwner"] != $_SESSION["accountID"] AND !empty($membermenu)) $menu = '<li class="nav-item dropdown dropleft" style="position: absolute;right: 8px; list-style-type: none;top: 8px;">
+    if($_SESSION["accountID"] != 0 AND $clan["clanOwner"] != $_SESSION["accountID"] AND !empty($membermenu)) $menu = '<li class="nav-item dropdown dropleft" style="list-style-type:none;position:relative">
 					<a style="margin: 0px;padding: 10px 17px; font-size: 17px;" class="nav-link dropdown-toggle menu-arrow dropleft msgupd" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="false" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i></a>
-					<div style="background: #141414" class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarDropdownMenuLink">
-						'.$membermenu.'
-					</div>
-				</li>';
-    $dl->printSong('<div class="form profileform">
-    	<div style="height: 100%;width: 100%;"><div style="display: flex;align-items: center;justify-content: center;">
-    	<style>.menu-arrow::after {display:none}</style>
-        	'.$back.'<div style="display: flex;flex-direction: column;align-items: center">'.$clanname.'</div>'.$settings.$menu.'
+						<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+							'.$membermenu.'
+						</div>
+					</li>';
+    $dl->printSong('<div class="gd-clanhero gd-kawung-band" style="--clan-color:#'.htmlspecialchars($clan["color"]).'">
+        <div class="gd-clanhero-accent" aria-hidden="true"></div>
+        <div class="gd-pagehead-row">
+            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-width:0">
+                '.$back.'
+                <div style="min-width:0">
+                    <h1 class="gd-display" style="color:#'.htmlspecialchars($clan["color"]).';overflow-wrap:anywhere">['.htmlspecialchars($clan["tag"]).'] '.htmlspecialchars($clan["clan"]).($clan["isClosed"] == 1 ? ' <i class="fa-solid fa-lock" style="font-size:0.8em;color:var(--tx-3)" aria-hidden="true"></i>' : '').'</h1>
+                    <p style="margin:6px 0 0;font-size:var(--fs-sm);color:var(--tx-3)"><i class="fa-solid fa-crown" style="color:var(--kuning)"></i> '.$dl->getLocalizedString("clanOwner").' <span style="color:var(--tx-2)">'.$gs->getAccountName($clan["clanOwner"]).'</span></p>
+                </div>
+            </div>
+            <div class="gd-pagehead-actions">'.$settings.$menu.'</div>
         </div>
-        <p class="clandesc">'.$clanDescription.'</p>
-		<div>
-            '.$total.'
+        <p class="clandesc" style="max-width:72ch;margin:var(--sp-4) 0 0">'.$clanDescription.'</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:var(--sp-4)">
+            <span class="gd-chip gd-chip--blue"><i class="fa-solid fa-user-group"></i>'.sprintf($dl->getLocalizedString("members".$dm), max(0, $membercount)).'</span>
+            <span class="gd-chip"><i class="fa-solid fa-calendar"></i>'.$dl->convertToDate($clan["creationDate"], true).'</span>
         </div>
-        <div>
-            <h3 class="clanownertext">'.$dl->getLocalizedString("clanOwner").'</h3>
-            <div class="form-control clan-owner-form">'.$owner.'</div>
-        </div>
-        <div>
-            <div style="width:100%;display:flex;justify-content: space-between;"><h3 class="clanmemberstext" style="text-align: left;">'.$dl->getLocalizedString("clanMembers").'</h3>
-            <h3 class="clanmemberstext" style="text-align: right;">'.sprintf($dl->getLocalizedString("members".$dm), $membercount).'</h3></div>
-            <div class="form-control dmbox" style="overflow-wrap: anywhere;display: flex;border-radius: 30px;flex-wrap: wrap;padding-top: 0;max-height: 33.5vh;padding-bottom: 10px;min-width: 100%;height: max-content;margin-bottom: 17px;align-items: center;">
-        	'.$members.'
-</div></div></div>', 'profile');
+    </div>
+    <div class="gd-section">
+        <div class="gd-section-head"><h2 class="gd-display">'.$dl->getLocalizedString("clanMembers").'</h2><span class="gd-chip" style="margin-left:auto">'.$membercount.'</span></div>
+        <div style="margin-bottom:var(--sp-4)">'.$total.'</div>
+        <div class="gd-section-head" style="margin-top:var(--sp-6)"><h2 class="gd-display">'.$dl->getLocalizedString("clanOwner").'</h2></div>
+        <div class="form-control clan-owner-form">'.$owner.'</div>
+        <div class="gd-list" style="margin-top:var(--sp-4)">'.$members.'</div>
+    </div>', 'profile');
 }
 ?>

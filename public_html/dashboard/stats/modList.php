@@ -17,7 +17,7 @@ if(!isset($_GET["search"])) $_GET["search"] = "";
 $srcbtn = "";
 if(!empty($_GET["search"])) {
 	$query = $db->prepare("SELECT * FROM accounts INNER JOIN users INNER JOIN roleassign WHERE isActive = 1 AND accounts.accountID = users.extID AND accounts.accountID = roleassign.accountID AND accounts.userName LIKE '%".ExploitPatch::remove($_GET["search"])."%' ORDER BY roleassign.roleID ASC, accounts.userName ASC");
-	$srcbtn = '<button type="button" onclick="a(\''.$pagelol.'\', true, true, \'GET\')"  href="'.$_SERVER["SCRIPT_NAME"].'" style="width: 0%;display: flex;margin-left: 5px;align-items: center;justify-content: center;color: indianred; text-decoration:none" class="btn-primary" title="'.$dl->getLocalizedString("searchCancel").'"><i class="fa-solid fa-xmark"></i></button>';
+	$srcbtn = '<button type="button" onclick="a(\''.$pagelol.'\', true, true, \'GET\')" class="gd-btn gd-btn--ghost" title="'.$dl->getLocalizedString("searchCancel").'" aria-label="'.$dl->getLocalizedString("searchCancel").'"><i class="fa-solid fa-xmark"></i></button>';
 } else $query = $db->prepare("SELECT * FROM accounts INNER JOIN users INNER JOIN roleassign WHERE isActive = 1 AND accounts.accountID = users.extID AND accounts.accountID = roleassign.accountID ORDER BY roleassign.roleID ASC, accounts.userName ASC");
 $query->execute();
 $result = $query->fetchAll();
@@ -38,22 +38,18 @@ foreach($result as &$action) {
 	$query->execute([':id' => $action["accountID"]]);
 	$counts = $query->fetch();
 	$accUserID = $gs->getUserID($action["accountID"]);
-	$accountID = $action["accountID"].' <text style="font-weight: 100;">|</text> '.$accUserID;
-	if($action["accountID"] == $accUserID) $accountID = $action["accountID"];
+	$accountIDText = $action["accountID"].' | '.$accUserID;
+	if($action["accountID"] == $accUserID) $accountIDText = $action["accountID"];
+	$accountID = $action["accountID"];
 	$resultRole = $action["roleID"];
 	$query = $db->prepare("SELECT roleName FROM roles WHERE roleID = :id");
 	$query->execute([':id' => $resultRole]);
 	$resultRole = $query->fetch()["roleName"];
-	if($action["clan"] != 0) {
-		$claninfo = $gs->getClanInfo($action["clan"]);
-		if($claninfo["clanOwner"] == $action["accountID"]) $own = '<i style="color:#ffff91" class="fa-solid fa-crown"></i>';
-		$clan = '<span style="display:contents;cursor:pointer"><h2 class="music" style="width: max-content;margin-left: 5px;grid-gap:5px;color:#'.$claninfo["color"].'">'.$claninfo["clan"].$own.'</h2></span>';
-	}
 	// Avatar management
 	$iconType = ($action['iconType'] > 8) ? 0 : $action['iconType'];
     $iconTypeMap = [0 => ['type' => 'cube', 'value' => $action['accIcon']], 1 => ['type' => 'ship', 'value' => $action['accShip']], 2 => ['type' => 'ball', 'value' => $action['accBall']], 3 => ['type' => 'ufo', 'value' => $action['accBird']], 4 => ['type' => 'wave', 'value' => $action['accDart']], 5 => ['type' => 'robot', 'value' => $action['accRobot']], 6 => ['type' => 'spider', 'value' => $action['accSpider']], 7 => ['type' => 'swing', 'value' => $action['accSwing']], 8 => ['type' => 'jetpack', 'value' => $action['accJetpack']]];
     $iconValue = (isset($iconTypeMap[$iconType]) && $iconTypeMap[$iconType]['value'] > 0) ? $iconTypeMap[$iconType]['value'] : 1;
-    $avatarImg = '<img src="'.$iconsRendererServer.'/icon.png?type=' . $iconTypeMap[$iconType]['type'] . '&value=' . $iconValue . '&color1=' . $action['color1'] . '&color2=' . $action['color2'] . ($action['accGlow'] != 0 ? '&glow=' . $action['accGlow'] . '&color3=' . $action['color3'] : '') . '" alt="avatar" style="width: 31px; object-fit: contain;">';
+    $avatarImg = '<img src="'.$iconsRendererServer.'/icon.png?type=' . $iconTypeMap[$iconType]['type'] . '&value=' . $iconValue . '&color1=' . $action['color1'] . '&color2=' . $action['color2'] . ($action['accGlow'] != 0 ? '&glow=' . $action['accGlow'] . '&color3=' . $action['color3'] : '') . '" alt="" style="width:44px;height:44px;object-fit:contain" loading="lazy">';
     // Badge management
     $badgeImg = '';
     $queryRoleID = $db->prepare("SELECT roleID FROM roleassign WHERE accountID = :accountID");
@@ -65,36 +61,45 @@ foreach($result as &$action) {
             $badgeImg = '<img src="https://raw.githubusercontent.com/Fenix668/GMDprivateServer/master/dashboard/modBadge_0' . $modBadgeLevel . '_001.png" alt="badge" style="width: 34px; height: 34px; margin-left: -3px; margin-top: -3px; vertical-align: middle;">';
         }
     }	
-	$ac = '<p class="profilepic">'.$counts["actionCount"].' <i class="fa-solid fa-circle-play"></i></p>';
-    $lr = '<p class="profilepic">'.$counts["levelsRated"].' <i class="fa-regular fa-star"></i></p>';
-	$stats = $dl->createProfileStats($action['stars'], $action['moons'], $action['diamonds'], $action['coins'], $action['userCoins'], $action['demons'], $action['creatorPoints'], 0, false).$ac.$lr;
+	$ac = '<span class="gd-chip gd-chip--ghost">'.$counts["actionCount"].' <i class="fa-solid fa-circle-play" aria-hidden="true"></i></span>';
+	$lr = '<span class="gd-chip gd-chip--ghost">'.$counts["levelsRated"].' <i class="fa-regular fa-star" aria-hidden="true"></i></span>';
+	$stats = $dl->createProfileStats($action['stars'], $action['moons'], $action['diamonds'], $action['coins'], $action['userCoins'], $action['demons'], $action['creatorPoints'], 0, false);
 	$registerDate = $dl->convertToDate($action["registerDate"], true);
-	$members .= '<div style="width: 100%;display: flex;flex-wrap: wrap;justify-content: center;">
-			<div class="profile"><div style="display: flex;width: 100%;justify-content: space-between;margin-bottom: 7px;align-items: center;">
-				<button style="display:contents;cursor:pointer" type="button" onclick="a(\'profile/'.$action["userName"].'\', true, true, \'GET\')">
-					<div class="acclistdiv">
-						<h2 style="color:rgb('.$gs->getAccountCommentColor($action["accountID"]).');" class="profilenick acclistnick">
-							<div class="accounts-badge-icon-div">'.$avatarImg.' '.$action["userName"].' '.$badgeImg.'</div> '.$clan.'
-						</h2>
-						<h2 class="accresultrole">'.$resultRole.'</h2>
-					</div>
-				</button>
+	if($action["clan"] != 0) {
+		$claninfo = $gs->getClanInfo($action["clan"]);
+		if($claninfo["clanOwner"] == $action["accountID"]) $own = '<i style="color:var(--kuning)" class="fa-solid fa-crown" title="Leader"></i>';
+		$clan = '<span class="gd-chip" style="color:#'.htmlspecialchars($claninfo["color"]).'"><i class="fa-solid fa-dungeon"></i>'.htmlspecialchars($claninfo["clan"]).'</span>';
+	}
+	$members .= '<div class="gd-account">
+		'.$avatarImg.'
+		<div style="min-width:0;flex:1">
+			<div class="gd-account-head">
+				<button type="button" onclick="a(\'profile/'.$action["userName"].'\', true, true, \'GET\')" class="gd-account-name" style="color:rgb('.$gs->getAccountCommentColor($action["accountID"]).')">'.$action["userName"].'</button>'.$badgeImg.' '.$clan.'
+				<span class="gd-chip gd-chip--ghost accresultrole">'.$resultRole.'</span>
 			</div>
-			<div class="form-control song-info" style="display: flex;width: 100%;height: max-content;align-items: center;">'.$stats.'</div>
-			<div class="acccomments"><h3 class="comments" style="margin: 0px;width: max-content;">'.$dl->getLocalizedString("accountID").': <b>'.$accountID.'</b></h3><h3 class="comments" style="justify-content: flex-end;grid-gap: 0.5vh;margin: 0px;width: max-content;">'.$dl->getLocalizedString("registerDate").': <b>'.$registerDate.'</b></h3></div>
-		</div></div>';
+			<div class="gd-account-stats" style="margin-top:10px">'.$stats.$ac.$lr.'</div>
+		</div>
+		<div class="gd-account-foot" style="flex-direction:column;align-items:flex-end;gap:4px">
+			<span>ID <b style="color:var(--tx-2)">'.$accountIDText.'</b></span>
+			<span>'.$dl->getLocalizedString("registerDate").' <b style="color:var(--tx-2)">'.$registerDate.'</b></span>
+		</div>
+	</div>';
 	$x++;
 }
-$pagel = '<div class="form new-form">
-<h1 style="margin-bottom:5px">'.$dl->getLocalizedString("modActions").'</h1>
-<div class="form-control new-form-control">
-		'.$members.'
-	</div></div><form name="searchform" class="form__inner">
-	<div class="field" style="display:flex">
-		<input id="searchinput" style="border-top-right-radius: 0;border-bottom-right-radius: 0;" type="text" name="search" value="'.$_GET["search"].'" placeholder="'.$dl->getLocalizedString("search").'">
-		<button id="searchbutton" type="button" onclick="a(\''.$pagelol.'\', true, true, \'GET\', 69)" style="width: 6%;border-top-left-radius:0px !important;border-bottom-left-radius:0px !important" type="submit" class="btn-primary" title="'.$dl->getLocalizedString("search").'"><i class="fa-solid fa-magnifying-glass"></i></button>
-		'.$srcbtn.'
-	</div>
+$searchbar = '<form name="searchform" class="gd-searchbar" onsubmit="a(\''.$pagelol.'\', true, true, \'GET\', 69);return false;">
+	<input type="text" name="search" value="'.htmlspecialchars($_GET["search"]).'" placeholder="'.$dl->getLocalizedString("search").'" aria-label="'.$dl->getLocalizedString("search").'">
+	<button type="submit" class="gd-btn gd-btn--secondary" title="'.$dl->getLocalizedString("search").'" aria-label="'.$dl->getLocalizedString("search").'"><i class="fa-solid fa-magnifying-glass"></i></button>'
+	.$srcbtn.'
 </form>';
+$pagel = '<div class="gd-pagehead">
+	<p class="gd-eyebrow">GDIPS</p>
+	<div class="gd-pagehead-row">
+		<div>
+			<h1 class="gd-display">'.$dl->getLocalizedString("modActions").'</h1>
+		</div>
+	</div>
+</div>
+<div class="gd-toolbar">'.$searchbar.'</div>
+<div class="gd-list">'.$members.'</div>';
 $dl->printPage($pagel.$bottomrow, true, "stats");
 ?>

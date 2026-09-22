@@ -73,7 +73,6 @@ if(!empty(ExploitPatch::charclean($_POST['code'])) AND !empty($_POST['password']
 	$auth = $gs->randomString(8);
 	$query = $db->prepare("UPDATE accounts SET password = :password, gjp2 = :gjp, auth = :auth, passCode = '' WHERE accountID = :id");	
 	$test = $query->execute([':auth' => $auth, ':password' => $passhash, ':id' => $accountID, ':gjp' => $gjp2]);
-	var_dump($test);
 	exit($dl->printSong('<div class="form">
 		<h1>'.$dl->getLocalizedString("forgotPasswordChangeTitle").'</h1>
 		<form class="form__inner" method="post" action=".">
@@ -94,18 +93,24 @@ if(!empty($_GET['code'])) {
 			<button type="button" onclick="a(\'login/forgotPassword.php\', true, false, \'GET\')" class="btn btn-primary">'.$dl->getLocalizedString("dashboard").'</button>
 		</form></div>'));
 	} else {
-		exit($dl->printSong('<div class="form">
+		exit($dl->printSong('<div class="gd-authwrap"><div class="gd-authcard">
+			<div class="gd-authbrand">
+				<img src="'.$dashboardIcon.'" alt="">
+				<b>GD<i>IPS</i></b>
+				<span>Geometry Dash Indonesia</span>
+			</div>
 			<h1>'.$dl->getLocalizedString("forgotPasswordChangeTitle").'</h1>
 			<form class="form__inner" method="post" action="">
 				<p>'.$dl->getLocalizedString("changePassDesc").'</p>
-				<div class="field"><input type="password" id="forgotChangeInput1" name="password" placeholder="'.$dl->getLocalizedString("password").'"></div>
+				<div class="field"><input type="password" id="forgotChangeInput1" name="password" placeholder="'.$dl->getLocalizedString("password").'" aria-label="'.$dl->getLocalizedString("password").'" autocomplete="new-password"></div>
 				<text class="samepass" id="forgotChangeText1">'.$dl->getLocalizedString("passDontMatch").'</text>
-				<div class="field"><input type="password" id="forgotChangeInput2" name="repeatpassword" placeholder="'.$dl->getLocalizedString("repeatpassword").'"></div>
+				<div class="field"><input type="password" id="forgotChangeInput2" name="repeatpassword" placeholder="'.$dl->getLocalizedString("repeatpassword").'" aria-label="'.$dl->getLocalizedString("repeatpassword").'" autocomplete="new-password"></div>
 				'.Captcha::displayCaptcha(true).'
-				<button type="button" onclick="a(\'login/forgotPassword.php\', true, false, \'POST\')" class="btn-song" id="submitForgotChange">'.$dl->getLocalizedString("change").'</button>
+				<button type="button" onclick="a(\'login/forgotPassword.php\', true, false, \'POST\')" class="gd-btn gd-btn--primary" id="submitForgotChange">'.$dl->getLocalizedString("change").'</button>
 				<input type="hidden" name="code" value="'.$code.'"></input>
 			</form>
-		</div>'));
+			<div class="gd-authfoot"><a href="login/login.php" onclick="a(\'login/login.php\', true, true);return false;">&larr; '.$dl->getLocalizedString("loginBox").'</a></div>
+		</div></div>'));
 	}
 }
 if(!empty($_POST['username']) && !empty($_POST['email'])) {
@@ -137,15 +142,21 @@ if(!empty($_POST['username']) && !empty($_POST['email'])) {
 		</form>
 	</div>'));
 } else {
-	$dl->printSong('<div class="form">
+	$dl->printSong('<div class="gd-authwrap"><div class="gd-authcard">
+		<div class="gd-authbrand">
+			<img src="'.$dashboardIcon.'" alt="">
+			<b>GD<i>IPS</i></b>
+			<span>Geometry Dash Indonesia</span>
+		</div>
 		<h1>'.$dl->getLocalizedString("forgotPasswordTitle").'</h1>
+		<p>'.$dl->getLocalizedString("forgotPasswordDesc").'</p>
 		<form class="form__inner" method="post" action="">
-			<p>'.$dl->getLocalizedString("forgotPasswordDesc").'</p>
-			<div class="field"><input type="text" id="forgotInput1" name="username" placeholder="'.$dl->getLocalizedString("username").'"></div>
-			<div class="field"><input type="email" name="email" id="forgotInput2" placeholder="'.$dl->getLocalizedString("email").'"></div>
+			<div class="field"><input type="text" id="forgotInput1" name="username" placeholder="'.$dl->getLocalizedString("username").'" aria-label="'.$dl->getLocalizedString("username").'" autocomplete="username"></div>
+			<div class="field"><input type="email" name="email" id="forgotInput2" placeholder="'.$dl->getLocalizedString("email").'" aria-label="'.$dl->getLocalizedString("email").'" autocomplete="email"></div>
 			'.Captcha::displayCaptcha(true).'
-			<button type="button" onclick="a(\'login/forgotPassword.php\', true, false, \'POST\')" class="btn-song" id="submitForgot">'.$dl->getLocalizedString("forgotPasswordButton").'</button>
+			<button type="button" onclick="a(\'login/forgotPassword.php\', true, false, \'POST\')" class="gd-btn gd-btn--primary" id="submitForgot">'.$dl->getLocalizedString("forgotPasswordButton").'</button>
 		</form>
-	</div>');
+		<div class="gd-authfoot"><a href="login/login.php" onclick="a(\'login/login.php\', true, true);return false;">&larr; '.$dl->getLocalizedString("loginBox").'</a></div>
+	</div></div>');
 }
 ?>

@@ -56,7 +56,7 @@ if($_FILES && $_FILES['filename']['error'] == UPLOAD_ERR_OK) {
 					$hash = "";
 					$types = array('.mp3', '.ogg', '.mpeg');
 					$nAu = explode(' - ', str_replace($types, '', $_FILES['filename']['name']), 2);
-					if(empty($nAu[1])) $nAu = explode(' — ', str_replace($types, '', $_FILES['filename']['name']), 2);
+					if(empty($nAu[1])) $nAu = explode(' - ', str_replace($types, '', $_FILES['filename']['name']), 2);
 					if(!empty($nAu[1])) {
 						if(!empty($_POST['name'])) $name = ExploitPatch::rucharclean($_POST['name']);
 						else $name = trim(ExploitPatch::rucharclean($nAu[1]));

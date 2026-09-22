@@ -1,6 +1,6 @@
 <?php
-$servername = '111.111.11.111';
-$port = 3307;
-$username = 'gdps_example';
-$password = '21characterpassword';
-$dbname = 'gdps_example';
+$servername = '127.0.0.1';
+$port = 3306;
+$username = 'root';
+$password = '';
+$dbname = 'gdps_gdi';

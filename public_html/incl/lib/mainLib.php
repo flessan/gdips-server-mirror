@@ -2104,7 +2104,7 @@ class mainLib {
 			$requestedField = $level['requestedStars'] > 0 ? [$this->webhookLanguage('requestedTitle', $webhookLangArray), sprintf($this->webhookLanguage('requestedDesc'.$action, $webhookLangArray), $level['requestedStars']), true] : [];
 			$descriptionField = [$this->webhookLanguage('descTitle', $webhookLangArray), (!empty($level['levelDesc']) ? ExploitPatch::url_base64_decode($level['levelDesc']) : $this->webhookLanguage('descDesc', $webhookLangArray)), false];
 			$songInfo = $this->getSongInfo($level['songID']);
-			$newSongIDField = [$this->webhookLanguage('songTitle', $webhookLangArray), (!empty($level['songID']) ? '**'.$songInfo['authorName'].'** — **'.$songInfo['name'].'**, *'.$songInfo['ID'].'*' : '**'.str_replace(' by ', '** by **', $this->getAudioTrack($level['audioTrack'])).'**'), true];
+			$newSongIDField = [$this->webhookLanguage('songTitle', $webhookLangArray), (!empty($level['songID']) ? '**'.$songInfo['authorName'].'** - **'.$songInfo['name'].'**, *'.$songInfo['ID'].'*' : '**'.str_replace(' by ', '** by **', $this->getAudioTrack($level['audioTrack'])).'**'), true];
 			$unlistedArray = [$this->webhookLanguage('levelIsPublic', $webhookLangArray), $this->webhookLanguage('levelOnlyForFriends', $webhookLangArray), $this->webhookLanguage('levelIsUnlisted', $webhookLangArray)];
 			$unlistedText = $unlistedArray[$level['unlisted']];
 			$newUnlistedField = [$this->webhookLanguage('unlistedTitle', $webhookLangArray), $unlistedText, true];

@@ -4,8 +4,8 @@ class Automod {
 		Automod::checkLevelsCount()
 		This function checks levels upload count to see if there is too many levels uploaded in small time
 		Return value:
-			true — everything is normal, nothing to be scared of
-			false — high levels amount detected! possible raid
+			true - everything is normal, nothing to be scared of
+			false - high levels amount detected! possible raid
 	*/
 	public static function checkLevelsCount() {
 		require __DIR__."/connection.php";
@@ -30,13 +30,13 @@ class Automod {
 	/*
 		self::logAutomodActions($type, $value1, $value2, $value3, $value4, $value5, $value6)
 		This private function logs any automod actions
-		$type — type of action (Number)
-		$value1 — first value of action (Mixed)
-		$value2 — second value of action (Mixed)
-		$value3 — third value of action (Mixed)
-		$value4 — fourth value of action (Mixed)
-		$value5 — fifth value of action (Mixed)
-		$value6 — sixth value of action (Mixed)
+		$type - type of action (Number)
+		$value1 - first value of action (Mixed)
+		$value2 - second value of action (Mixed)
+		$value3 - third value of action (Mixed)
+		$value4 - fourth value of action (Mixed)
+		$value5 - fifth value of action (Mixed)
+		$value6 - sixth value of action (Mixed)
 		Return value:
 			ID of logged action
 	*/
@@ -49,13 +49,13 @@ class Automod {
 	/*
 		self::getLastAutomodAction($type, $limitTime)
 		This private function gets last automod action from SQL
-		$type — type of action (Number)
-		$limitTime — should function return actions from limited time or all actions (Boolean)
-			true — limit action search by $levelsCheckPeriod from config/security.php
-			false — don't limit action search by time
+		$type - type of action (Number)
+		$limitTime - should function return actions from limited time or all actions (Boolean)
+			true - limit action search by $levelsCheckPeriod from config/security.php
+			false - don't limit action search by time
 		Return value:
-			Array — array with action data
-			false — nothing found
+			Array - array with action data
+			false - nothing found
 	*/
 	private static function getLastAutomodAction($type, $limitTime = false) {
 		require __DIR__."/connection.php";
@@ -67,10 +67,10 @@ class Automod {
 	/*
 		Automod::getAutomodActions($types)
 		This function returns all automod actions of $types
-		$types — array of types you want to see, all public types if empty (Array)
+		$types - array of types you want to see, all public types if empty (Array)
 		Return value:
-			Array — array of actions
-			false — nothing found
+			Array - array of actions
+			false - nothing found
 	*/
 	public static function getAutomodActions($types = []) {
 		require __DIR__."/connection.php";
@@ -82,20 +82,20 @@ class Automod {
 	/*
 		Automod::changeAutomodAction($actionID, $isResolved, $value1, $value2, $value3, $value4, $value5, $value6)
 		This function changes automod action values
-		$actionID — ID of action you want to change (Number)
-		$isResolved — is action resolved or not (Number)
-			1 — action is resolved
-			0 — action is not resolved
-		$value1 — change action value 1 (Mixed)
-		$value2 — change action value 2 (Mixed)
-		$value3 — change action value 3 (Mixed)
-		$value4 — change action value 4 (Mixed)
-		$value5 — change action value 5 (Mixed)
-		$value6 — change action value 6 (Mixed)
+		$actionID - ID of action you want to change (Number)
+		$isResolved - is action resolved or not (Number)
+			1 - action is resolved
+			0 - action is not resolved
+		$value1 - change action value 1 (Mixed)
+		$value2 - change action value 2 (Mixed)
+		$value3 - change action value 3 (Mixed)
+		$value4 - change action value 4 (Mixed)
+		$value5 - change action value 5 (Mixed)
+		$value6 - change action value 6 (Mixed)
 			If $value is false, doesn't change value
 		Return value:
-			true — action changed successfully
-			false — something went wrong when changing value
+			true - action changed successfully
+			false - something went wrong when changing value
 	*/
 	public static function changeAutomodAction($actionID, $isResolved, $value1 = false, $value2 = false, $value3 = false, $value4 = false, $value5 = false, $value6 = false) {
 		require __DIR__."/connection.php";
@@ -109,10 +109,10 @@ class Automod {
 	/*
 		Automod::getAutomodActionByID($actionID)
 		This function returns action values by action ID
-		$actionID — action ID you want to find (Number)
+		$actionID - action ID you want to find (Number)
 		Return value:
-			Array — array of action values
-			false — nothing found
+			Array - array of action values
+			false - nothing found
 	*/
 	public static function getAutomodActionByID($actionID) {
 		require __DIR__."/connection.php";
@@ -124,8 +124,8 @@ class Automod {
 		Automod::isLevelsDisabled()
 		This function checks if levels uploading is disabled by automod
 		Return value:
-			true — levels uploading is disabled
-			false — levels uploading is enabled
+			true - levels uploading is disabled
+			false - levels uploading is enabled
 	*/
 	public static function isLevelsDisabled($disableType = 0) {
 		$actionTypes = self::getLevelsDisableTypes();
@@ -143,11 +143,11 @@ class Automod {
 	/*
 		Automod::changeLevelsAutomodState($disableType, $isDisable, $expires)
 		This function change levels automod state
-		$disableType — type of levels disabling (Number)
-		$isDisable — disabling or enabling (Boolean)
-			true — disable state
-			false — enable state
-		$expires — when disabling will expire, required if disabling (Number)
+		$disableType - type of levels disabling (Number)
+		$isDisable - disabling or enabling (Boolean)
+			true - disable state
+			false - enable state
+		$expires - when disabling will expire, required if disabling (Number)
 		Return value: void
 	*/
 	public static function changeLevelsAutomodState($disableType, $isDisable, $expires = 0) {
@@ -163,7 +163,7 @@ class Automod {
 		self::getPublicActionTypes()
 		This private function returns all types of public automod actions
 		Return value:
-			Array — array of public action types
+			Array - array of public action types
 	*/
 	private static function getPublicActionTypes() {
 		return [1, 5, 10, 11, 12, 13, 14, 15];
@@ -172,7 +172,7 @@ class Automod {
 		Automod::getLevelsCountPerDay()
 		This function returns levels count yesterday and today
 		Return value:
-			Array — levels yesterday and today
+			Array - levels yesterday and today
 	*/
 	public static function getLevelsCountPerDay() {
 		require __DIR__."/connection.php";
@@ -194,7 +194,7 @@ class Automod {
 		self::getLevelsDisableTypes()
 		This private function returns all level disables types
 		Return value:
-			Array — array of level disables types
+			Array - array of level disables types
 	*/
 	private static function getLevelsDisableTypes() {
 		return [2, 3, 4];
@@ -203,7 +203,7 @@ class Automod {
 		Automod::getLevelsDisableStates()
 		This function returns expire time of all level disables types
 		Return value:
-			Array — array of expire time of all level disables types
+			Array - array of expire time of all level disables types
 	*/
 	public static function getLevelsDisableStates() {
 		$disableTypes = self::getLevelsDisableTypes();
@@ -232,7 +232,7 @@ class Automod {
 		Automod::getAccountsCountPerDay()
 		This function returns accounts count yesterday and today
 		Return value:
-			Array — accounts yesterday and today
+			Array - accounts yesterday and today
 	*/
 	public static function getAccountsCountPerDay() {
 		require __DIR__."/connection.php";
@@ -254,8 +254,8 @@ class Automod {
 		Automod::checkAccountsCount()
 		This function checks accounts register count to see if there is too many accounts registered in small time
 		Return value:
-			true — everything is normal, nothing to be scared of
-			false — high accounts amount detected! possible raid
+			true - everything is normal, nothing to be scared of
+			false - high accounts amount detected! possible raid
 	*/
 	public static function checkAccountsCount() {
 		require __DIR__."/connection.php";
@@ -281,7 +281,7 @@ class Automod {
 		Automod::getAutomodTypes()
 		This function returns automod types (levels, accounts, etc) according to their action type
 		Return value:
-			Array — array with automod types
+			Array - array with automod types
 	*/
 	public static function getAutomodTypes() {
 		return [1 => 1, 5 => 2, 10 => 3, 11 => 4, 12 => 5, 13 => 6, 14 => 7, 15 => 8];
@@ -290,7 +290,7 @@ class Automod {
 		self::getAccountsDisableTypes()
 		This private function returns all account disables types
 		Return value:
-			Array — array of account disables types
+			Array - array of account disables types
 	*/
 	private static function getAccountsDisableTypes() {
 		return [6, 7, 8, 9];
@@ -299,7 +299,7 @@ class Automod {
 		Automod::getAccountsDisableStates()
 		This function returns expire time of all level disables types
 		Return value:
-			Array — array of expire time of all level disables types
+			Array - array of expire time of all level disables types
 	*/
 	public static function getAccountsDisableStates() {
 		$disableTypes = self::getAccountsDisableTypes();
@@ -333,11 +333,11 @@ class Automod {
 	/*
 		Automod::changeAccountsAutomodState($disableType, $isDisable, $expires)
 		This function change accounts automod state
-		$disableType — type of accounts disabling (Number)
-		$isDisable — disabling or enabling (Boolean)
-			true — disable state
-			false — enable state
-		$expires — when disabling will expire, required if disabling (Number)
+		$disableType - type of accounts disabling (Number)
+		$isDisable - disabling or enabling (Boolean)
+			true - disable state
+			false - enable state
+		$expires - when disabling will expire, required if disabling (Number)
 		Return value: void
 	*/
 	public static function changeAccountsAutomodState($disableType, $isDisable, $expires = 0) {
@@ -353,8 +353,8 @@ class Automod {
 		Automod::isAccountsDisabled()
 		This function checks if levels uploading is disabled by automod
 		Return value:
-			true — levels uploading is disabled
-			false — levels uploading is enabled
+			true - levels uploading is disabled
+			false - levels uploading is enabled
 	*/
 	public static function isAccountsDisabled($disableType = 0) {
 		$actionTypes = self::getAccountsDisableTypes();
@@ -372,10 +372,10 @@ class Automod {
 	/*
 		self::check_comments_similarity($str1, $str2)
 		This private function checks similarity of 2 strings
-		$str1 — string 1 (String)
-		$str2 — string 2 (String)
+		$str1 - string 1 (String)
+		$str2 - string 2 (String)
 		Return value:
-			Number — similarity of strings
+			Number - similarity of strings
 		Taken from https://www.php.net/manual/ru/function.similar-text.php#118799
 	*/
 	private static function check_comments_similarity($str1, $str2) {
@@ -404,10 +404,10 @@ class Automod {
 	/*
 		Automod::similarity($str1, $str2)
 		This function checks similarity of 2 strings 4 times with different algorithms and returns greatest value
-		$str1 — string 1 (String)
-		$str2 — string 2 (String)
+		$str1 - string 1 (String)
+		$str2 - string 2 (String)
 		Return value:
-			Number — similarity of strings
+			Number - similarity of strings
 		https://gcs.skin/WTFIcons/checking_speed.png
 	*/
 	public static function similarity($str1, $str2) {
@@ -424,10 +424,10 @@ class Automod {
 	/*
 		Automod::checkCommentsSpamming($userID)
 		This function checks last comments for spamming
-		$userID — user ID of latest comment author (Number)
+		$userID - user ID of latest comment author (Number)
 		Return value:
-			true — everything is good, no spamming
-			false — spamming detected!
+			true - everything is good, no spamming
+			false - spamming detected!
 	*/
 	public static function checkCommentsSpamming($userID) {
 		require __DIR__."/connection.php";
@@ -495,10 +495,10 @@ class Automod {
 	/*
 		Automod::checkAccountPostsSpamming($userID)
 		This function checks last account posts for spamming
-		$userID — user ID of latest post author (Number)
+		$userID - user ID of latest post author (Number)
 		Return value:
-			true — everything is good, no spamming
-			false — spamming detected!
+			true - everything is good, no spamming
+			false - spamming detected!
 	*/
 	public static function checkAccountPostsSpamming($userID) {
 		require __DIR__."/connection.php";
@@ -566,10 +566,10 @@ class Automod {
 	/*
 		Automod::checkRepliesSpamming($accountID)
 		This function checks last replies for spamming
-		$userID — account ID of latest reply author (Number)
+		$userID - account ID of latest reply author (Number)
 		Return value:
-			true — everything is good, no spamming
-			false — spamming detected!
+			true - everything is good, no spamming
+			false - spamming detected!
 	*/
 	public static function checkRepliesSpamming($accountID) {
 		require __DIR__."/connection.php";

@@ -6,102 +6,191 @@ require $dbPath."incl/lib/connection.php";
 require $dbPath."incl/lib/mainLib.php";
 $gs = new mainLib();
 require $dbPath."config/dashboard.php";
+$install = '';
 if(!$installed) header('Location: install.php');
-if(isset($_GET["installed"])) $install = '<div style="margin-top:20px;margin-bottom:0px;width:80%" class="notify notify-show"><p>'.$dl->getLocalizedString("tipsAfterInstalling").'</p></div>'; 
-$dl->printFooter();
-$downloadlinks = '';
-$name = $gs->getAccountName($_SESSION["accountID"]);
-global $pc;
-global $mac;
-global $android;
-global $ios;
-global $pcLauncher;
-global $macLauncher;
-global $androidLauncher;
-global $iosLauncher;
-if(empty($name)) {
-	$namebtn = $dl->getLocalizedString("guest");
-	if((file_exists("download/".$gdps.".zip") OR file_exists("../download/".$gdps.".zip")) AND empty($pcLauncher)) $downloadlinks .= '<a class="dropdown-item dontblock" href="download/'.$gdps.'.zip"><div class="icon"><i class="fa-brands fa-windows" aria-hidden="false"></i></div>'.$dl->getLocalizedString("forwindows").'</a>';
-    elseif(!empty($pcLauncher)) $downloadlinks .='<a class="dropdown-item dontblock" href="download/'.$pcLauncher.'"><div class="icon"><i class="fa-brands fa-windows" aria-hidden="false"></i></div>'.$dl->getLocalizedString("forwindows").'</a>';
-    elseif(!empty($pc)) $downloadlinks .='<a class="dropdown-item dontblock" href="'.$pc.'"><div class="icon"><i class="fa-brands fa-windows" aria-hidden="false"></i></div>'.$dl->getLocalizedString("forwindows").'</a>';
-	if((file_exists("download/".$gdps.".dmg") OR file_exists("../download/".$gdps.".dmg")) AND empty($macLauncher)) $downloadlinks .='<a class="dropdown-item dontblock" href="download/'.$gdps.'.dmg"><i class="fa-solid fa-desktop" style="position: absolute;font-size: 10px;margin: 3px 5px 5px -6px;" aria-hidden="false"></i><div class="icon"><i class="fa-brands fa-apple" aria-hidden="false"></i></div>'.$dl->getLocalizedString("formac").'</a>';
-    elseif(!empty($macLauncher)) $downloadlinks .='<a class="dropdown-item dontblock" href="download/'.$macLauncher.'"><i class="fa-solid fa-desktop" style="position: absolute;font-size: 10px;margin: 3px 5px 5px -6px;" aria-hidden="false"></i><div class="icon"><i class="fa-brands fa-apple" aria-hidden="false"></i></div>'.$dl->getLocalizedString("formac").'</a>';
-    elseif(!empty($mac)) $downloadlinks .='<a class="dropdown-item dontblock" href="'.$mac.'"><i class="fa-solid fa-desktop" style="position: absolute;font-size: 10px;margin: 3px 5px 5px -6px;" aria-hidden="false"></i><div class="icon"><i class="fa-brands fa-apple" aria-hidden="false"></i></div>'.$dl->getLocalizedString("formac").'</a>';
-	if((file_exists("download/".$gdps.".apk") OR file_exists("../download/".$gdps.".apk")) AND empty($androidLauncher)) $downloadlinks .='<a class="dropdown-item dontblock" href="download/'.$gdps.'.apk"><div class="icon"><i class="fa-brands fa-android" aria-hidden="false"></i></div>'.$dl->getLocalizedString("forandroid").'</a>';
-    elseif(!empty($androidLauncher)) $downloadlinks .='<a class="dropdown-item dontblock" href="download/'.$androidLauncher.'"><div class="icon"><i class="fa-brands fa-android" aria-hidden="false"></i></div>'.$dl->getLocalizedString("forandroid").'</a>';
-    elseif(!empty($android)) $downloadlinks .='<a class="dropdown-item dontblock" href="'.$android.'"><div class="icon"><i class="fa-brands fa-android" aria-hidden="false"></i></div>'.$dl->getLocalizedString("forandroid").'</a>';
-	if((file_exists("download/".$gdps.".ipa") OR file_exists("../download/".$gdps.".ipa")) AND empty($iosLauncher)) $downloadlinks .='<a class="dropdown-item dontblock" href="download/'.$gdps.'.ipa"><i class="fa-solid fa-mobile-screen-button" style="position: absolute;font-size: 10px;margin: 3px 5px 5px -3px;" aria-hidden="false"></i><div class="icon"><i class="fa-brands fa-apple" aria-hidden="false"></i></div>'.$dl->getLocalizedString("forios").'</a>';
-    elseif(!empty($iosLauncher)) $downloadlinks .='<a class="dropdown-item dontblock" href="download/'.$iosLauncher.'"><i class="fa-solid fa-mobile-screen-button" style="position: absolute;font-size: 10px;margin: 3px 5px 5px -3px;" aria-hidden="false"></i><div class="icon"><i class="fa-brands fa-apple" aria-hidden="false"></i></div>'.$dl->getLocalizedString("forios").'</a>';
-    elseif(!empty($ios)) $downloadlinks .='<a class="dropdown-item dontblock" href="'.$ios.'"><i class="fa-solid fa-mobile-screen-button" style="position: absolute;font-size: 10px;margin: 3px 5px 5px -3px;" aria-hidden="false"></i><div class="icon"><i class="fa-brands fa-apple" aria-hidden="false"></i></div>'.$dl->getLocalizedString("forios").'</a>';
-	$accountcards = '<button onclick="a(\'login/login.php\')" style="background:none;border:none;cursor:pointer;width: 100%;padding: 0px;border-radius: 30px;"><div class="lilcard"><div class="lilcardcontent"><div style="margin-right: 10px;">
-					<div style="display: flex;justify-content: space-between;align-items: center;"><h1 class="mainpagecardh1"><div class="icon" style="font-size: 25px;height: 50px;width: 50px;"><i class="fa-solid fa-sign-in"></i></div>'.$dl->getLocalizedString("login").'</h1></div>
-					<p class="mpp">'.$dl->getLocalizedString("loginOptDesc").'</p></div></div></div>
-				</button>
-				<button onclick="a(\'login/register.php\')" style="background:none;border:none;cursor:pointer;width: 100%;padding: 0px;border-radius: 30px;"><div class="lilcard"><div class="lilcardcontent"><div style="margin-right: 10px;">
-					<div style="display: flex;justify-content: space-between;align-items: center;"><h1 class="mainpagecardh1"><i class="fa-solid fa-plus" style="position: absolute;font-size: 15px;margin: 5px 5px 5px -2px;" aria-hidden="false"></i><div class="icon mph1" style="font-size: 25px;height: 50px;width: 50px;"><i class="fa-solid fa-user"></i></div>'.$dl->getLocalizedString("createAcc").'</h1></div>
-					<p class="mpp">'.sprintf($dl->getLocalizedString("registerOptDesc"), $gdps).'</p></div></div></div>
-				</button>
-				<button onclick="download()" style="background:none;border:none;cursor:pointer;width: 100%;padding: 0px;border-radius: 30px;"><div class="lilcard"><div class="lilcardcontent"><div style="margin-right: 10px;">
-					<div style="display: flex;justify-content: space-between;align-items: center;"><h1 class="mainpagecardh1"><div class="icon mph1" style="font-size: 25px;height: 50px;width: 50px;"><i class="fa-solid fa-download"></i></div>'.$dl->getLocalizedString("download").'</h1></div>
-					<p class="mpp">'.sprintf($dl->getLocalizedString("downloadOptDesc"), $gdps).'</p></div></div></div>
-				</button>
-				<div id="downloadid" style="display:none;font-size: 24px;display: none;grid-gap: 10px;">'.$downloadlinks.'</div>';
-} else {
-	$namebtn = '<button onclick="a(\'profile/'.$name.'\', true, true, \'GET\')" style="padding:0;font-weight: 900;background:none;border:none;cursor:pointer;color:rgb('.$gs->getAccountCommentColor($_SESSION["accountID"]).')">'.$name.'</button>';
-	$accountcards = '<button onclick="a(\'profile/'.$name.'\', true, true, \'GET\')" style="background:none;border:none;cursor:pointer;width: 100%;padding: 0px;border-radius: 30px;"><div class="lilcard"><div class="lilcardcontent"><div style="margin-right: 10px;">
-					<div style="display: flex;justify-content: space-between;align-items: center;"><h1 class="mainpagecardh1"><div class="icon mph1" style="font-size: 25px;height: 50px;width: 50px;"><i class="fa-solid fa-dungeon"></i></div>'.$dl->getLocalizedString("yourProfile").'</h1></div>
-					<p class="mpp">'.$dl->getLocalizedString("profileOptDesc").'</p></div></div></div>
-				</button>
-				<button onclick="a(\'messenger\')" style="background:none;border:none;cursor:pointer;width: 100%;padding: 0px;border-radius: 30px;"><div class="lilcard"><div class="lilcardcontent"><div style="margin-right: 10px;">
-					<div style="display: flex;justify-content: space-between;align-items: center;"><h1 class="mainpagecardh1"><div class="icon mph1" style="font-size: 25px;height: 50px;width: 50px;"><i class="fa-solid fa-comments"></i></div>'.$dl->getLocalizedString("messenger").'</h1></div>
-					<p class="mpp">'.$dl->getLocalizedString("messengerOptDesc").'</p></div></div></div>
-				</button>
-	<button onclick="a(\'songs\')" style="background:none;border:none;cursor:pointer;width: 100%;padding: 0px;border-radius: 30px;"><div class="lilcard"><div class="lilcardcontent"><div style="margin-right: 10px;">
-					<div style="display: flex;justify-content: space-between;align-items: center;"><h1 class="mainpagecardh1"><i class="fa-solid fa-plus mpsmall" style="position: absolute;font-size: 15px;margin: 5px 5px 5px -2px;" aria-hidden="false"></i><div class="icon mph1" style="font-size: 25px;height: 50px;width: 50px;"><i class="fa-solid fa-music"></i></div>'.$dl->getLocalizedString("songAdd").'</h1></div>
-					<p class="mpp">'.$dl->getLocalizedString("addSongOptDesc").'</p></div></div></div>
-				</button>';
+if(isset($_GET["installed"])) $install = '<div class="gd-alert gd-alert--ok" style="margin-bottom:16px"><i class="fa-solid fa-circle-check"></i><p style="margin:0">'.$dl->getLocalizedString("tipsAfterInstalling").'</p></div>';
+$logged = isset($_SESSION["accountID"]) AND $_SESSION["accountID"] != 0;
+$dl->title($dl->getLocalizedString("homeNavbar"));
+
+/* ------------------------------------------------------------------ *
+ *  Greeting                                                          *
+ * ------------------------------------------------------------------ */
+$hour = date("G");
+if($hour >= 5 AND $hour < 11) $greet = $dl->getLocalizedString("greetMorning");
+elseif($hour >= 11 AND $hour < 15) $greet = $dl->getLocalizedString("greetAfternoon");
+elseif($hour >= 15 AND $hour < 18) $greet = $dl->getLocalizedString("greetEvening");
+else $greet = $dl->getLocalizedString("greetNight");
+$name = $logged ? htmlspecialchars($gs->getAccountName($_SESSION["accountID"])) : "";
+$heroTitle = $logged ? $greet.', <span style="color:var(--merah-strong)">'.$name.'</span>' : $dl->getLocalizedString("homeHeroTitleGuest");
+$heroSub = $dl->getLocalizedString($logged ? "homeHeroSubAuth" : "homeHeroSubGuest");
+
+/* ------------------------------------------------------------------ *
+ *  Server numbers (one slim band - not a wall of stats)              *
+ * ------------------------------------------------------------------ */
+$count = function($sql, $params = []) use ($db) {
+	$q = $db->prepare($sql);
+	$q->execute($params);
+	return (int)$q->fetchColumn();
+};
+$levelCount = $count("SELECT count(*) FROM levels WHERE unlisted = 0");
+$songCount = $count("SELECT count(*) FROM songs WHERE isDisabled = 0");
+$playerCount = $count("SELECT count(*) FROM accounts WHERE isActive = 1");
+$clanCount = $clansEnabled ? $count("SELECT count(*) FROM clans") : 0;
+
+/* ------------------------------------------------------------------ *
+ *  Content queries                                                   *
+ * ------------------------------------------------------------------ */
+$featuredCards = $recentCards = $playerRows = $songRows = $clanCards = '';
+
+$q = $db->prepare("SELECT * FROM levels WHERE unlisted = 0 AND (starFeatured > 0 OR starEpic > 0) ORDER BY uploadDate DESC LIMIT 4");
+$q->execute();
+$featured = $q->fetchAll();
+foreach($featured as $level) $featuredCards .= $dl->generateMiniLevelCard($level);
+
+$q = $db->prepare("SELECT * FROM levels WHERE unlisted = 0 ORDER BY uploadDate DESC LIMIT 6");
+$q->execute();
+$recent = $q->fetchAll();
+foreach($recent as $level) $recentCards .= $dl->generateMiniLevelCard($level);
+
+$q = $db->prepare("SELECT userName, stars, iconType, color1, color2, color3, accGlow, accIcon, accShip, accBall, accBird, accDart, accRobot, accSpider, accSwing, accJetpack FROM users WHERE stars > 0 AND extID != '' AND extID != '0' ORDER BY stars DESC LIMIT 5");
+$q->execute();
+$x = 0;
+foreach($q->fetchAll() as $user) $playerRows .= $dl->generateMiniPlayerRow(++$x, $user);
+
+$q = $db->prepare("SELECT * FROM songs WHERE isDisabled = 0 AND reuploadID > 0 ORDER BY reuploadTime DESC LIMIT 5");
+$q->execute();
+foreach($q->fetchAll() as $song) $songRows .= $dl->generateMiniSongRow($song);
+
+if($clansEnabled) {
+	$q = $db->prepare("SELECT clans.*, COUNT(users.clan) AS members FROM clans LEFT JOIN users ON clans.id = users.clan GROUP BY clans.id ORDER BY members DESC LIMIT 3");
+	$q->execute();
+	foreach($q->fetchAll() as $clan) $clanCards .= $dl->generateMiniClanCard($clan, $clan["members"]);
 }
-$claaan = $gs->isPlayerInClan($_SESSION["accountID"]);
-if($claaan) {
-	$clan = $gs->getClanInfo($claaan);
-	$clancard = '<button onclick="a(\'clan/'.$clan["clan"].'\', true, true)" style="background:none;border:none;cursor:pointer;width: 100%;padding: 0px;border-radius: 30px;"><div class="lilcard"><div class="lilcardcontent"><div style="margin-right: 10px;">
-					<div style="display: flex;justify-content: space-between;align-items: center;"><h1 class="mainpagecardh1" style="color:#'.$clan["color"].'"><div class="icon mph1" style="color:white;font-size: 25px;height: 50px;width: 50px;"><i class="fa-solid fa-dungeon"></i></div>'.$clan["clan"].'</h1></div>
-					<p class="mpp">'.sprintf($dl->getLocalizedString("yourClanOptDesc"), $clan["clan"]).'</p></div></div></div>
-				</button>';
-} else $clancard = '<button onclick="a(\'clans\')" style="background:none;border:none;cursor:pointer;width: 100%;padding: 0px;border-radius: 30px;"><div class="lilcard"><div class="lilcardcontent"><div style="margin-right: 10px;">
-					<div style="display: flex;justify-content: space-between;align-items: center;"><h1 class="mainpagecardh1"><div class="icon mph1" style="font-size: 25px;height: 50px;width: 50px;"><i class="fa-solid fa-dungeon"></i></div>'.$dl->getLocalizedString("clans").'</h1></div>
-					<p class="mpp">'.$dl->getLocalizedString("clanOptDesc").'</p></div></div></div>
-				</button>';
-$dl->printSong($install.'<div class="maindiv">
-	<h1 class="welcomeh1" style="width:100%;color:white;text-align:center">'.sprintf($dl->getLocalizedString("loginHeader"), "<text style=''>".$namebtn."</text>").'</h1>
-	<p class="welcomep" id="bruh">'.$dl->getLocalizedString("welcome").'</p>
-	<h3 class="welcomeh3" style="color: white;font-style: italic;">'.$dl->getLocalizedString("wwygdt").'</h3>
-	<div class="secondarydiv">
-		<div class="form mainlist">
-			<p style="font-size: 27px;">'.$dl->getLocalizedString("game").'</p>
-			<div style="width:100%;grid-gap: 10px;display: grid;">
-				<button onclick="a(\'stats/levelsList.php\')" style="background:none;border:none;cursor:pointer;width: 100%;padding: 0px;border-radius: 30px;"><div class="lilcard"><div class="lilcardcontent"><div style="margin-right: 10px;">
-					<div style="display: flex;justify-content: space-between;align-items: center;"><h1 class="mainpagecardh1"><div class="icon mph1" style="font-size: 25px;height: 50px;width: 50px;"><i class="fa-solid fa-gamepad"></i></div>'.$dl->getLocalizedString("levels").'</h1></div>
-					<p class="mpp">'.$dl->getLocalizedString("levelsOptDesc").'</p></div></div></div>
-				</button>
-				<button onclick="a(\'stats/songList.php\')" style="background:none;border:none;cursor:pointer;width: 100%;padding: 0px;border-radius: 30px;"><div class="lilcard"><div class="lilcardcontent"><div style="margin-right: 10px;">
-					<div style="display: flex;justify-content: space-between;align-items: center;"><h1 class="mainpagecardh1"><div class="icon mph1" style="font-size: 25px;height: 50px;width: 50px;"><i class="fa-solid fa-music"></i></div>'.$dl->getLocalizedString("songs").'</h1></div>
-					<p class="mpp">'.$dl->getLocalizedString("songsOptDesc").'</p></div></div></div>
-				</button>
-				'.$clancard.'
-			</div>
-		</div>
-		<div class="form mainlist last">
-			<p style="font-size: 27px;">'.$dl->getLocalizedString("account").'</p>
-			<div style="width:100%;grid-gap: 10px;display: grid;">'.$accountcards.'</div>
+
+/* ------------------------------------------------------------------ *
+ *  Shortcuts                                                         *
+ * ------------------------------------------------------------------ */
+$shortcut = function($href, $icon, $label, $badge = '') {
+	return '<a class="gd-shortcut" href="'.$href.'" onclick="a(\''.$href.'\', true, true);return false;"><i class="fa-solid '.$icon.' gd-sc-ico"></i><span>'.$label.'</span>'.$badge.'</a>';
+};
+$shortcuts = '';
+if($logged) {
+	$unread = $db->prepare("SELECT count(*) FROM messages WHERE toAccountID = :acc AND isNew = 0");
+	$unread->execute([':acc' => $_SESSION["accountID"]]);
+	$unread = (int)$unread->fetchColumn();
+	$shortcuts .= $shortcut('profile/'.$name, 'fa-id-badge', $dl->getLocalizedString("yourProfile"));
+	$shortcuts .= $shortcut('messenger', 'fa-comments', $dl->getLocalizedString("messenger"), $unread > 0 ? '<span class="new-messages-notify">'.$unread.'</span>' : '');
+	if(strpos($songEnabled, '1') !== false) $shortcuts .= $shortcut('songs', 'fa-file-audio', $dl->getLocalizedString("songAdd"));
+	if($lrEnabled == 1) $shortcuts .= $shortcut('levels/levelReupload.php', 'fa-cloud-arrow-down', $dl->getLocalizedString("levelReupload"));
+	$userClan = $gs->isPlayerInClan($_SESSION["accountID"]);
+	if($userClan) {
+		$clanInfo = $gs->getClanInfo($userClan);
+		$shortcuts .= $shortcut('clan/'.htmlspecialchars($clanInfo["clan"]), 'fa-dungeon', htmlspecialchars($clanInfo["clan"]));
+	} elseif($clansEnabled) $shortcuts .= $shortcut('clans/create.php', 'fa-dungeon', $dl->getLocalizedString("createClan"));
+	$shortcuts .= $shortcut('stats/unlisted.php', 'fa-eye-slash', $dl->getLocalizedString("unlistedLevels"));
+} else {
+	$shortcuts .= $shortcut('login/login.php', 'fa-sign-in', $dl->getLocalizedString("login"));
+	$shortcuts .= $shortcut('login/register.php', 'fa-user-plus', $dl->getLocalizedString("createAcc"));
+	$shortcuts .= $shortcut('stats/levelsList.php', 'fa-gamepad', $dl->getLocalizedString("levels"));
+	$shortcuts .= $shortcut('stats/songList.php', 'fa-music', $dl->getLocalizedString("songs"));
+	if($clansEnabled) $shortcuts .= $shortcut('clans', 'fa-dungeon', $dl->getLocalizedString("clans"));
+}
+
+/* ------------------------------------------------------------------ *
+ *  Open-source strip                                                 *
+ * ------------------------------------------------------------------ */
+$repo = $dl->gdProjectRepo();
+$ossStrip = '<section class="gd-section"><div class="gd-oss">
+	<div>
+		<h2><i class="fa-brands fa-github" aria-hidden="true"></i>'.$dl->getLocalizedString("ossStripTitle").'</h2>
+		<p>'.$dl->getLocalizedString("ossStripBody").'</p>
+		<div class="gd-oss-links">
+			<a class="gd-btn gd-btn--primary" href="'.htmlspecialchars($repo).'" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i>'.$dl->getLocalizedString("sourceCode").'</a>
+			<a class="gd-btn gd-btn--secondary" href="'.$dl->gdProjectUrl().'">'.$dl->getLocalizedString("aboutProject").'</a>
 		</div>
 	</div>
+	<ul class="gd-oss-points">
+		<li><i class="fa-solid fa-circle-check"></i>'.$dl->getLocalizedString("ossPoint1").'</li>
+		<li><i class="fa-solid fa-circle-check"></i>'.$dl->getLocalizedString("ossPoint2").'</li>
+		<li><i class="fa-solid fa-circle-check"></i>'.$dl->getLocalizedString("ossPoint3").'</li>
+		<li><i class="fa-solid fa-circle-check"></i>'.$dl->getLocalizedString("ossPoint4").'</li>
+	</ul>
+</div></section>';
+
+$install = '';
+
+/* ------------------------------------------------------------------ *
+ *  Page assembly                                                     *
+ * ------------------------------------------------------------------ */
+$content = $install.'
+<section class="gd-hero gd-kawung-band">
+	<p class="gd-hero-kicker"><span style="display:inline-flex;align-items:center;gap:6px"><i class="fa-solid fa-circle" style="font-size:0.5rem;color:var(--ok)"></i>'.$dl->getLocalizedString("homeServerOnline").'</span></p>
+	<h1 class="gd-display">'.$heroTitle.'</h1>
+	<p class="gd-hero-sub">'.$heroSub.'</p>
+	<div class="gd-hero-actions">
+		<button type="button" class="gd-btn gd-btn--primary" onclick="a(\'stats/levelsList.php\')"><i class="fa-solid fa-gamepad"></i>'.$dl->getLocalizedString("levels").'</button>
+		<button type="button" class="gd-btn gd-btn--secondary" onclick="a(\'project/\')"><i class="fa-solid fa-circle-info"></i>'.$dl->getLocalizedString("aboutProject").'</button>
+	</div>
+	<p class="gd-hero-note"><i class="fa-solid fa-star" aria-hidden="true"></i>'.$dl->getLocalizedString("footerBuilt").'</p>
+</section>
+
+<div class="gd-statband" role="list">
+	<div class="gd-stat" role="listitem"><span class="gd-stat-value">'.number_format($levelCount).'</span><span class="gd-stat-label"><i class="fa-solid fa-gamepad"></i> '.$dl->getLocalizedString("statLevels").'</span></div>
+	<div class="gd-stat" role="listitem"><span class="gd-stat-value">'.number_format($songCount).'</span><span class="gd-stat-label"><i class="fa-solid fa-music"></i> '.$dl->getLocalizedString("statSongs").'</span></div>
+	<div class="gd-stat" role="listitem"><span class="gd-stat-value">'.number_format($playerCount).'</span><span class="gd-stat-label"><i class="fa-solid fa-users"></i> '.$dl->getLocalizedString("statPlayers").'</span></div>
+	<div class="gd-stat" role="listitem"><span class="gd-stat-value">'.number_format($clanCount).'</span><span class="gd-stat-label"><i class="fa-solid fa-dungeon"></i> '.$dl->getLocalizedString("statClans").'</span></div>
 </div>
-<script>
-	function download() {
-		div = document.getElementById("downloadid");
-		if(div.style.display == "none") div.style.display = "grid";
-		else div.style.display = "none";
-	}
-</script>', "home", false);
+
+<div class="gd-motif" aria-hidden="true"><i class="fa-solid fa-gem"></i></div>
+
+<section class="gd-section">
+	<div class="gd-section-head">
+		<h2 class="gd-display">'.$dl->getLocalizedString("yourShortcuts").'</h2>
+	</div>
+	<div class="gd-shortcuts">'.$shortcuts.'</div>
+</section>
+
+	<section class="gd-section">
+	<div class="gd-section-head">
+		<h2 class="gd-display">'.$dl->getLocalizedString("featuredLevels").'</h2>
+		<a class="gd-link-more" href="stats/levelsList.php" onclick="a(\'stats/levelsList.php?sort=featured\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
+	</div>
+	<div class="gd-levelgrid">'.($featuredCards !== '' ? $featuredCards : '<div class="gd-empty" style="grid-column:1/-1"><i class="fa-regular fa-face-smile-beam"></i><p>'.$dl->getLocalizedString("empty").'</p></div>').'</div>
+</section>
+
+<section class="gd-section">
+	<div class="gd-section-head">
+		<h2 class="gd-display">'.$dl->getLocalizedString("recentLevels").'</h2>
+		<a class="gd-link-more" href="stats/levelsList.php" onclick="a(\'stats/levelsList.php\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
+	</div>
+	<div class="gd-levelgrid">'.$recentCards.'</div>
+</section>
+
+<div class="gd-grid gd-grid--2">
+	<section class="gd-section">
+		<div class="gd-section-head"><h2 class="gd-display">'.$dl->getLocalizedString("topPlayers").'</h2></div>
+		<div class="gd-playerlist">'.($playerRows !== '' ? $playerRows : '<div class="gd-empty"><i class="fa-solid fa-user-slash"></i><p>'.$dl->getLocalizedString("empty").'</p></div>').'</div>
+	</section>
+	<section class="gd-section">
+		<div class="gd-section-head">
+			<h2 class="gd-display">'.$dl->getLocalizedString("newSongs").'</h2>
+			<a class="gd-link-more" href="stats/songList.php" onclick="a(\'stats/songList.php\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
+		</div>
+		<div class="gd-playerlist">'.($songRows !== '' ? $songRows : '<div class="gd-empty"><i class="fa-solid fa-music"></i><p>'.$dl->getLocalizedString("empty").'</p></div>').'</div>
+	</section>
+</div>
+
+'.($clansEnabled && $clanCards !== '' ? '<section class="gd-section">
+	<div class="gd-section-head">
+		<h2 class="gd-display">'.$dl->getLocalizedString("activeClans").'</h2>
+		<a class="gd-link-more" href="clans" onclick="a(\'clans\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
+	</div>
+	<div class="gd-grid gd-grid--3">'.$clanCards.'</div>
+</section>' : '').'
+
+'.$ossStrip;
+
+$dl->printPage($content, false, "home");
+$dl->printFooter();
 ?>
+

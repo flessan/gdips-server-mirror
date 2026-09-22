@@ -27,7 +27,7 @@ $seltype = !empty($_GET["type"]) ? ExploitPatch::number($_GET["type"]) : 0;
 $selname = !empty($_GET["who"]) ? ExploitPatch::number($_GET["who"]) : 0;
 if(!empty($_GET["type"]) OR !empty($_GET["who"])) {
 	$where = 'WHERE';
-	$srcbtn = '<button type="button" onclick="a(\''.$pagelol.'\', true, true, \'GET\')"  href="'.$_SERVER["SCRIPT_NAME"].'" style="width: 0%;display: flex;margin-left: 5px;align-items: center;justify-content: center;color: indianred; text-decoration:none" class="btn-primary" title="'.$dl->getLocalizedString("searchCancel").'"><i class="fa-solid fa-xmark"></i></button>';
+	$srcbtn = '<button type="button" onclick="a(\''.$pagelol.'\', true, true, \'GET\')" class="gd-btn gd-btn--ghost" title="'.$dl->getLocalizedString("searchCancel").'" aria-label="'.$dl->getLocalizedString("searchCancel").'"><i class="fa-solid fa-xmark"></i></button>';
 }
 else $where = '';
 $requesttype = !empty($_GET["type"]) ? 'type = '.ExploitPatch::number($_GET["type"]) : '';
@@ -276,14 +276,18 @@ foreach($mods as &$mod) {
 	$name = $gs->getAccountName($mod["accountID"]);
 	$options .= '<option value="'.$mod["accountID"].'">'.$name.'</option>';
 };
-$pagel = '<div class="form new-form">
-<h1 style="margin-bottom:5px">'.$dl->getLocalizedString("modActionsList").'</h1>
-<div class="form-control new-form-control">
-		'.$members.'
-	</div></div><form method="get" name="searchform" class="form__inner">
-	<div class="field" style="display:flex">
-		<select id="sel1" style="border-top-right-radius: 0;margin:0;border-bottom-right-radius: 0;" name="type" value="'.$_GET["type"].'" placeholder="'.$dl->getLocalizedString("search").'">
-		    <option value="0">'.$dl->getLocalizedString("everyActions").'</option>
+$pagel = '<div class="gd-pagehead">
+	<p class="gd-eyebrow">GDIPS</p>
+	<div class="gd-pagehead-row">
+		<div>
+			<h1 class="gd-display">'.$dl->getLocalizedString("modActionsList").'</h1>
+		</div>
+	</div>
+</div>
+<div class="gd-toolbar">
+<form method="get" name="searchform" class="gd-searchbar" onsubmit="a(\''.$pagelol.'\', true, true, \'GET\', 69);return false;">
+	<select id="sel1" class="gd-input" name="type">
+		<option value="0">'.$dl->getLocalizedString("everyActions").'</option>
 			<option value="1">'.$dl->getLocalizedString("modAction1").' (1)</option>
 			<option value="2">'.$dl->getLocalizedString("modAction2").' (2)</option>
 			<option value="3">'.$dl->getLocalizedString("modAction3").' (3)</option>
@@ -304,10 +308,10 @@ $pagel = '<div class="form new-form">
 			<option value="18">'.$dl->getLocalizedString("modAction18").' (18)</option>
 			<option value="19">'.$dl->getLocalizedString("modAction19").' (19)</option>
 			<option value="20">'.$dl->getLocalizedString("modAction20").' (20)</option>
-            <option value="21">'.$dl->getLocalizedString("modAction21").' (21)</option>
-            <option value="22">'.$dl->getLocalizedString("modAction22").' (22)</option>
-            <option value="23">'.$dl->getLocalizedString("modAction23").' (23)</option>
-            <option value="24">'.$dl->getLocalizedString("modAction24").' (24)</option>
+			<option value="21">'.$dl->getLocalizedString("modAction21").' (21)</option>
+			<option value="22">'.$dl->getLocalizedString("modAction22").' (22)</option>
+			<option value="23">'.$dl->getLocalizedString("modAction23").' (23)</option>
+			<option value="24">'.$dl->getLocalizedString("modAction24").' (24)</option>
 			<option value="25">'.$dl->getLocalizedString("modAction25").' (25)</option>
 			<option value="26">'.$dl->getLocalizedString("modAction26").' (26)</option>
 			<option value="27">'.$dl->getLocalizedString("modAction27").' (27)</option>
@@ -324,19 +328,20 @@ $pagel = '<div class="form new-form">
 			<option value="38">'.$dl->getLocalizedString("modAction38").' (38)</option>
 			<option value="39">'.$dl->getLocalizedString("modAction39").' (39)</option>
 			<option value="40">'.$dl->getLocalizedString("modAction40").' (40)</option>
-         	<option value="41">'.$dl->getLocalizedString("modAction41").' (41)</option>
-         	<option value="42">'.$dl->getLocalizedString("modAction42").' (42)</option>
-         	<option value="43">'.$dl->getLocalizedString("modAction43").' (43)</option>
-         	<option value="44">'.$dl->getLocalizedString("modAction44").' (44)</option>
-		</select>
-		<select id="sel2" style="border-radius: 0;margin:0;width:35%" name="who" value="'.$_GET["who"].'" placeholder="'.$dl->getLocalizedString("search").'">
-			<option value="0">'.$dl->getLocalizedString("everyMod").'</option>
-			'.$options.'
-		</select>
-		<button type="button" onclick="a(\''.$pagelol.'\', true, true, \'GET\', 69)"  style="width: 6%;border-top-left-radius:0px !important;border-bottom-left-radius:0px !important" type="submit" class="btn-primary" title="'.$dl->getLocalizedString("search").'"><i class="fa-solid fa-magnifying-glass"></i></button>
-		'.$srcbtn.'
-	</div>
-</form>';
+			<option value="41">'.$dl->getLocalizedString("modAction41").' (41)</option>
+			<option value="42">'.$dl->getLocalizedString("modAction42").' (42)</option>
+			<option value="43">'.$dl->getLocalizedString("modAction43").' (43)</option>
+			<option value="44">'.$dl->getLocalizedString("modAction44").' (44)</option>
+	</select>
+	<select id="sel2" class="gd-input" name="who">
+		<option value="0">'.$dl->getLocalizedString("everyMod").'</option>
+		'.$options.'
+	</select>
+	<button type="submit" class="gd-btn gd-btn--secondary" title="'.$dl->getLocalizedString("search").'" aria-label="'.$dl->getLocalizedString("search").'"><i class="fa-solid fa-magnifying-glass"></i></button>
+	'.$srcbtn.'
+</form>
+</div>
+<div class="gd-list">'.$members.'</div>';
 $query = $db->prepare("SELECT count(*) FROM modactions $where $requesttype $requestwho");
 $query->execute();
 $packcount = $query->fetchColumn();

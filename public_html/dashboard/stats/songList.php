@@ -21,60 +21,61 @@ $pagelol = explode("?", $pagelol)[0];
 if(!isset($_GET["search"])) $_GET["search"] = "";
 if(!isset($_GET["type"])) $_GET["type"] = "";
 if(!isset($_GET["ng"])) $_GET["ng"] = "";
-$srcbtn = $favs = $meta = "";
+$srcbtn = $favs = $meta = $songs = "";
 $ngw = $_GET["ng"] == 1 ? '' : 'AND reuploadID > 0';
-if(!empty(trim(ExploitPatch::rucharclean($_GET["search"])))) {
-	$q = is_numeric(trim(ExploitPatch::rucharclean($_GET["search"]))) ? "ID LIKE '%".trim(ExploitPatch::rucharclean($_GET["search"]))."%'" : "(name LIKE '%".trim(ExploitPatch::rucharclean($_GET["search"]))."%' OR authorName LIKE '%".trim(ExploitPatch::rucharclean($_GET["search"]))."%')";
-	$srcbtn = '<button type="button" onclick="a(\''.$pagelol.'\', true, true, \'GET\')"  href="'.$_SERVER["SCRIPT_NAME"].'" style="width: 0%;display: flex;margin-left: 5px;align-items: center;justify-content: center;color: indianred; text-decoration:none" class="btn-primary" title="'.$dl->getLocalizedString("searchCancel").'"><i class="fa-solid fa-xmark"></i></button>';
-	$query = $db->prepare("SELECT * FROM songs WHERE isDisabled = 0 AND $q $ngw ORDER BY reuploadTime DESC LIMIT 10 OFFSET $page");
-	$query->execute();
-	$result = $query->fetchAll();
-	if(empty($result)) {
-		$dl->printSong('<div class="form">
-		<h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
-		<form class="form__inner" method="post" action="'.$_SERVER["SCRIPT_NAME"].'">
-			<p id="dashboard-error-text">'.$dl->getLocalizedString("emptySearch").'</p>
-			<button type="button" onclick="a(\'stats/songList.php\', true, false, \'GET\')" class="btn-primary">'.$dl->getLocalizedString("tryAgainBTN").'</button>
-		</form>
-	</div>');
-		die();
-	} 
-} else {
-	$query = $db->prepare("SELECT * FROM songs WHERE isDisabled = 0 $ngw ORDER BY reuploadTime DESC LIMIT 10 OFFSET $page");
-	$query->execute();
-	$result = $query->fetchAll();
+$where = "isDisabled = 0 $ngw";
+$params = [];
+$searchValue = trim(ExploitPatch::rucharclean($_GET["search"]));
+if(!empty($searchValue)) {
+	$where .= is_numeric($searchValue) ? " AND ID LIKE :search" : " AND (name LIKE :search OR authorName LIKE :search)";
+	$params[':search'] = "%".$searchValue."%";
 }
-$x = 0;
-if(empty($result)) {
-	$dl->printSong('<div class="form">
-    <h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
-    <form class="form__inner" method="post" action=".">
-		<p id="dashboard-error-text">'.$dl->getLocalizedString("emptyPage").'</p>
-        <button type="button" onclick="a(\'\', true, false, \'GET\')" class="btn-primary">'.$dl->getLocalizedString("dashboard").'</button>
-    </form>
-</div>', 'browse');
-	die();
-} 
-foreach($result as &$action) {
-	$x++;
-	$songs .= $dl->generateSongCard($action);
-}
-$pagel = '<div class="form new-form">
-<h1 style="margin-bottom:5px">'.$dl->getLocalizedString("songs").'</h1>
-<div class="form-control new-form-control songs">
-		'.$songs.'
-	</div></div><form name="searchform" class="form__inner">
-	<div class="field" style="display:flex">
-		<input id="searchinput" style="border-top-right-radius: 0;border-bottom-right-radius: 0;" type="text" name="search" value="'.$_GET["search"].'" placeholder="'.$dl->getLocalizedString("search").'">
-		<button id="searchbutton" type="button" onclick="a(\''.$pagelol.'\', true, true, \'GET\', 69)" style="width: 6%;border-top-left-radius:0px !important;border-bottom-left-radius:0px !important" type="submit" class="btn-primary" title="'.$dl->getLocalizedString("search").'"><i class="fa-solid fa-magnifying-glass"></i></button>
-		'.$srcbtn.'
-	</div>
+$query = $db->prepare("SELECT * FROM songs WHERE $where ORDER BY reuploadTime DESC LIMIT 10 OFFSET $page");
+$query->execute($params);
+$result = $query->fetchAll();
+
+$searchbar = '<form name="searchform" class="gd-searchbar" onsubmit="a(\''.$pagelol.'\', true, true, \'GET\', 69);return false;">
+	<input type="text" name="search" value="'.htmlspecialchars($searchValue).'" placeholder="'.$dl->getLocalizedString("search").'" aria-label="'.$dl->getLocalizedString("search").'">
+	<button type="submit" class="gd-btn gd-btn--secondary" title="'.$dl->getLocalizedString("search").'" aria-label="'.$dl->getLocalizedString("search").'"><i class="fa-solid fa-magnifying-glass"></i></button>'
+	.(!empty($searchValue) ? '<button type="button" class="gd-btn gd-btn--ghost" title="'.$dl->getLocalizedString("searchCancel").'" aria-label="'.$dl->getLocalizedString("searchCancel").'" onclick="a(\''.$pagelol.'\', true, true, \'GET\')"><i class="fa-solid fa-xmark"></i></button>' : '').'
 </form>';
-if(!empty(trim($_GET["search"]))) $query = $db->prepare("SELECT count(*) FROM songs WHERE isDisabled = 0 AND $q $ngw");
-else $query = $db->prepare("SELECT count(*) FROM songs WHERE isDisabled = 0 $ngw");
-$query->execute();
+
+/* Newgrounds library filter */
+$ngOn = $_GET["ng"] == 1;
+$ngQs = http_build_query(array_filter(["search" => $searchValue, "ng" => $ngOn ? "" : "1"]));
+$filters = '<a class="gd-filter'.($ngOn ? ' is-on' : '').'" href="'.htmlspecialchars($pagelol.(!empty($ngQs) ? "?".$ngQs : "")).'" onclick="a(\''.htmlspecialchars($pagelol.(!empty($ngQs) ? "?".$ngQs : "")).'\', true, true);return false;"><i class="fa-solid fa-record-vinyl"></i>'.($ngOn ? 'Newgrounds ✕' : 'Newgrounds?').'</a>';
+
+foreach($result as &$action) $songs .= $dl->generateSongCard($action);
+
+$query = $db->prepare("SELECT count(*) FROM songs WHERE $where");
+$query->execute($params);
 $packcount = $query->fetchColumn();
 $pagecount = ceil($packcount / 10);
+
+$pagel = '<div class="gd-pagehead">
+	<p class="gd-eyebrow">GDIPS</p>
+	<div class="gd-pagehead-row">
+		<div>
+			<h1 class="gd-display">'.$dl->getLocalizedString("songs").'</h1>
+			<p class="gd-pagehead-sub">'.number_format($packcount).' '.$dl->getLocalizedString("songs").'</p>
+		</div>
+	</div>
+</div>
+<div class="gd-toolbar">
+	'.$searchbar.'
+	<div class="gd-toolbar-spacer"></div>
+	<div class="gd-inlineform">'.$filters.'</div>
+</div>
+<div class="gd-list">';
+if(empty($result)) {
+	$pagel .= '<div class="gd-empty"><i class="fa-solid fa-music"></i><p>'.(empty($searchValue) ? $dl->getLocalizedString("emptyPage") : $dl->getLocalizedString("noResults")).'</p>'
+		.(!empty($searchValue) ? '<button type="button" class="gd-btn gd-btn--secondary" onclick="a(\''.$pagelol.'\', true, true, \'GET\')"><i class="fa-solid fa-xmark"></i>'.$dl->getLocalizedString("searchCancel").'</button>' : '')
+		.'</div>';
+} else {
+	$pagel .= $songs;
+}
+$pagel .= '</div>';
+
 $bottomrow = $dl->generateBottomRow($pagecount, $actualpage);
-$dl->printPage($pagel . $bottomrow, true, "browse");
+$dl->printPage($pagel.$bottomrow, true, "songs");
 ?>

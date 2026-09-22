@@ -160,21 +160,27 @@ if(!empty($_POST["username"]) AND !empty($_POST["email"]) AND !empty($_POST["rep
 		}
 	}
 }else{
-	$dl->printSong('<div class="form">
+	$dl->printSong('<div class="gd-authwrap"><div class="gd-authcard">
+		<div class="gd-authbrand">
+			<img src="'.$dashboardIcon.'" alt="">
+			<b>GD<i>IPS</i></b>
+			<span>Geometry Dash Indonesia</span>
+		</div>
 		<h1>'.$dl->getLocalizedString("registerAcc").'</h1>
-		<form class="form__inner" method="post" action="">
-			<p>'.$dl->getLocalizedString("registerDesc").'</p>
-			<div class="field"><input type="text" id="registerInput1" name="username" placeholder="'.$dl->getLocalizedString("username").'"></div>
-			<div class="field"><input type="password" id="registerInput2" name="password" placeholder="'.$dl->getLocalizedString("password").'"></div>
+		<form class="form__inner" method="post" action="" style="text-align:left">
+			<p style="text-align:left">'.$dl->getLocalizedString("registerDesc").'</p>
+			<input type="text" id="registerInput1" name="username" placeholder="'.$dl->getLocalizedString("username").'" aria-label="'.$dl->getLocalizedString("username").'" autocomplete="username">
+			<input type="password" id="registerInput2" name="password" placeholder="'.$dl->getLocalizedString("password").'" aria-label="'.$dl->getLocalizedString("password").'" autocomplete="new-password">
 			<text class="samepass" id="registerText1">'.$dl->getLocalizedString("passDontMatch").'</text>
-			<div class="field"><input type="password" id="registerInput3" name="repeatpassword" placeholder="'.$dl->getLocalizedString("repeatpassword").'"></div>
-			<div class="field"><input type="email" name="email" id="registerInput4" placeholder="'.$dl->getLocalizedString("email").'"></div>
+			<input type="password" id="registerInput3" name="repeatpassword" placeholder="'.$dl->getLocalizedString("repeatpassword").'" aria-label="'.$dl->getLocalizedString("repeatpassword").'" autocomplete="new-password">
+			<input type="email" name="email" id="registerInput4" placeholder="'.$dl->getLocalizedString("email").'" aria-label="'.$dl->getLocalizedString("email").'">
 			<text class="samepass" id="registerText2">'.$dl->getLocalizedString("emailDontMatch").'</text>
-			<div class="field"><input type="email" name="repeatemail" id="registerInput5" placeholder="'.$dl->getLocalizedString("repeatemail").'"></div>
+			<input type="email" name="repeatemail" id="registerInput5" placeholder="'.$dl->getLocalizedString("repeatemail").'" aria-label="'.$dl->getLocalizedString("repeatemail").'" autocomplete="email">
 			'.Captcha::displayCaptcha(true).'
-			<button type="submit" class="btn-song" id="submitRegister">'.$dl->getLocalizedString("register").'</button>
+			<button type="submit" class="gd-btn gd-btn--primary" id="submitRegister">'.$dl->getLocalizedString("register").'</button>
 		</form>
-	</div>');
+		<div class="gd-authfoot">'.$dl->getLocalizedString("haveAccountYet").' <a href="login/login.php" onclick="a(\'login/login.php\', true, true);return false;">'.$dl->getLocalizedString("login").'</a></div>
+	</div></div>');
 }
 } else {
 	$dl->printSong('<div class="form">
