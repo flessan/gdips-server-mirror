@@ -4,7 +4,7 @@ session_start();
 require __DIR__."/../incl/dashboardLib.php";
 require __DIR__."/../../incl/lib/connection.php";
 require __DIR__."/../../incl/lib/badgeLib.php";
-require __DIR__."/../../incl/lib/adminLib.php";
+require_once __DIR__."/../../incl/lib/adminLib.php";
 
 $dl = new dashboardLib();
 $dl->title("Roles");
