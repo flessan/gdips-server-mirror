@@ -243,7 +243,7 @@ if($msgEnabled == 1 AND $logged) {
 		}
 
 		/* ---- navigation model ---- */
-		$main = '';
+		$main = 'dashboard';
 		$main .= $this->gdNavItem('', 'fa-house', $this->getLocalizedString("homeNavbar"), $active === "home");
 		$main .= $this->gdNavItem('stats/levelsList.php', 'fa-gamepad', $this->getLocalizedString("levels"), in_array($active, ["browse", "levels"], true));
 		$main .= $this->gdNavItem('stats/songList.php', 'fa-music', $this->getLocalizedString("songs"), $active === "songs");
