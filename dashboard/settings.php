@@ -2,9 +2,9 @@
 
 session_start();
 
-require "incl/dashboardLib.php";
-require "../".$dbPath."incl/lib/connection.php";
-require "../".$dbPath."incl/lib/configEditor.php";
+require __DIR__."/incl/dashboardLib.php";
+require __DIR__."/../incl/lib/connection.php";
+require __DIR__."/../incl/lib/configEditor.php";
 
 $dl = new dashboardLib();
 $editor = new gdConfigEditor();
