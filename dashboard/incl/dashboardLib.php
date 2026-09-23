@@ -1,10 +1,37 @@
 <?php
 $dbPath = '../'; // Path to main directory. It needs to point to main endpoint files. If you didn't change dashboard place, don't change this value. Usually it's '../' (cuz dashboard folder is inside main endpoints folder) (https://imgur.com/a/P8LdhzY).
+if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 require __DIR__."/../".$dbPath."config/dashboard.php";
 require_once __DIR__."/../".$dbPath."incl/lib/badgeLib.php";
 require_once "auth.php";
 $au = new au();
 $dashCheck = $au->auth($dbPath);
+
+/*
+ * Web dashboard authentication gate.
+ * Game endpoints remain public for Geometry Dash clients, but dashboard
+ * pages require an account. The existing auth cookie can restore the
+ * session automatically on returning devices.
+ */
+$gdipsAuthPages = [
+    'login.php',
+    'register.php',
+    'activate.php',
+    'forgotPassword.php',
+    'api.php'
+];
+$gdipsCurrentScript = basename($_SERVER['SCRIPT_FILENAME'] ?? '');
+$gdipsLoggedIn = !empty($_SESSION['accountID']);
+
+if (!$gdipsLoggedIn && $dashCheck !== 'no' && !in_array($gdipsCurrentScript, $gdipsAuthPages, true)) {
+    $gdipsNext = (string)($_SERVER['REQUEST_URI'] ?? '/dashboard/');
+    if (strpos($gdipsNext, '/dashboard/login/') !== 0 && strlen($gdipsNext) <= 2048) {
+        $_SESSION['gdips_after_login'] = $gdipsNext;
+    }
+    header('Location: /dashboard/login/login.php', true, 302);
+    exit;
+}
+
 // Dashboard library - presentation layer.
 //
 // UI architecture (see incl/ui/ for the stylesheets and incl/gdips.js for
