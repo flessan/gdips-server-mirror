@@ -156,7 +156,7 @@ $content = $install.'
 	<h1 class="gd-display">'.$heroTitle.'</h1>
 	<p class="gd-hero-sub">'.$heroSub.'</p>
 	<div class="gd-hero-actions">
-		<button type="button" class="gd-btn gd-btn--primary" onclick="a(\'stats/levelsList.php\')"><i class="fa-solid fa-gamepad"></i>'.$dl->getLocalizedString("levels").'</button>
+		<button type="button" class="gd-btn gd-btn--primary" onclick="a(\'dashboard/stats/levelsList.php\')"><i class="fa-solid fa-gamepad"></i>'.$dl->getLocalizedString("levels").'</button>
 		<button type="button" class="gd-btn gd-btn--secondary" onclick="a(\'project/\')"><i class="fa-solid fa-circle-info"></i>'.$dl->getLocalizedString("aboutProject").'</button>
 	</div>
 	<p class="gd-hero-note"><i class="fa-solid fa-star" aria-hidden="true"></i>'.$dl->getLocalizedString("footerBuilt").'</p>
@@ -181,7 +181,7 @@ $content = $install.'
 	<section class="gd-section">
 	<div class="gd-section-head">
 		<h2 class="gd-display">'.$dl->getLocalizedString("featuredLevels").'</h2>
-		<a class="gd-link-more" href="stats/levelsList.php" onclick="a(\'stats/levelsList.php?sort=featured\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
+		<a class="gd-link-more" href="dashboard/stats/levelsList.php" onclick="a(\'dashboard/stats/levelsList.php?sort=featured\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
 	</div>
 	<div class="gd-levelgrid">'.($featuredCards !== '' ? $featuredCards : '<div class="gd-empty" style="grid-column:1/-1"><i class="fa-regular fa-face-smile-beam"></i><p>'.$dl->getLocalizedString("empty").'</p></div>').'</div>
 </section>
@@ -189,7 +189,7 @@ $content = $install.'
 <section class="gd-section">
 	<div class="gd-section-head">
 		<h2 class="gd-display">'.$dl->getLocalizedString("recentLevels").'</h2>
-		<a class="gd-link-more" href="stats/levelsList.php" onclick="a(\'stats/levelsList.php\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
+		<a class="gd-link-more" href="dashboard/stats/levelsList.php" onclick="a(\'dashboard/stats/levelsList.php\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
 	</div>
 	<div class="gd-levelgrid">'.$recentCards.'</div>
 </section>
@@ -202,7 +202,7 @@ $content = $install.'
 	<section class="gd-section">
 		<div class="gd-section-head">
 			<h2 class="gd-display">'.$dl->getLocalizedString("newSongs").'</h2>
-			<a class="gd-link-more" href="stats/songList.php" onclick="a(\'stats/songList.php\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
+			<a class="gd-link-more" href="dashboard/stats/songList.php" onclick="a(\'dashboard/stats/songList.php\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
 		</div>
 		<div class="gd-playerlist">'.($songRows !== '' ? $songRows : '<div class="gd-empty"><i class="fa-solid fa-music"></i><p>'.$dl->getLocalizedString("empty").'</p></div>').'</div>
 	</section>
@@ -211,7 +211,7 @@ $content = $install.'
 '.($clansEnabled && $clanCards !== '' ? '<section class="gd-section">
 	<div class="gd-section-head">
 		<h2 class="gd-display">'.$dl->getLocalizedString("activeClans").'</h2>
-		<a class="gd-link-more" href="clans" onclick="a(\'clans\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
+		<a class="gd-link-more" href="dashboard/clans" onclick="a(\'dashboard/clans\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
 	</div>
 	<div class="gd-grid gd-grid--3">'.$clanCards.'</div>
 </section>' : '').'

@@ -1,9 +1,10 @@
 <?php
 // Define variables for easy maintenance
- $pageTitle = "Geometry Dash Galactic Background — Commission Artwork";
- $pageDescription = "A purple retro-style monitor with a yellow emoji face, radial orange and purple rays, and a blue grid floor. Commission artwork.";
+ $pageTitle = "Geometry Dash Indonesia Private Server";
+ $pageDescription = "Geometry Dash Indonesia Private Server is a private server for Geometry Dash players in Indonesia.";
 // Using the base URL for SEO meta tags to avoid crawler auth-key expiration issues
  $baseUrl = "https://z-cdn-media.chatglm.cn/files/b8c6cefc-cd48-4318-9a31-26849bffd07e.jpg";
+ $GDID = "./dashboard";
  $fullImageUrl = "https://z-cdn-media.chatglm.cn/files/b8c6cefc-cd48-4318-9a31-26849bffd07e.jpg?auth_key=1890160126-e78e468fd02543758ac773525999b74b-0-fdd24c536ccc32cba9f928a2466ca0bb";
  $artCreditUrl = "https://gamejolt.com/p/pfp-icon-geometry-dash-galactic-bg-comission-do-you-need-a-comissio-8frzdxpg";
  $imageAlt = "Purple retro monitor with yellow emoji face, radial orange and purple cosmic rays, and a blue grid floor.";
@@ -136,9 +137,9 @@
 </head>
 <body>
     <main>
-        <h1>Geometry Dash Galactic Background</h1>
-        
+        <h1>Geometry Dash Indonesia Private Server</h1>
         <div class="image-wrapper">
+            <a href="<?php echo htmlspecialchars($GDID); ?>" target="_blank" rel="noopener noreferrer">
             <img 
                 src="<?php echo htmlspecialchars($fullImageUrl); ?>" 
                 alt="<?php echo htmlspecialchars($imageAlt); ?>" 
@@ -147,8 +148,9 @@
                 fetchpriority="high"
                 decoding="async"
             >
-        </div>
-
+        </a></div>
+        Click image above to login to the server
+    </br>
         <div class="credit-container">
             Art by: <a href="<?php echo htmlspecialchars($artCreditUrl); ?>" target="_blank" rel="noopener noreferrer" class="credit-link">GameJolt Artist</a>
         </div>
