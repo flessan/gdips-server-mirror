@@ -1,9 +1,9 @@
 <?php
 session_start();
 
-require "../incl/dashboardLib.php";
-require "../../".$dbPath."incl/lib/connection.php";
-require "../../".$dbPath."incl/lib/badgeLib.php";
+require __DIR__."/../incl/dashboardLib.php";
+require __DIR__."/../../incl/lib/connection.php";
+require __DIR__."/../../incl/lib/badgeLib.php";
 
 $dl = new dashboardLib();
 $dl->title("Roles");
