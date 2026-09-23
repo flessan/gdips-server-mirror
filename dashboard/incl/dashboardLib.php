@@ -3,6 +3,7 @@ $dbPath = '../'; // Path to main directory. It needs to point to main endpoint f
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 require __DIR__."/../".$dbPath."config/dashboard.php";
 require_once __DIR__."/../".$dbPath."incl/lib/badgeLib.php";
+require_once __DIR__."/../".$dbPath."incl/lib/adminLib.php";
 require_once "auth.php";
 $au = new au();
 $dashCheck = $au->auth($dbPath);
@@ -334,14 +335,12 @@ if($msgEnabled == 1 AND $logged) {
 
 		/* ---- administrator tools ---- */
 		$adminTools = '';
-		if($logged) {
-			$adminQuery = $db->prepare("SELECT isAdmin FROM accounts WHERE accountID = :accountID");
-			$adminQuery->execute([':accountID' => $_SESSION["accountID"]]);
-			if((int)$adminQuery->fetchColumn() === 1) {
-				$adminTools .= $this->gdNavItem('settings.php', 'fa-sliders', 'Settings', $active === "settings");
-				$adminTools .= $this->gdNavItem('account/roles.php', 'fa-user-shield', 'Roles', $active === "roles");
-				$adminTools .= $this->gdNavItem('account/badges.php', 'fa-id-badge', 'Badges', $active === "badges");
-			}
+		if($logged && gdAdminLib::isAdmin($db)) {
+			$adminTools .= $this->gdNavItem('admin/', 'fa-gauge-high', 'Admin Center', $active === "admin");
+			$adminTools .= $this->gdNavItem('settings.php', 'fa-sliders', 'Settings', $active === "settings");
+			$adminTools .= $this->gdNavItem('account/members.php', 'fa-users-gear', 'Accounts & Roles', $active === "members");
+			$adminTools .= $this->gdNavItem('account/roles.php', 'fa-user-shield', 'Role Definitions', $active === "roles");
+			$adminTools .= $this->gdNavItem('account/badges.php', 'fa-id-badge', 'Badges', $active === "badges");
 		}
 
 		$repo = $this->gdProjectRepo();
@@ -401,7 +400,7 @@ if($msgEnabled == 1 AND $logged) {
 		$titleMap = [
 			"home" => "homeNavbar", "levels" => "levels", "browse" => "browse", "songs" => "songs",
 			"players" => "playersList", "clans" => "clans", "clan" => "clan", "msg" => "messenger",
-			"profile" => "profile", "account" => "accountManagement", "mod" => "modTools", "settings" => "settings", "roles" => "roles", "badges" => "badges",
+			"profile" => "profile", "account" => "accountManagement", "mod" => "modTools", "admin" => "adminCenter", "members" => "accountsRoles", "settings" => "settings", "roles" => "roles", "badges" => "badges",
 			"reupload" => "reuploadSection", "stats" => "statsSection", "project" => "aboutProject",
 		];
 		$pageTitle = isset($titleMap[$active]) ? $this->getLocalizedString($titleMap[$active]) : $gdps;
