@@ -43,7 +43,7 @@ $quick = '';
 foreach($permissionCards as $item) {
     [$permission, $label, $icon, $href] = $item;
     if(gdAdminLib::can($permission, $gs)) {
-        $quick .= '<a class="gd-shortcut" href="'.$h($href).'" onclick="a(''.$h($href).'',true,true,'GET');return false;">
+        $quick .= '<a class="gd-shortcut" href="'.$h($href).'">
             <i class="fa-solid '.$icon.' gd-sc-ico"></i><span>'.$h($label).'</span>
         </a>';
     }
@@ -76,19 +76,19 @@ if(!$rolesReady) {
 
 $tools = '
 <div class="gd-grid gd-grid--3">
-    <a class="gd-card" href="/dashboard/settings.php" onclick="a('settings.php');return false;">
+    <a class="gd-card" href="/dashboard/settings.php">
         <i class="fa-solid fa-sliders fa-2x"></i><h2>Server settings</h2>
         <p>Edit supported GDIPS configuration values.</p>
     </a>
-    <a class="gd-card" href="/dashboard/account/members.php" onclick="a('account/members.php');return false;">
+    <a class="gd-card" href="/dashboard/account/members.php">
         <i class="fa-solid fa-users-gear fa-2x"></i><h2>Accounts & roles</h2>
         <p>Manage administrator flags and role assignments.</p>
     </a>
-    <a class="gd-card" href="/dashboard/account/roles.php" onclick="a('account/roles.php');return false;">
+    <a class="gd-card" href="/dashboard/account/roles.php">
         <i class="fa-solid fa-user-shield fa-2x"></i><h2>Role definitions</h2>
         <p>Define permission sets, priorities, colors and badges.</p>
     </a>
-    <a class="gd-card" href="/dashboard/account/badges.php" onclick="a('account/badges.php');return false;">
+    <a class="gd-card" href="/dashboard/account/badges.php">
         <i class="fa-solid fa-id-badge fa-2x"></i><h2>Badges</h2>
         <p>Manage moderator and administrator badge assets.</p>
     </a>
