@@ -10,8 +10,11 @@ require_once "../".$dbPath."incl/lib/exploitPatch.php";
 $dl = new dashboardLib();
 $gs = new mainLib();
 $xor = new XORCipher();
+$chatMessages = '';
 if(!isset($_POST["receiver"])) {
-	$getID = str_replace('%20', ' ', explode("/", $_GET["id"])[count(explode("/", $_GET["id"]))-1]);
+	$requestID = isset($_GET["id"]) ? (string)$_GET["id"] : '';
+	$requestParts = $requestID !== '' ? explode("/", $requestID) : [];
+	$getID = !empty($requestParts) ? str_replace('%20', ' ', $requestParts[count($requestParts) - 1]) : '';
 	$receiver = ExploitPatch::charclean($getID);
 	if(!empty($receiver)) {
 		if(is_numeric($receiver)) $_POST["receiver"] = ExploitPatch::number($receiver);
@@ -66,7 +69,8 @@ if(!isset($_SESSION["accountID"]) || $_SESSION["accountID"] == 0) {
 		</form>
 	</div>', 'msg'));
 }
-if($_POST['receiver'] != 0 && ExploitPatch::number($_POST['receiver']) != $_SESSION['accountID'] && !empty($gs->getAccountName(ExploitPatch::number($_POST['receiver'])))) {
+$postedReceiver = isset($_POST['receiver']) ? $_POST['receiver'] : 0;
+if($postedReceiver != 0 && ExploitPatch::number($postedReceiver) != $_SESSION['accountID'] && !empty($gs->getAccountName(ExploitPatch::number($postedReceiver)))) {
 	$receiver = ExploitPatch::number($_POST['receiver']);
 	$receiverUsername = $gs->getAccountName($receiver);
 	if(isset($_POST['subject']) && isset($_POST['body'])) {
@@ -110,7 +114,7 @@ if($_POST['receiver'] != 0 && ExploitPatch::number($_POST['receiver']) != $_SESS
 			$query->execute([':userID' => $gs->getUserID($_SESSION['accountID']), ':userName' => $gs->getAccountName($_SESSION['accountID']), ':body' => $body, ':subject' => $subject, ':accountID' => $_SESSION['accountID'], ':receiver' => $receiver, 'time' => time()]);
 		}
 	}
-	if($_POST['deleteMessage']) {
+	if(isset($_POST['deleteMessage']) && $_POST['deleteMessage']) {
 		$deleteMessageID = ExploitPatch::number($_POST['deleteMessage']);
 		$messageCheck = $db->prepare("SELECT count(*) FROM messages WHERE toAccountID = :receiver AND accID = :accountID AND messageID = :messageID");
 		$messageCheck->execute([':receiver' => $receiver, ':accountID' => $_SESSION['accountID'], ':messageID' => $deleteMessageID]);
