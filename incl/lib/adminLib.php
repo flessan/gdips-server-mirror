@@ -84,6 +84,20 @@ class gdAdminLib {
         return (bool)$q->fetchColumn();
     }
 
+    public static function roleColumns($db = null) {
+        $pdo = self::pdo($db);
+        if(!$pdo || !self::tableExists('roles', $pdo)) return [];
+
+        try {
+            $columns = $pdo->query("SHOW COLUMNS FROM roles")->fetchAll(PDO::FETCH_ASSOC);
+            return array_map(static function($column) {
+                return (string)$column['Field'];
+            }, $columns);
+        } catch(Throwable $e) {
+            return [];
+        }
+    }
+
     public static function roleAssignments($accountId = null, $db = null) {
         $accountId = $accountId === null ? self::accountId() : (int)$accountId;
         $pdo = self::pdo($db);
@@ -93,15 +107,32 @@ class gdAdminLib {
             !self::tableExists('roles', $pdo)
         ) return [];
 
-        $q = $pdo->prepare(
-            "SELECT r.roleID,r.roleName,r.priority,r.isDefault,r.commentColor,r.modBadgeLevel
-             FROM roleassign a
-             INNER JOIN roles r ON r.roleID = a.roleID
-             WHERE a.accountID = :accountID
-             ORDER BY r.priority DESC, r.roleID ASC"
-        );
-        $q->execute([':accountID' => $accountId]);
-        return $q->fetchAll(PDO::FETCH_ASSOC);
+        $columns = self::roleColumns($pdo);
+        $required = ['roleID','roleName','priority'];
+        foreach($required as $column) {
+            if(!in_array($column, $columns, true)) return [];
+        }
+
+        $select = 'r.roleID,r.roleName,r.priority';
+        foreach(['isDefault','commentColor','modBadgeLevel'] as $column) {
+            if(in_array($column, $columns, true)) {
+                $select .= ',r.'.$column;
+            }
+        }
+
+        try {
+            $q = $pdo->prepare(
+                "SELECT ".$select."
+                 FROM roleassign a
+                 INNER JOIN roles r ON r.roleID = a.roleID
+                 WHERE a.accountID = :accountID
+                 ORDER BY r.priority DESC, r.roleID ASC"
+            );
+            $q->execute([':accountID' => $accountId]);
+            return $q->fetchAll(PDO::FETCH_ASSOC);
+        } catch(Throwable $e) {
+            return [];
+        }
     }
 
     public static function roleSummary($accountId = null, $db = null) {
