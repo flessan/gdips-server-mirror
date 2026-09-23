@@ -32,7 +32,7 @@ $rolesReady = gdAdminLib::tableExists('roles', $db) && gdAdminLib::tableExists('
 
 $permissionCards = [
     ['dashboardModTools', 'Moderation tools', 'fa-gavel', 'account/banPerson.php'],
-    ['dashboardManageLevels', 'Level management', 'fa-gamepad', 'levels/levelManagement.php'],
+    ['dashboardManageLevels', 'Level management', 'fa-gamepad', 'stats/levelsList.php'],
     ['dashboardManageSongs', 'Song management', 'fa-music', 'stats/disabledSongsList.php'],
     ['dashboardManageAutomod', 'Automod', 'fa-robot', 'automod'],
     ['dashboardAddMod', 'Moderator management', 'fa-user-shield', 'account/members.php'],
