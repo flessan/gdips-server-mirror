@@ -8,7 +8,6 @@ if (is_writable(dirname($logFile))) {
 }
 
 // ✅ Tampilkan info versi PHP & path (untuk diagnosa):
-// Buat file /public_html/dashboard/info.php sementara:
 <?php
 echo "PHP: " . phpversion() . "<br>";
 echo "Doc Root: " . ($_SERVER['DOCUMENT_ROOT'] ?? 'N/A') . "<br>";

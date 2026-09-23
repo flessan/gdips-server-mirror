@@ -738,3 +738,6 @@ $string["haveAccountYet"] = "Sudah punya akun?";
 
 /* GDIPS UI rework additions - audio player */
 $string["downloadFailed"] = "Gagal mengunduh";
+
+$string["roles"] = "Role";
+$string["badges"] = "Badge";

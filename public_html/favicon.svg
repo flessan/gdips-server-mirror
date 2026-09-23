@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="GDIPS">
+  <rect width="64" height="64" rx="14" fill="#171717"/>
+  <path d="M16 13h32v10H27v18h21v10H16z" fill="#e33a3a"/>
+  <rect x="34" y="31" width="14" height="10" rx="2" fill="#f2c14e"/>
+</svg>

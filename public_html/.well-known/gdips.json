@@ -1,0 +1,15 @@
+{
+  "name": "GDIPS",
+  "description": "Geometry Dash Indonesia Private Server",
+  "version": 1,
+  "dashboard": "/dashboard/",
+  "health": "/health.php",
+  "status": "/status.php",
+  "api": {
+    "levels": "/getGJLevels21.php",
+    "users": "/getGJUsers20.php",
+    "user_info": "/getGJUserInfo20.php",
+    "upload_level": "/uploadGJLevel.php",
+    "download_level": "/downloadGJLevel22.php"
+  }
+}

@@ -735,3 +735,6 @@ $string["haveAccountYet"] = "Already have an account?";
 
 /* GDIPS UI rework additions - audio player */
 $string["downloadFailed"] = "Download failed";
+
+$string["roles"] = "Roles";
+$string["badges"] = "Badges";

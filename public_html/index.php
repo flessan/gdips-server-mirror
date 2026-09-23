@@ -8,12 +8,14 @@
  $fullImageUrl = "https://z-cdn-media.chatglm.cn/files/b8c6cefc-cd48-4318-9a31-26849bffd07e.jpg?auth_key=1890160126-e78e468fd02543758ac773525999b74b-0-fdd24c536ccc32cba9f928a2466ca0bb";
  $artCreditUrl = "https://gamejolt.com/p/pfp-icon-geometry-dash-galactic-bg-comission-do-you-need-a-comissio-8frzdxpg";
  $imageAlt = "Purple retro monitor with yellow emoji face, radial orange and purple cosmic rays, and a blue grid floor.";
+ $serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? 'localhost');
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
     
     <!-- Primary Meta Tags -->
     <title><?php echo htmlspecialchars($pageTitle); ?></title>
@@ -123,6 +125,79 @@
             color: #555555;
             border-color: #555555;
         }
+        .status-card {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 0 1.5rem;
+            padding: 1.25rem;
+            text-align: left;
+            border: 1px solid #dddddd;
+            background: #fafafa;
+        }
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.75rem;
+        }
+        .status-dot {
+            width: 0.65rem;
+            height: 0.65rem;
+            border-radius: 50%;
+            background: #2e9d57;
+            flex: 0 0 auto;
+        }
+        .status-label {
+            margin-left: auto;
+            font-size: 0.85rem;
+            color: #666666;
+        }
+        .server-url {
+            display: block;
+            width: 100%;
+            overflow: auto;
+            padding: 0.75rem;
+            border: 1px solid #e3e3e3;
+            background: #ffffff;
+            font-size: 0.9rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            margin-top: 0.85rem;
+        }
+        .action {
+            appearance: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 2.5rem;
+            padding: 0.65rem 0.9rem;
+            border: 1px solid #cccccc;
+            background: #ffffff;
+            color: #111111;
+            text-decoration: none;
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .action.primary {
+            border-color: #d9232e;
+            background: #d9232e;
+            color: #ffffff;
+        }
+        .action:hover {
+            filter: brightness(0.97);
+        }
+        .copy-note {
+            display: block;
+            min-height: 1.25em;
+            margin-top: 0.5rem;
+            color: #666666;
+            font-size: 0.8rem;
+        }
         
         /* Mobile responsiveness */
         @media (max-width: 768px) {
@@ -149,11 +224,40 @@
                 decoding="async"
             >
         </a></div>
-        Click image above to login to the server
-    </br>
+
+        <section class="status-card" aria-label="GDIPS server status">
+            <div class="status-row">
+                <span class="status-dot" aria-hidden="true"></span>
+                <strong>GDIPS server is online</strong>
+                <span class="status-label">PHP is responding</span>
+            </div>
+            <code class="server-url" id="server-url"><?php echo htmlspecialchars($serverUrl); ?></code>
+            <div class="actions">
+                <a class="action primary" href="./dashboard/">Open Dashboard</a>
+                <a class="action" href="./health.php" target="_blank" rel="noopener noreferrer">Health JSON</a>
+                <button class="action" type="button" id="copy-server-url">Copy server URL</button>
+            </div>
+            <span class="copy-note" id="copy-note" aria-live="polite"></span>
+        </section>
+
         <div class="credit-container">
             Art by: <a href="<?php echo htmlspecialchars($artCreditUrl); ?>" target="_blank" rel="noopener noreferrer" class="credit-link">GameJolt Artist</a>
         </div>
     </main>
+
+    <script>
+        const copyButton = document.getElementById('copy-server-url');
+        const serverUrl = document.getElementById('server-url');
+        const copyNote = document.getElementById('copy-note');
+
+        copyButton?.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(serverUrl.textContent.trim());
+                copyNote.textContent = 'Server URL copied to clipboard.';
+            } catch {
+                copyNote.textContent = 'Copy failed. Select the URL above manually.';
+            }
+        });
+    </script>
 </body>
 </html>

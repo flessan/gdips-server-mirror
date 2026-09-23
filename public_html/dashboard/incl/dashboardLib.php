@@ -1,6 +1,7 @@
 <?php
 $dbPath = '../'; // Path to main directory. It needs to point to main endpoint files. If you didn't change dashboard place, don't change this value. Usually it's '../' (cuz dashboard folder is inside main endpoints folder) (https://imgur.com/a/P8LdhzY).
 require __DIR__."/../".$dbPath."config/dashboard.php";
+require_once __DIR__."/../".$dbPath."incl/lib/badgeLib.php";
 require_once "auth.php";
 $au = new au();
 $dashCheck = $au->auth($dbPath);
@@ -304,6 +305,18 @@ if($msgEnabled == 1 AND $logged) {
 			if($gs->checkPermission($_SESSION["accountID"], "dashboardVaultCodesManage")) $mod .= $this->gdNavItem('levels/vaultCodes.php', 'fa-award', $this->getLocalizedString("vaultCodesTitle"), false);
 		}
 
+		/* ---- administrator tools ---- */
+		$adminTools = '';
+		if($logged) {
+			$adminQuery = $db->prepare("SELECT isAdmin FROM accounts WHERE accountID = :accountID");
+			$adminQuery->execute([':accountID' => $_SESSION["accountID"]]);
+			if((int)$adminQuery->fetchColumn() === 1) {
+				$adminTools .= $this->gdNavItem('settings.php', 'fa-sliders', 'Settings', $active === "settings");
+				$adminTools .= $this->gdNavItem('account/roles.php', 'fa-user-shield', 'Roles', $active === "roles");
+				$adminTools .= $this->gdNavItem('account/badges.php', 'fa-id-badge', 'Badges', $active === "badges");
+			}
+		}
+
 		$repo = $this->gdProjectRepo();
 		$project = '';
 		$project .= $this->gdNavItem('project/', 'fa-circle-info', $this->getLocalizedString("aboutProject"), $active === "project");
@@ -361,7 +374,7 @@ if($msgEnabled == 1 AND $logged) {
 		$titleMap = [
 			"home" => "homeNavbar", "levels" => "levels", "browse" => "browse", "songs" => "songs",
 			"players" => "playersList", "clans" => "clans", "clan" => "clan", "msg" => "messenger",
-			"profile" => "profile", "account" => "accountManagement", "mod" => "modTools",
+			"profile" => "profile", "account" => "accountManagement", "mod" => "modTools", "settings" => "settings", "roles" => "roles", "badges" => "badges",
 			"reupload" => "reuploadSection", "stats" => "statsSection", "project" => "aboutProject",
 		];
 		$pageTitle = isset($titleMap[$active]) ? $this->getLocalizedString($titleMap[$active]) : $gdps;
@@ -400,6 +413,7 @@ if($msgEnabled == 1 AND $logged) {
 					'.$this->gdNavSection($this->getLocalizedString("navAccount"), $account).'
 					'.$this->gdNavSection($this->getLocalizedString("navUpload"), $upload).'
 					'.$this->gdNavSection($this->getLocalizedString("navModeration"), $mod).'
+					'.$this->gdNavSection('Administration', $adminTools).'
 					'.$this->gdNavSection($this->getLocalizedString("navProject"), $project).'
 				</nav>
 				<div class="gd-sidebar-foot">';
@@ -817,9 +831,7 @@ public function printPage($content, $isSubdirectory = true, $navbar = "home"){
 		if($roleAssignData = $queryRoleID->fetch(PDO::FETCH_ASSOC)) {
 			$queryBadgeLevel = $db->prepare("SELECT modBadgeLevel FROM roles WHERE roleID = :roleID");
 			$queryBadgeLevel->execute([':roleID' => $roleAssignData['roleID']]);
-			if(($modBadgeLevel = $queryBadgeLevel->fetchColumn() ?? 0) >= 1 && $modBadgeLevel <= 3) {
-				$badgeImg = '<img src="https://raw.githubusercontent.com/Fenix668/GMDprivateServer/master/dashboard/modBadge_0'.$modBadgeLevel.'_001.png" alt="moderator" style="width: 22px; height: 22px; object-fit: contain;">';
-			}
+			$badgeImg = gdBadgeLib::render((int)($queryBadgeLevel->fetchColumn() ?? 0), '', 22);
 		}
 
 		$commentColor = $gs->getAccountCommentColor($extIDvalue);

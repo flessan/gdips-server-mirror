@@ -4,6 +4,7 @@ require "../incl/dashboardLib.php";
 require "../".$dbPath."incl/lib/connection.php";
 require "../".$dbPath."config/dashboard.php";
 require_once "../".$dbPath."incl/lib/mainLib.php";
+require_once "../".$dbPath."incl/lib/badgeLib.php";
 require_once "../".$dbPath."incl/lib/exploitPatch.php";
 $gs = new mainLib();
 $dl = new dashboardLib();
@@ -50,17 +51,15 @@ foreach($result as &$action) {
     $iconTypeMap = [0 => ['type' => 'cube', 'value' => $action['accIcon']], 1 => ['type' => 'ship', 'value' => $action['accShip']], 2 => ['type' => 'ball', 'value' => $action['accBall']], 3 => ['type' => 'ufo', 'value' => $action['accBird']], 4 => ['type' => 'wave', 'value' => $action['accDart']], 5 => ['type' => 'robot', 'value' => $action['accRobot']], 6 => ['type' => 'spider', 'value' => $action['accSpider']], 7 => ['type' => 'swing', 'value' => $action['accSwing']], 8 => ['type' => 'jetpack', 'value' => $action['accJetpack']]];
     $iconValue = (isset($iconTypeMap[$iconType]) && $iconTypeMap[$iconType]['value'] > 0) ? $iconTypeMap[$iconType]['value'] : 1;
     $avatarImg = '<img src="'.$iconsRendererServer.'/icon.png?type=' . $iconTypeMap[$iconType]['type'] . '&value=' . $iconValue . '&color1=' . $action['color1'] . '&color2=' . $action['color2'] . ($action['accGlow'] != 0 ? '&glow=' . $action['accGlow'] . '&color3=' . $action['color3'] : '') . '" alt="" style="width:44px;height:44px;object-fit:contain" loading="lazy">';
-    // Badge management
-    $badgeImg = '';
-    $queryRoleID = $db->prepare("SELECT roleID FROM roleassign WHERE accountID = :accountID");
-    $queryRoleID->execute([':accountID' => $accountID]);	
-    if($roleAssignData = $queryRoleID->fetch(PDO::FETCH_ASSOC)) {        
-        $queryBadgeLevel = $db->prepare("SELECT modBadgeLevel FROM roles WHERE roleID = :roleID");
-        $queryBadgeLevel->execute([':roleID' => $roleAssignData['roleID']]);	    
-        if(($modBadgeLevel = $queryBadgeLevel->fetchColumn() ?? 0) >= 1 && $modBadgeLevel <= 3) {
-            $badgeImg = '<img src="https://raw.githubusercontent.com/Fenix668/GMDprivateServer/master/dashboard/modBadge_0' . $modBadgeLevel . '_001.png" alt="badge" style="width: 34px; height: 34px; margin-left: -3px; margin-top: -3px; vertical-align: middle;">';
-        }
-    }	
+   // Badge management
+	$badgeImg = '';
+	$queryRoleID = $db->prepare("SELECT roleID FROM roleassign WHERE accountID = :accountID");
+	$queryRoleID->execute([':accountID' => $accountID]);
+	if($roleAssignData = $queryRoleID->fetch(PDO::FETCH_ASSOC)) {
+		$queryBadgeLevel = $db->prepare("SELECT modBadgeLevel FROM roles WHERE roleID = :roleID");
+		$queryBadgeLevel->execute([':roleID' => $roleAssignData['roleID']]);
+		$badgeImg = gdBadgeLib::render((int)($queryBadgeLevel->fetchColumn() ?? 0), '', 34);
+	}
 	$ac = '<span class="gd-chip gd-chip--ghost">'.$counts["actionCount"].' <i class="fa-solid fa-circle-play" aria-hidden="true"></i></span>';
 	$lr = '<span class="gd-chip gd-chip--ghost">'.$counts["levelsRated"].' <i class="fa-regular fa-star" aria-hidden="true"></i></span>';
 	$stats = $dl->createProfileStats($action['stars'], $action['moons'], $action['diamonds'], $action['coins'], $action['userCoins'], $action['demons'], $action['creatorPoints'], 0, false);
