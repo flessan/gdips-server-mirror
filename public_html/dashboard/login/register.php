@@ -163,7 +163,7 @@ if(!empty($_POST["username"]) AND !empty($_POST["email"]) AND !empty($_POST["rep
 	$dl->printSong('<div class="gd-authwrap"><div class="gd-authcard">
 		<div class="gd-authbrand">
 			<img src="'.$dashboardIcon.'" alt="">
-			<b>GD<i>IPS</i></b>
+			<b>GDI<i>PS</i></b>
 			<span>Geometry Dash Indonesia</span>
 		</div>
 		<h1>'.$dl->getLocalizedString("registerAcc").'</h1>

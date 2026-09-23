@@ -54,6 +54,8 @@
 
 .gd-hero>* {
 	position: relative;
+	padding-left: 24px;
+	padding-right: 24px;
 	z-index: 1;
 }
 
@@ -63,7 +65,7 @@
 	font-weight: 600;
 	letter-spacing: 0.18em;
 	text-transform: uppercase;
-	color: var(--merah-strong);
+	color: var(--tx-1);
 	margin: 0 0 var(--sp-2);
 }
 
@@ -74,7 +76,7 @@
 }
 
 .gd-hero-sub {
-	color: var(--tx-2);
+	color: var(--tx-1);
 	max-width: 56ch;
 	margin: 0 0 var(--sp-5);
 	font-size: var(--fs-lg);
@@ -1239,6 +1241,29 @@
 	-webkit-mask-image: radial-gradient(ellipse at center, #000 20%, transparent 72%);
 	mask-image: radial-gradient(ellipse at center, #000 20%, transparent 72%);
 	pointer-events: none;
+}
+
+.gd-project-hero::after {
+	content: "";
+	position: absolute;
+	left: 10px;
+	right: 10px;
+	top: 10px;
+	bottom: 10px;
+
+	background: rgba(255, 255, 255, 0.409);
+	border: 1px solid rgba(255, 255, 255, 0.297);
+	border-radius: 20px;
+
+	backdrop-filter: blur(9px) saturate(105%);
+	-webkit-backdrop-filter: blur(12px) saturate(105%);
+
+	box-shadow:
+		0 8px 18px rgba(70, 55, 35, 0.08),
+		inset 0 1px 0 rgba(255, 255, 255, 0.5);
+
+	pointer-events: none;
+	z-index: 0;
 }
 
 .gd-project-hero>* {

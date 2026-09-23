@@ -5,7 +5,6 @@ $dl = new dashboardLib();
 global $clansEnabled;
 require "../".$dbPath."incl/lib/connection.php";
 require "../".$dbPath."config/dashboard.php";
-$dl->printFooter('../');
 $dl->title($dl->getLocalizedString("aboutProject"));
 
 $repo = $dl->gdProjectRepo();
@@ -19,7 +18,7 @@ if(!empty($thirdParty)) {
 		if(isset($seen[$tp[1]])) continue;
 		$seen[$tp[1]] = true;
 		$credits .= '<div class="gd-account" style="padding:12px 16px">
-			<img src="'.$tp[0].'" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover">
+			<img src="'.$tp[0].'" alt="" style="width:36px;height:36px;border-radius:20%;object-fit:cover">
 			<div style="min-width:0;flex:1">
 				<a href="'.$tp[2].'" target="_blank" rel="noopener" style="font-weight:700;font-family:var(--font-display)">'.htmlspecialchars($tp[1]).'</a>
 				<div style="font-size:var(--fs-xs);color:var(--tx-3)">'.htmlspecialchars($tp[3]).'</div>
@@ -40,8 +39,8 @@ $content = '
 <section class="gd-project-hero gd-kawung-band">
 	<p class="gd-eyebrow" style="letter-spacing:0.2em">GDIPS</p>
 	<h1 class="gd-display">'.$dl->getLocalizedString("aboutProject").'</h1>
-	<p>'.$dl->getLocalizedString("projectIntro").'</p>
-	<p class="gd-chip gd-chip--gold" style="font-size:var(--fs-sm);padding:6px 14px"><i class="fa-solid fa-map-pin"></i>'.$dl->getLocalizedString("projectTagline").'</p>
+	<p style="color:var(--tx-1)">'.$dl->getLocalizedString("projectIntro").'</p>
+	<p style="color:var(--tx-1)" class="gd-chip gd-chip--gold" style="font-size:var(--fs-sm);padding:6px 14px"><i class="fa-solid fa-map-pin"></i>'.$dl->getLocalizedString("projectTagline").'</p>
 </section>
 
 <section class="gd-section">
@@ -94,4 +93,5 @@ $content = '
 <p style="text-align:center;color:var(--tx-3);font-size:var(--fs-sm)">'.$gdpsName.' · '.$dl->getLocalizedString("footerBuilt").'</p>';
 
 $dl->printSong($content, 'project');
+$dl->printFooter('../');
 ?>

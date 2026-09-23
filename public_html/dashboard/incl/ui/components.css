@@ -1607,6 +1607,35 @@ button[name="btnsng"] {
 /* ==========================================================================
    12. AUDIO PLAYER (floating, ids preserved)
    ========================================================================== */
+.gd-audiobar {
+	width: 100%;
+	margin: 0 0 16px;
+	box-sizing: border-box;
+}
+
+.gd-audiobar>#audioPlayer.audioDiv {
+	position: static !important;
+	top: auto !important;
+	right: auto !important;
+	bottom: auto !important;
+	left: auto !important;
+	float: none !important;
+	transform: none !important;
+	width: 100% !important;
+	max-width: none !important;
+	min-width: 0 !important;
+	height: auto !important;
+	margin: 0 !important;
+	box-sizing: border-box;
+	z-index: auto !important;
+}
+
+.gd-content-body {
+	width: 100%;
+	min-width: 0;
+	box-sizing: border-box;
+}
+
 .audioDiv {
 	position: fixed;
 	bottom: 18px;
@@ -1886,12 +1915,12 @@ input[type="range"].length::-moz-range-thumb {
 	top: 10px;
 	bottom: 10px;
 
-	background: rgba(255, 255, 255, 0.42);
+	background: rgba(223, 223, 223, 0.105);
 	border: 1px solid rgba(255, 255, 255, 0.55);
 	border-radius: 20px;
 
-	backdrop-filter: blur(10px);
-	-webkit-backdrop-filter: blur(10px);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
 
 	box-shadow: 0 8px 24px rgba(60, 45, 25, 0.08);
 

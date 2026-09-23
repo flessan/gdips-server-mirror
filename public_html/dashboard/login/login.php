@@ -121,7 +121,7 @@ if(isset($_POST["userName"]) && isset($_POST["password"])) {
 	$dl->printSong('<div class="gd-authwrap"><div class="gd-authcard">
 		<div class="gd-authbrand">
 			<img src="'.$dashboardIcon.'" alt="">
-			<b>GD<i>IPS</i></b>
+			<b>GDI<i>PS</i></b>
 			<span>Geometry Dash Indonesia</span>
 		</div>
 		<h1>'.$dl->getLocalizedString("loginBox").'</h1>

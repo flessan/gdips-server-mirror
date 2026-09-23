@@ -120,7 +120,9 @@ class dashboardLib {
 		/* The footer is static across SPA navigations, so its links must be
 		   depth-independent: resolve the dashboard root as an absolute path. */
 		$dir = str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"]));
-		$root = rtrim(dirname($dir), "/");
+		$root = basename($dir) === "dashboard" ? $dir : dirname($dir);
+		$root = rtrim($root, "/");
+		if ($root === "") $root = "/dashboard";
 		$socials = '';
 		if($youtube != '') $socials .= '<a href="'.$youtube.'" target="_blank" rel="noopener" aria-label="YouTube"><img class="socials" style="width: 18px" src="'.$root.'/incl/socials/youtube.png" alt=""></a>';
 		if($discord != '') $socials .= '<a href="'.$discord.'" target="_blank" rel="noopener" aria-label="Discord"><img class="socials" style="width: 18px" src="'.$root.'/incl/socials/discord.png" alt=""></a>';
@@ -130,7 +132,7 @@ class dashboardLib {
 		echo '<footer class="gd-footer"><div class="gd-footer-inner">
 			<div class="gd-footer-brand"><b>GDIPS</b><span class="gd-footer-tag">'.$this->getLocalizedString("footerBuilt").'</span></div>
 			<div class="gd-footer-links">
-				<a href="'.$root.'/project/"><i class="fa-solid fa-circle-info"></i>'.$this->getLocalizedString("aboutProject").'</a>
+				<a href="/dashboard/project/"><i class="fa-solid fa-circle-info"></i>'.$this->getLocalizedString("aboutProject").'</a>
 				<a href="'.htmlspecialchars($this->gdProjectRepo()).'" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i>'.$this->getLocalizedString("sourceCode").'</a>
 				<a href="'.htmlspecialchars($this->gdProjectRepo()).'/issues" target="_blank" rel="noopener"><i class="fa-solid fa-bug"></i>'.$this->getLocalizedString("contribute").'</a>
 				'.$socials.'
@@ -159,13 +161,13 @@ class dashboardLib {
 	 * ------------------------------------------------------------------ */
 	public function gdProjectRepo() {
 		global $projectRepo;
-		return !empty($projectRepo) ? $projectRepo : "https://github.com/Fenix668/GMDprivateServer";
+		return !empty($projectRepo) ? $projectRepo : "https://github.com/flessan/GDIPS";
 	}
 
 	/* Depth-independent URL of the project page (footer & home use it). */
 	public function gdProjectUrl() {
 		$dir = str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"]));
-		return rtrim(dirname($dir), "/")."/project/";
+		return rtrim(dirname($dir), "/")."dashboard/project";
 	}
 
 	/* ------------------------------------------------------------------ *
@@ -209,13 +211,21 @@ class dashboardLib {
 		$logged = isset($_SESSION["accountID"]) AND $_SESSION["accountID"] != 0;
 
 		/* ---- messenger badge ---- */
-		$msgBadge = '';
-		if($msgEnabled == 1 AND $logged) {
-			$newMessagesCount = $db->prepare("SELECT * FROM messages WHERE toAccountID = :acc AND isNew = 0 GROUP BY accID");
-			$newMessagesCount->execute([':acc' => $_SESSION["accountID"]]);
-			$newMessagesCount = count($newMessagesCount->fetchAll());
-			if($newMessagesCount > 0) $msgBadge = '<span class="gd-nav-count">'.$newMessagesCount.'</span>';
-		}
+$msgBadge = '';
+if($msgEnabled == 1 AND $logged) {
+	$newMessagesCount = $db->prepare("
+		SELECT COUNT(DISTINCT accID)
+		FROM messages
+		WHERE toAccountID = :acc
+		  AND isNew = 0
+	");
+	$newMessagesCount->execute([':acc' => $_SESSION["accountID"]]);
+	$newMessagesCount = (int)$newMessagesCount->fetchColumn();
+
+	if($newMessagesCount > 0) {
+		$msgBadge = '<span class="gd-nav-count">'.$newMessagesCount.'</span>';
+	}
+}
 
 		/* ---- current user ---- */
 		$userName = $logged ? $gs->getAccountName($_SESSION["accountID"]) : "";
@@ -333,16 +343,16 @@ class dashboardLib {
 		$langs = [
 			['ID', 'id.png', 'Bahasa Indonesia', ''],
 			['EN', 'us.png', 'English', ''],
-			['RU', 'ru.png', 'Ð ÑƒÑÑÐºÐ¸Ð¹', ''],
-			['TR', 'tr.png', 'TÃ¼rkÃ§e', 'Translated by EMREOYUN'],
-			['UA', 'ua.png', 'Ð£ÐºÑ€Ð°Ñ-Ð½ÑÑŒÐºÐ°', 'Translated by Jamichi'],
-			['FR', 'fr.png', 'FranÃ§ais', 'Translated by masckmaster2007 and M336'],
-			['ES', 'es.png', 'EspaÃ±ol', 'Translated by Nejik and Maxi'],
-			['PT', 'pt.png', 'PortuguÃªs', 'Translated by OmgRod'],
-			['CZ', 'cz.png', 'ÄŒeÅ¡tina', 'Translated by Matto58'],
+			['RU', 'ru.png', 'Русский', ''],
+			['TR', 'tr.png', 'Türkçe', 'Translated by EMREOYUN'],
+			['UA', 'ua.png', 'Українська', 'Translated by Jamichi'],
+			['FR', 'fr.png', 'Français', 'Translated by masckmaster2007 and M336'],
+			['ES', 'es.png', 'Español', 'Translated by Nejik and Maxi'],
+			['PT', 'pt.png', 'Português', 'Translated by OmgRod'],
+			['CZ', 'cz.png', 'Čeština', 'Translated by Matto58'],
 			['IT', 'it.png', 'Italiano', 'Translated by Fenix668'],
 			['PL', 'pl.png', 'Polski', 'Translated by ExtremeSpe98'],
-			['VI', 'vi.png', 'Tiáº¿ng Viá»‡t', 'Translated by TacoEnjoyer'],
+			['VI', 'vi.png', 'Tiếng Việt', 'Translated by TacoEnjoyer'],
 		];
 		$langMenu = '';
 		foreach($langs as $l) $langMenu .= '<a class="dropdown-item dontblock" href="lang/switchLang.php?lang='.$l[0].'"'.($l[3] != '' ? ' title="'.$l[3].'"' : '').'><div class="icon flag"><img class="imgflag" src="/dashboard/incl/flags/'.$l[1].'?2" alt=""></div>'.$l[2].'</a>';
@@ -414,65 +424,148 @@ class dashboardLib {
 				<span class="gd-pagetitle">'.htmlspecialchars($pageTitle).'</span>
 				<div class="gd-topbar-actions">'.$topbarRight.'</div>
 			</header>';
-
-		/* ---- floating audio player (ids are part of the JS contract) ---- */
-		echo '<div id="audioPlayerButton" class="audioDiv showButton"><i id="audioPlayerButtonI" class="fa-solid fa-music"></i></div>
-			<div id="audioPlayer" class="audioDiv">
-				<div class="cover" onclick="player.play()">
-					<i id="audioButton" class="fa-solid fa-circle-play image"></i>
-					<img id="audioImage" class="image" src="/dashboard/incl/no-cover.png" alt="">
-				</div>
-				<div class="track">
-					<p id="audioName" class="name">'.$this->getLocalizedString("songAddNameFieldPlaceholder").'</p>
-					<p id="audioAuthor" class="author">'.$this->getLocalizedString("songAddAuthorFieldPlaceholder").'</p>
-					<div class="duration">
-						<button type="button" onclick="player.previous()" id="audioBackward" disabled aria-label="Previous"><i class="fa-solid fa-backward"></i></button>
-						<input type="range" value="0" max="322" id="audioProgress" class="length" aria-label="Seek">
-						<button type="button" onclick="player.skip()" id="audioForward" disabled aria-label="Next"><i class="fa-solid fa-forward"></i></button>
-					</div>
-				</div>
-				<div class="buttons">
-					<button type="button" onclick="player.song.download()" aria-label="Download song"><i class="fa-solid fa-download"></i></button>
-					<button type="button" id="audioButtonStop" onclick="player.stop()" aria-label="Stop"><i class="fa-solid fa-square"></i></button>
-				</div>
-				<audio id="audioSong" src="" style="display: none"></audio>
-				<div class="volumeDiv">
-					<i id="audioVolumeIcon" class="fa-solid fa-volume-high volume show"></i>
-					<div id="audioAnotherVolume" class="anotherVolume"><input class="length volume" id="audioVolume" type="range" value="0" max="1000" aria-label="Volume"></div>
-				</div>
-				<div id="audioQueue" class="audioDiv queueDiv"></div>
-			</div>
-			<div class="error-divs" id="error-divs"></div>
-			<div id="loadingloool" aria-hidden="true"></div>
-			<script>
-			window.GDIPS = {
-				i18n: '.json_encode([
-					"cronSuccess" => $this->getLocalizedString('cronSuccess'),
-					"cronError" => $this->getLocalizedString('cronError'),
-					"likeSong" => $this->getLocalizedString("likeSong"),
-					"dislikeSong" => $this->getLocalizedString("dislikeSong"),
-					"songIsAvailable" => $this->getLocalizedString('songIsAvailable'),
-					"songIsDisabled" => $this->getLocalizedString('songIsDisabled'),
-					"songPlaceholder" => $this->getLocalizedString("songAddNameFieldPlaceholder"),
-					"authorPlaceholder" => $this->getLocalizedString("songAddAuthorFieldPlaceholder"),
-					"downloadFailed" => $this->getLocalizedString("downloadFailed"),
-				], JSON_UNESCAPED_UNICODE).'
-			};
-			if(window.gdBoot) gdBoot(); else document.addEventListener("DOMContentLoaded", gdBoot);
-			</script>
-		</div>';
 	}
 
 	/* ------------------------------------------------------------------ *
-	 *  Page wrapper                                                      *
-	 * ------------------------------------------------------------------ */
-	public function printPage($content, $isSubdirectory = true, $navbar = "home"){
-		$this->printHeader($isSubdirectory);
-		$this->printNavbar($navbar, $isSubdirectory);
-		echo '<span id="htmlpage" style="display: contents;"><main class="gd-content" id="gd-main">
-				'.$content.'
-			</main></span>';
-	}
+ *  Page wrapper                                                      *
+ * ------------------------------------------------------------------ */
+public function printPage($content, $isSubdirectory = true, $navbar = "home"){
+    $this->printHeader($isSubdirectory);
+    $this->printNavbar($navbar, $isSubdirectory);
+
+    echo '<span id="htmlpage" style="display: contents;">
+        <main class="gd-content" id="gd-main">
+
+            <div class="gd-audiobar">
+                <div id="audioPlayer" class="audioDiv">
+
+                    <div class="cover" onclick="player.play()">
+                        <i id="audioButton" class="fa-solid fa-circle-play image"></i>
+                        <img
+                            id="audioImage"
+                            class="image"
+                            src="/dashboard/incl/miyuki-san-andreas.jpg"
+                            alt=""
+                        >
+                    </div>
+
+                    <div class="track">
+                        <p id="audioName" class="name">'
+                            . $this->getLocalizedString("songAddNameFieldPlaceholder") .
+                        '</p>
+
+                        <p id="audioAuthor" class="author">'
+                            . $this->getLocalizedString("songAddAuthorFieldPlaceholder") .
+                        '</p>
+
+                        <div class="duration">
+                            <button
+                                type="button"
+                                onclick="player.previous()"
+                                id="audioBackward"
+                                disabled
+                                aria-label="Previous"
+                            >
+                                <i class="fa-solid fa-backward"></i>
+                            </button>
+
+                            <input
+                                type="range"
+                                value="0"
+                                max="322"
+                                id="audioProgress"
+                                class="length"
+                                aria-label="Seek"
+                            >
+
+                            <button
+                                type="button"
+                                onclick="player.skip()"
+                                id="audioForward"
+                                disabled
+                                aria-label="Next"
+                            >
+                                <i class="fa-solid fa-forward"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="buttons">
+                        <button
+                            type="button"
+                            onclick="player.song.download()"
+                            aria-label="Download song"
+                        >
+                            <i class="fa-solid fa-download"></i>
+                        </button>
+
+                        <button
+                            type="button"
+                            id="audioButtonStop"
+                            onclick="player.stop()"
+                            aria-label="Stop"
+                        >
+                            <i class="fa-solid fa-square"></i>
+                        </button>
+                    </div>
+
+                    <audio id="audioSong" src="" style="display: none"></audio>
+
+                    <div class="volumeDiv">
+                        <i
+                            id="audioVolumeIcon"
+                            class="fa-solid fa-volume-high volume show"
+                        ></i>
+
+                        <div id="audioAnotherVolume" class="anotherVolume">
+                            <input
+                                class="length volume"
+                                id="audioVolume"
+                                type="range"
+                                value="0"
+                                max="1000"
+                                aria-label="Volume"
+                            >
+                        </div>
+                    </div>
+
+                    <div id="audioQueue" class="audioDiv queueDiv"></div>
+
+                </div>
+            </div>
+
+            <div class="gd-content-body">
+                '.$content.'
+            </div>
+
+            <div class="error-divs" id="error-divs"></div>
+            <div id="loadingloool" aria-hidden="true"></div>
+
+            <script>
+                window.GDIPS = {
+                    i18n: '.json_encode([
+                        "cronSuccess" => $this->getLocalizedString("cronSuccess"),
+                        "cronError" => $this->getLocalizedString("cronError"),
+                        "likeSong" => $this->getLocalizedString("likeSong"),
+                        "dislikeSong" => $this->getLocalizedString("dislikeSong"),
+                        "songIsAvailable" => $this->getLocalizedString("songIsAvailable"),
+                        "songIsDisabled" => $this->getLocalizedString("songIsDisabled"),
+                        "songPlaceholder" => $this->getLocalizedString("songAddNameFieldPlaceholder"),
+                        "authorPlaceholder" => $this->getLocalizedString("songAddAuthorFieldPlaceholder"),
+                        "downloadFailed" => $this->getLocalizedString("downloadFailed"),
+                    ], JSON_UNESCAPED_UNICODE).'
+                };
+
+                if (window.gdBoot) {
+                    gdBoot();
+                } else {
+                    document.addEventListener("DOMContentLoaded", gdBoot);
+                }
+            </script>
+
+        </main>
+    </span>';
+}
 
 	public function handleLangStart() {
 		if(!isset($_COOKIE["lang"]) OR !ctype_alpha($_COOKIE["lang"])){

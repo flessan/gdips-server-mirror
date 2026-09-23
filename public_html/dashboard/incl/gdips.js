@@ -205,7 +205,7 @@ function a(page, skipcheck, skipslash, method, getdata, formname, isback) {
 			/* Keep <base> pointing at the dashboard root for the new depth. */
 			var sub = document.getElementById("isSubdirectory");
 			var base = document.querySelector("base");
-			if (base && sub) base.setAttribute("href", sub.value === "true" ? "../" : ".");
+			if (base) base.setAttribute("href", "/dashboard/");
 
 			/* History entry (absolute path resolved against the old base). */
 			if (!isback) {
@@ -541,7 +541,7 @@ function gdInitPlayer() {
 		}).catch(function () { createToast((window.GDIPS && window.GDIPS.i18n && window.GDIPS.i18n.downloadFailed) || "Download failed"); });
 	};
 	player.song.setCover = function () {
-		player.cover.src = "incl/no-cover.png";
+		player.cover.src = "incl/miyuki-san-andreas.jpg";
 		if (typeof player.covers[player.song.ID] !== "undefined") {
 			player.cover.src = player.covers[player.song.ID];
 			return;
@@ -557,7 +557,7 @@ function gdInitPlayer() {
 					player.covers[player.song.ID] = cover;
 				}
 			},
-			onError: function () { player.cover.src = "incl/no-cover.png"; }
+			onError: function () { player.cover.src = "incl/miyuki-san-andreas.jpg"; }
 		});
 	};
 	player.updateQueue = function (song, first) {
@@ -571,7 +571,7 @@ function gdInitPlayer() {
 		playI.setAttribute("onclick", "player.queueDiv.move(" + song.ID + ")");
 		var img = document.createElement("img");
 		img.className = "image";
-		img.src = typeof player.covers[song.ID] !== "undefined" ? player.covers[song.ID] : "incl/no-cover.png";
+		img.src = typeof player.covers[song.ID] !== "undefined" ? player.covers[song.ID] : "incl/miyuki-san-andreas.jpg";
 		cover.append(playI, img);
 		var names = document.createElement("div");
 		names.className = "track";
@@ -633,7 +633,7 @@ function gdInitPlayer() {
 		var i18n = (window.GDIPS && window.GDIPS.i18n) || {};
 		player.name.innerHTML = i18n.songPlaceholder || "";
 		player.author.innerHTML = i18n.authorPlaceholder || "";
-		player.cover.src = "incl/no-cover.png";
+		player.cover.src = "incl/miyuki-san-andreas.jpg";
 		player.song.ID = "";
 		player.song.src = "";
 		document.querySelectorAll("button i.fa-pause").forEach(function (el) {

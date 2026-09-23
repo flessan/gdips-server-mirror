@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
 session_start();
 require "incl/dashboardLib.php";
 $dl = new dashboardLib();
@@ -15,14 +18,39 @@ $dl->title($dl->getLocalizedString("homeNavbar"));
 /* ------------------------------------------------------------------ *
  *  Greeting                                                          *
  * ------------------------------------------------------------------ */
-$hour = date("G");
-if($hour >= 5 AND $hour < 11) $greet = $dl->getLocalizedString("greetMorning");
-elseif($hour >= 11 AND $hour < 15) $greet = $dl->getLocalizedString("greetAfternoon");
-elseif($hour >= 15 AND $hour < 18) $greet = $dl->getLocalizedString("greetEvening");
-else $greet = $dl->getLocalizedString("greetNight");
-$name = $logged ? htmlspecialchars($gs->getAccountName($_SESSION["accountID"])) : "";
-$heroTitle = $logged ? $greet.', <span style="color:var(--merah-strong)">'.$name.'</span>' : $dl->getLocalizedString("homeHeroTitleGuest");
-$heroSub = $dl->getLocalizedString($logged ? "homeHeroSubAuth" : "homeHeroSubGuest");
+// GDIPS greeting time
+$timezone = new DateTimeZone("Asia/Makassar"); // WITA
+$now = new DateTimeImmutable("now", $timezone);
+
+$hour = (int)$now->format("G");
+$minute = (int)$now->format("i");
+$totalMinutes = ($hour * 60) + $minute;
+
+if ($totalMinutes >= 5 * 60 && $totalMinutes < 11 * 60) {
+    $greet = $dl->getLocalizedString("greetMorning");
+} elseif ($totalMinutes >= 11 * 60 && $totalMinutes < 15 * 60) {
+    $greet = $dl->getLocalizedString("greetAfternoon");
+} elseif ($totalMinutes >= 15 * 60 && $totalMinutes < 19 * 60) {
+    $greet = $dl->getLocalizedString("greetEvening");
+} else {
+    $greet = $dl->getLocalizedString("greetNight");
+}
+
+$name = $logged
+    ? htmlspecialchars(
+        $gs->getAccountName($_SESSION["accountID"]),
+        ENT_QUOTES,
+        "UTF-8"
+    )
+    : "";
+
+$heroTitle = $logged
+    ? $greet . ', <span style="color:var(--merah-strong)">' . $name . '</span>'
+    : $dl->getLocalizedString("homeHeroTitleGuest");
+
+$heroSub = $dl->getLocalizedString(
+    $logged ? "homeHeroSubAuth" : "homeHeroSubGuest"
+);
 
 /* ------------------------------------------------------------------ *
  *  Server numbers (one slim band - not a wall of stats)              *
@@ -78,22 +106,22 @@ if($logged) {
 	$unread = $db->prepare("SELECT count(*) FROM messages WHERE toAccountID = :acc AND isNew = 0");
 	$unread->execute([':acc' => $_SESSION["accountID"]]);
 	$unread = (int)$unread->fetchColumn();
-	$shortcuts .= $shortcut('profile/'.$name, 'fa-id-badge', $dl->getLocalizedString("yourProfile"));
-	$shortcuts .= $shortcut('messenger', 'fa-comments', $dl->getLocalizedString("messenger"), $unread > 0 ? '<span class="new-messages-notify">'.$unread.'</span>' : '');
-	if(strpos($songEnabled, '1') !== false) $shortcuts .= $shortcut('songs', 'fa-file-audio', $dl->getLocalizedString("songAdd"));
-	if($lrEnabled == 1) $shortcuts .= $shortcut('levels/levelReupload.php', 'fa-cloud-arrow-down', $dl->getLocalizedString("levelReupload"));
+	$shortcuts .= $shortcut('dashboard/profile/'.$name, 'fa-id-badge', $dl->getLocalizedString("yourProfile"));
+	$shortcuts .= $shortcut('dashboard/messenger', 'fa-comments', $dl->getLocalizedString("messenger"), $unread > 0 ? '<span class="new-messages-notify">'.$unread.'</span>' : '');
+	if(strpos($songEnabled, '1') !== false) $shortcuts .= $shortcut('dashboard/songs', 'fa-file-audio', $dl->getLocalizedString("songAdd"));
+	if($lrEnabled == 1) $shortcuts .= $shortcut('dashboard/levels/levelReupload.php', 'fa-cloud-arrow-down', $dl->getLocalizedString("levelReupload"));
 	$userClan = $gs->isPlayerInClan($_SESSION["accountID"]);
 	if($userClan) {
 		$clanInfo = $gs->getClanInfo($userClan);
-		$shortcuts .= $shortcut('clan/'.htmlspecialchars($clanInfo["clan"]), 'fa-dungeon', htmlspecialchars($clanInfo["clan"]));
-	} elseif($clansEnabled) $shortcuts .= $shortcut('clans/create.php', 'fa-dungeon', $dl->getLocalizedString("createClan"));
-	$shortcuts .= $shortcut('stats/unlisted.php', 'fa-eye-slash', $dl->getLocalizedString("unlistedLevels"));
+		$shortcuts .= $shortcut('dashboard/clan/'.htmlspecialchars($clanInfo["clan"]), 'fa-dungeon', htmlspecialchars($clanInfo["clan"]));
+	} elseif($clansEnabled) $shortcuts .= $shortcut('dashboard/clans/create.php', 'fa-dungeon', $dl->getLocalizedString("createClan"));
+	$shortcuts .= $shortcut('dashboard/stats/unlisted.php', 'fa-eye-slash', $dl->getLocalizedString("unlistedLevels"));
 } else {
-	$shortcuts .= $shortcut('login/login.php', 'fa-sign-in', $dl->getLocalizedString("login"));
-	$shortcuts .= $shortcut('login/register.php', 'fa-user-plus', $dl->getLocalizedString("createAcc"));
-	$shortcuts .= $shortcut('stats/levelsList.php', 'fa-gamepad', $dl->getLocalizedString("levels"));
-	$shortcuts .= $shortcut('stats/songList.php', 'fa-music', $dl->getLocalizedString("songs"));
-	if($clansEnabled) $shortcuts .= $shortcut('clans', 'fa-dungeon', $dl->getLocalizedString("clans"));
+	$shortcuts .= $shortcut('dashboard/login/login.php', 'fa-sign-in', $dl->getLocalizedString("login"));
+	$shortcuts .= $shortcut('dashboard/login/register.php', 'fa-user-plus', $dl->getLocalizedString("createAcc"));
+	$shortcuts .= $shortcut('dashboard/stats/levelsList.php', 'fa-gamepad', $dl->getLocalizedString("levels"));
+	$shortcuts .= $shortcut('dashboard/stats/songList.php', 'fa-music', $dl->getLocalizedString("songs"));
+	if($clansEnabled) $shortcuts .= $shortcut('dashboard/clans', 'fa-dungeon', $dl->getLocalizedString("clans"));
 }
 
 /* ------------------------------------------------------------------ *
