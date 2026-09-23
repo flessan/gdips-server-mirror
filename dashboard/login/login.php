@@ -83,7 +83,9 @@ if(isset($_POST["userName"]) && isset($_POST["password"])) {
 		</div>'));
 	}
 	$accountID = $gs->getAccountIDFromName($userName);
-  	$_SESSION["accountID"] = $accountID;
+  	if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+    session_regenerate_id(true);
+    $_SESSION["accountID"] = $accountID;
 	$gs->logAction($accountID, 2);
   	$query = $db->prepare("SELECT auth FROM accounts WHERE accountID = :id");
   	$query->execute([':id' => $accountID]);
