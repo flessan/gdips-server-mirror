@@ -4,14 +4,19 @@ session_start();
 require __DIR__."/../incl/dashboardLib.php";
 require __DIR__."/../../incl/lib/connection.php";
 require __DIR__."/../../incl/lib/badgeLib.php";
+require __DIR__."/../../incl/lib/adminLib.php";
 
 $dl = new dashboardLib();
 $dl->title("Roles");
 
-$q = $db->prepare("SELECT isAdmin FROM accounts WHERE accountID = :id");
-$q->execute([":id" => $_SESSION["accountID"] ?? 0]);
-if((int)$q->fetchColumn() !== 1){
-    $dl->printPage('<div class="gd-card"><h1>Roles</h1><p>Administrator access required.</p></div>', true, "roles");
+gdAdminLib::requireAdmin($db);
+
+if(!gdAdminLib::tableExists("roles", $db) || !gdAdminLib::tableExists("roleassign", $db)){
+    $dl->printPage(
+        '<div class="gd-card"><h1>Role definitions</h1><p>The role system is not fully installed. The database schema requires both <code>roles</code> and <code>roleassign</code> tables.</p><p style="color:var(--tx-2)">Import the current <code>database.sql</code> schema in Adminer, then reload this page.</p></div>',
+        true,
+        "roles"
+    );
     $dl->printFooter("../");
     exit;
 }
