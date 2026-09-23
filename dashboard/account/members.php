@@ -147,7 +147,7 @@ foreach($accounts as $account) {
         $chips .= ' · '.implode(', ', array_map(static function($r){ return $r['roleName']; }, $roleSummary));
     }
 
-    $list .= '<a class="gd-card" href="members.php?account='.$h($account['accountID']).($search!==''?'&q='.rawurlencode($search):'').'" onclick="a('account/members.php?account='.$h($account['accountID']).($search!==''?'&q='.rawurlencode($search):'').'');return false;" style="display:block;border:1px solid '.($isSelected?'var(--accent)':'var(--line)').';">
+    $list .= '<a class="gd-card" href="members.php?account='.$h($account['accountID']).($search!==''?'&q='.rawurlencode($search):'').'" style="display:block;border:1px solid '.($isSelected?'var(--accent)':'var(--line)').';">
         <div style="display:flex;justify-content:space-between;gap:var(--sp-3);align-items:flex-start;">
             <div>
                 <strong>'.$h($account['userName']).'</strong>
