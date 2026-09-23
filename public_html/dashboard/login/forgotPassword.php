@@ -10,7 +10,6 @@ require_once "../".$dbPath."incl/lib/mainLib.php";
 $gs = new mainLib();
 $dl = new dashboardLib();
 $dl->title($dl->getLocalizedString("forgotPasswordTitle"));
-$dl->printFooter('../');
 if(isset($_SESSION["accountID"]) AND $_SESSION["accountID"] > 0) {
 	exit($dl->printSong('<div class="form">
 		<h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
@@ -159,4 +158,5 @@ if(!empty($_POST['username']) && !empty($_POST['email'])) {
 		<div class="gd-authfoot"><a href="login/login.php" onclick="a(\'login/login.php\', true, true);return false;">&larr; '.$dl->getLocalizedString("loginBox").'</a></div>
 	</div></div>');
 }
+$dl->printFooter('../');
 ?>

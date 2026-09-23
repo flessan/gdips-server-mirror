@@ -9,7 +9,6 @@ $gs = new mainLib();
 require "../".$dbPath."incl/lib/connection.php";
 require "../".$dbPath."config/misc.php";
 $dl->title($dl->getLocalizedString("levelLeaderboards"));
-$dl->printFooter('../');
 if(isset($_GET["page"]) AND is_numeric($_GET["page"]) AND $_GET["page"] > 0) {
 	$page = ($_GET["page"] - 1) * 10;
 	$actualpage = $_GET["page"];
@@ -128,4 +127,5 @@ $packcount = $query->fetchColumn();
 $pagecount = ceil($packcount / 10);
 $bottomrow = $dl->generateBottomRow($pagecount, $actualpage);
 $dl->printPage($pagel.$bottomrow, true, "browse");
+$dl->printFooter('../');
 ?>

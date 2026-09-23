@@ -7,7 +7,6 @@ require_once "../".$dbPath."incl/lib/exploitPatch.php";
 $gs = new mainLib();
 $dl = new dashboardLib();
 $dl->title($dl->getLocalizedString("songs"));
-$dl->printFooter('../');
 if(isset($_GET["page"]) AND is_numeric($_GET["page"]) AND $_GET["page"] > 0) {
 	$page = ($_GET["page"] - 1) * 10;
 	$actualpage = $_GET["page"];
@@ -78,4 +77,5 @@ $pagel .= '</div>';
 
 $bottomrow = $dl->generateBottomRow($pagecount, $actualpage);
 $dl->printPage($pagel.$bottomrow, true, "songs");
+$dl->printFooter('../');
 ?>

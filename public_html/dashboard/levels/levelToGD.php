@@ -14,7 +14,6 @@ $gs = new mainLib();
 $dl = new dashboardLib();
 global $lrEnabled;
 $dl->title($dl->getLocalizedString("levelToGD"));
-$dl->printFooter('../');
 if($lrEnabled) {
 if(!isset($_SESSION["accountID"]) OR $_SESSION["accountID"] == 0) {
 	$dl->printSong('<div class="form">
@@ -220,4 +219,5 @@ if(!empty($_POST["usertarg"]) AND !empty($_POST["passtarg"]) AND !empty($_POST["
 			</form>
 		</div>', 'reupload');
 }
+$dl->printFooter('../');
 ?>

@@ -10,7 +10,6 @@ require_once "../".$dbPath."incl/lib/mainLib.php";
 $gs = new mainLib();
 $dl = new dashboardLib();
 $dl->title($dl->getLocalizedString("addQuest"));
-$dl->printFooter('../');
 $allQuests = '';
 if($gs->checkPermission($_SESSION["accountID"], "toolQuestsCreate")) {
 if(!empty($_POST["type"]) AND !empty($_POST["amount"]) AND !empty($_POST["reward"]) AND !empty($_POST["names"])){
@@ -197,4 +196,5 @@ function change(id) {
     </form>
 </div>', 'mod');
 }
+$dl->printFooter('../');
 ?>

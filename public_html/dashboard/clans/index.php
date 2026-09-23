@@ -15,7 +15,6 @@ if(!$clansEnabled) exit($dl->printSong('<div class="form">
 	</form>
 </div>', 'browse'));
 $isPlayerInClan = $gs->isPlayerInClan($_SESSION["accountID"]);
-$dl->printFooter('../');
 $dl->title($dl->getLocalizedString("clans"));
 $clans = $db->prepare("SELECT clans.*, COUNT(users.clan) AS members FROM clans LEFT JOIN users ON clans.id = users.clan GROUP BY clans.id ORDER BY members DESC;");
 $clans->execute();
@@ -72,4 +71,5 @@ if(empty($options)) {
 }
 $pagel .= '</div>';
 $dl->printSong($pagel, 'clans');
+$dl->printFooter('../');
 ?>

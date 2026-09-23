@@ -7,7 +7,6 @@ require_once "../".$dbPath."incl/lib/exploitPatch.php";
 $gs = new mainLib();
 $dl = new dashboardLib();
 $dl->title($dl->getLocalizedString("favouriteSongs"));
-$dl->printFooter('../');
 if(!isset($_SESSION["accountID"]) || $_SESSION["accountID"] == 0) die($dl->printSong('<div class="form">
     <h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
     <form class="form__inner" method="post" action="./login/login.php">
@@ -50,4 +49,5 @@ $result = $query->fetchAll();
 $pagecount = ceil(count($result) / 10);
 $bottomrow = $dl->generateBottomRow($pagecount, $actualpage);
 $dl->printPage($pagel . $bottomrow, true, "account");
+$dl->printFooter('../');
 ?>

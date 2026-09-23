@@ -12,7 +12,6 @@ require_once "../".$dbPath."incl/lib/cron.php";
 $gs = new mainLib();
 $dl = new dashboardLib();
 $dl->title($dl->getLocalizedString("changeNickTitle"));
-$dl->printFooter('../');
 if(!isset($_SESSION["accountID"]) || $_SESSION["accountID"] == 0) exit($dl->printSong('<div class="form">
 	<h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
 	<form class="form__inner" method="post" action="./login/login.php">
@@ -107,4 +106,5 @@ if($_POST["oldnickname"] != "" AND $_POST["newnickname"] != "" AND $_POST["passw
 		</form>
 		</div>', 'account');
 }
+$dl->printFooter('../');
 ?>

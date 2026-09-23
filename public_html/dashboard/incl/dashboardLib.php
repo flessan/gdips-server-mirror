@@ -243,7 +243,7 @@ if($msgEnabled == 1 AND $logged) {
 		}
 
 		/* ---- navigation model ---- */
-		$main = 'dashboard';
+		$main = '';
 		$main .= $this->gdNavItem('', 'fa-house', $this->getLocalizedString("homeNavbar"), $active === "home");
 		$main .= $this->gdNavItem('stats/levelsList.php', 'fa-gamepad', $this->getLocalizedString("levels"), in_array($active, ["browse", "levels"], true));
 		$main .= $this->gdNavItem('stats/songList.php', 'fa-music', $this->getLocalizedString("songs"), $active === "songs");
@@ -392,7 +392,7 @@ if($msgEnabled == 1 AND $logged) {
 			<aside class="gd-sidebar" id="gd-sidebar">
 				<a class="gd-brand" href="." onclick="a(\'\');return false;">
 					<img src="'.$dashboardIcon.'" alt="">
-					<span><span class="gd-brand-name">GD<b>IPS</b></span><span class="gd-brand-desc">Geometry Dash Indonesia</span></span>
+					<span><span class="gd-brand-name">GDI<b>PS</b></span><span class="gd-brand-desc">Geometry Dash Indonesia</span></span>
 				</a>
 				<nav class="gd-nav" aria-label="Main">
 					'.$this->gdNavSection($this->getLocalizedString("navMain"), $main).'

@@ -8,7 +8,6 @@ require_once "../".$dbPath."incl/lib/mainLib.php";
 $gs = new mainLib();
 $dl = new dashboardLib();
 $dl->title($dl->getLocalizedString("banUserPlace"));
-$dl->printFooter('../');
 if(!$gs->checkPermission($_SESSION["accountID"], "dashboardModTools")) {
 	die($dl->printSong('<div class="form">
 		<h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
@@ -127,4 +126,5 @@ personField.setAttribute("placeholder", personTypes[personType]);
 document.getElementById("alsoBanIP").style.display = personType != 2 ? "flex" : "none";
 </script>', 'mod');
 }
+$dl->printFooter('../');
 ?>

@@ -13,7 +13,6 @@ $gs = new mainLib();
 if(isset($_SESSION["accountID"]) && $_SESSION["accountID"] != 0) header('Location: ../');
 if(isset($_POST["resendMailUserName"]) && isset($_POST["resendMailEmail"]) && $mailEnabled) {
 	$dl->title($dl->getLocalizedString("resendMailTitle"));
-	$dl->printFooter('../');
 	if(!Captcha::validateCaptcha()) {
 		exit($dl->printSong('<div class="form">
 			<h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
@@ -43,7 +42,6 @@ if(isset($_POST["userName"]) && isset($_POST["password"])) {
 	$valid = GeneratePass::isValidUsrname($userName, $password);
 	if($valid != 1) {
 		$dl->title($dl->getLocalizedString("loginBox"));
-        $dl->printFooter('../');
       	if($valid == -2) {
             if($mailEnabled) $dl->printSong('<div class="form">
 				<h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
@@ -99,7 +97,6 @@ if(isset($_POST["userName"]) && isset($_POST["password"])) {
 	if(!empty($_SERVER["HTTP_REFERER"])) header('Location: '.$_SERVER["HTTP_REFERER"]);
 	else header('Location: ../');
 } else {
-	$dl->printFooter('../');
 	if(isset($_GET['resend_mail']) && $mailEnabled) {
 		$dl->title($dl->getLocalizedString("resendMailTitle"));
 		exit($dl->printSong('<div class="form">
@@ -134,4 +131,5 @@ if(isset($_POST["userName"]) && isset($_POST["password"])) {
 		<div class="gd-authfoot">'.$dl->getLocalizedString("noAccountYet").' <a href="login/register.php" onclick="a(\'login/register.php\', true, true);return false;">'.$dl->getLocalizedString("register").'</a></div>
 	</div></div>');
 }
+$dl->printFooter('../');
 ?>

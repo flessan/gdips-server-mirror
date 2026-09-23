@@ -11,7 +11,6 @@ require_once "../".$dbPath."incl/lib/mainLib.php";
 require_once "../".$dbPath."incl/lib/cron.php";
 $gs = new mainLib();
 $dl = new dashboardLib();
-$dl->printFooter('../');
 $acc = $_SESSION["accountID"];
 if(!$gs->checkPermission($acc, 'dashboardForceChangePassNick')) exit($dl->printSong('<div class="form">
 	<h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
@@ -123,4 +122,5 @@ if(!empty($_POST["userID"]) AND !empty($_POST[$type])) {
     </form>
 </div>', 'mod');
 }
+$dl->printFooter('../');
 ?>

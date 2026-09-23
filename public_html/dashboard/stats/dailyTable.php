@@ -7,7 +7,6 @@ $gs = new mainLib();
 require "../".$dbPath."incl/lib/connection.php";
 require "../".$dbPath."incl/lib/exploitPatch.php";
 $dl->title($dl->getLocalizedString("dailyTable"));
-$dl->printFooter('../');
 if(isset($_GET["page"]) AND is_numeric($_GET["page"]) AND $_GET["page"] > 0){
 	$page = ($_GET["page"] - 1) * 10;
 	$actualpage = $_GET["page"];
@@ -55,4 +54,5 @@ $pagel = '<div class="form new-form">
 $pagecount = ceil($dailycount / 10);
 $bottomrow = $dl->generateBottomRow($pagecount, $actualpage);
 $dl->printPage($pagel.$bottomrow, true, "stats");
+$dl->printFooter('../');
 ?>

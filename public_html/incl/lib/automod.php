@@ -357,18 +357,36 @@ class Automod {
 			false - levels uploading is enabled
 	*/
 	public static function isAccountsDisabled($disableType = 0) {
-		$actionTypes = self::getAccountsDisableTypes();
-		$isDisabled = self::getLastAutomodAction($actionTypes[$disableType]);
-		if(!$isDisabled['resolved']) {
-			$disableExpires = $isDisabled['value1'] ?? 0;
-			if($disableExpires <= time()) {
-				self::changeAutomodAction($isDisabled['ID'], 1);
-				return false;
-			}
-			return true;
-		}
-		return false;
-	}
+    $actionTypes = self::getAccountsDisableTypes();
+
+    if (!isset($actionTypes[$disableType])) {
+        return false;
+    }
+
+    $isDisabled = self::getLastAutomodAction($actionTypes[$disableType]);
+
+    if (empty($isDisabled) || !is_array($isDisabled)) {
+        return false;
+    }
+
+    if (!empty($isDisabled['resolved'])) {
+        return false;
+    }
+
+    $disableExpires = isset($isDisabled['value1'])
+        ? (int)$isDisabled['value1']
+        : 0;
+
+    if ($disableExpires <= time()) {
+        if (isset($isDisabled['ID'])) {
+            self::changeAutomodAction($isDisabled['ID'], 1);
+        }
+
+        return false;
+    }
+
+    return true;
+}
 	/*
 		self::check_comments_similarity($str1, $str2)
 		This private function checks similarity of 2 strings

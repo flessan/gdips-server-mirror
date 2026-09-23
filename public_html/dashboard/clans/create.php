@@ -16,7 +16,6 @@ $gs = new mainLib();
 require "../".$dbPath."incl/lib/connection.php";
 require "../".$dbPath."config/security.php";
 $isPlayerInClan = $gs->isPlayerInClan($_SESSION["accountID"]);
-$dl->printFooter('../');
 $dl->title($dl->getLocalizedString("createClan"));
 if($isPlayerInClan) die($dl->printSong('<div class="form">
     <h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
@@ -124,4 +123,5 @@ if(isset($_POST["name"]) AND isset($_POST["desc"]) AND isset($_POST["color"])) {
   <button type="button" id="submit" onclick="a(\'clans/create.php\', true, false, \'POST\')" class="btn-primary">'.$dl->getLocalizedString("create").'</button>
  </form>
 </div>', 'browse');
+$dl->printFooter('../');
 ?>

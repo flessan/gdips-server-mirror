@@ -14,7 +14,6 @@ require_once "../".$dbPath."incl/lib/mainLib.php";
 $dl = new dashboardLib();
 global $lrEnabled;
 $dl->title($dl->getLocalizedString("levelReupload"));
-$dl->printFooter('../');
 if($lrEnabled == 1 && !Automod::isLevelsDisabled()) {
 function chkarray($source, $default = 0) {
 	if($source == "") $target = $default;
@@ -260,4 +259,5 @@ if(!empty($_POST["levelid"])) {
 			</form>
 		</div>', 'reupload');
 }
+$dl->printFooter('../');
 ?>

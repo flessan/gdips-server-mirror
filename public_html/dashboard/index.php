@@ -106,22 +106,22 @@ if($logged) {
 	$unread = $db->prepare("SELECT count(*) FROM messages WHERE toAccountID = :acc AND isNew = 0");
 	$unread->execute([':acc' => $_SESSION["accountID"]]);
 	$unread = (int)$unread->fetchColumn();
-	$shortcuts .= $shortcut('dashboard/profile/'.$name, 'fa-id-badge', $dl->getLocalizedString("yourProfile"));
-	$shortcuts .= $shortcut('dashboard/messenger', 'fa-comments', $dl->getLocalizedString("messenger"), $unread > 0 ? '<span class="new-messages-notify">'.$unread.'</span>' : '');
-	if(strpos($songEnabled, '1') !== false) $shortcuts .= $shortcut('dashboard/songs', 'fa-file-audio', $dl->getLocalizedString("songAdd"));
-	if($lrEnabled == 1) $shortcuts .= $shortcut('dashboard/levels/levelReupload.php', 'fa-cloud-arrow-down', $dl->getLocalizedString("levelReupload"));
+	$shortcuts .= $shortcut('profile/'.$name, 'fa-id-badge', $dl->getLocalizedString("yourProfile"));
+	$shortcuts .= $shortcut('messenger', 'fa-comments', $dl->getLocalizedString("messenger"), $unread > 0 ? '<span class="new-messages-notify">'.$unread.'</span>' : '');
+	if(strpos($songEnabled, '1') !== false) $shortcuts .= $shortcut('songs', 'fa-file-audio', $dl->getLocalizedString("songAdd"));
+	if($lrEnabled == 1) $shortcuts .= $shortcut('levels/levelReupload.php', 'fa-cloud-arrow-down', $dl->getLocalizedString("levelReupload"));
 	$userClan = $gs->isPlayerInClan($_SESSION["accountID"]);
 	if($userClan) {
 		$clanInfo = $gs->getClanInfo($userClan);
-		$shortcuts .= $shortcut('dashboard/clan/'.htmlspecialchars($clanInfo["clan"]), 'fa-dungeon', htmlspecialchars($clanInfo["clan"]));
-	} elseif($clansEnabled) $shortcuts .= $shortcut('dashboard/clans/create.php', 'fa-dungeon', $dl->getLocalizedString("createClan"));
-	$shortcuts .= $shortcut('dashboard/stats/unlisted.php', 'fa-eye-slash', $dl->getLocalizedString("unlistedLevels"));
+		$shortcuts .= $shortcut('clan/'.htmlspecialchars($clanInfo["clan"]), 'fa-dungeon', htmlspecialchars($clanInfo["clan"]));
+	} elseif($clansEnabled) $shortcuts .= $shortcut('clans/create.php', 'fa-dungeon', $dl->getLocalizedString("createClan"));
+	$shortcuts .= $shortcut('stats/unlisted.php', 'fa-eye-slash', $dl->getLocalizedString("unlistedLevels"));
 } else {
-	$shortcuts .= $shortcut('dashboard/login/login.php', 'fa-sign-in', $dl->getLocalizedString("login"));
-	$shortcuts .= $shortcut('dashboard/login/register.php', 'fa-user-plus', $dl->getLocalizedString("createAcc"));
-	$shortcuts .= $shortcut('dashboard/stats/levelsList.php', 'fa-gamepad', $dl->getLocalizedString("levels"));
-	$shortcuts .= $shortcut('dashboard/stats/songList.php', 'fa-music', $dl->getLocalizedString("songs"));
-	if($clansEnabled) $shortcuts .= $shortcut('dashboard/clans', 'fa-dungeon', $dl->getLocalizedString("clans"));
+	$shortcuts .= $shortcut('login/login.php', 'fa-sign-in', $dl->getLocalizedString("login"));
+	$shortcuts .= $shortcut('login/register.php', 'fa-user-plus', $dl->getLocalizedString("createAcc"));
+	$shortcuts .= $shortcut('stats/levelsList.php', 'fa-gamepad', $dl->getLocalizedString("levels"));
+	$shortcuts .= $shortcut('stats/songList.php', 'fa-music', $dl->getLocalizedString("songs"));
+	if($clansEnabled) $shortcuts .= $shortcut('clans', 'fa-dungeon', $dl->getLocalizedString("clans"));
 }
 
 /* ------------------------------------------------------------------ *
@@ -181,7 +181,7 @@ $content = $install.'
 	<section class="gd-section">
 	<div class="gd-section-head">
 		<h2 class="gd-display">'.$dl->getLocalizedString("featuredLevels").'</h2>
-		<a class="gd-link-more" href="dashboard/stats/levelsList.php" onclick="a(\'dashboard/stats/levelsList.php?sort=featured\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
+		<a class="gd-link-more" href="stats/levelsList.php" onclick="a(\'stats/levelsList.php?sort=featured\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
 	</div>
 	<div class="gd-levelgrid">'.($featuredCards !== '' ? $featuredCards : '<div class="gd-empty" style="grid-column:1/-1"><i class="fa-regular fa-face-smile-beam"></i><p>'.$dl->getLocalizedString("empty").'</p></div>').'</div>
 </section>
@@ -189,7 +189,7 @@ $content = $install.'
 <section class="gd-section">
 	<div class="gd-section-head">
 		<h2 class="gd-display">'.$dl->getLocalizedString("recentLevels").'</h2>
-		<a class="gd-link-more" href="dashboard/stats/levelsList.php" onclick="a(\'dashboard/stats/levelsList.php\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
+		<a class="gd-link-more" href="stats/levelsList.php" onclick="a(\'stats/levelsList.php\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
 	</div>
 	<div class="gd-levelgrid">'.$recentCards.'</div>
 </section>
@@ -202,7 +202,7 @@ $content = $install.'
 	<section class="gd-section">
 		<div class="gd-section-head">
 			<h2 class="gd-display">'.$dl->getLocalizedString("newSongs").'</h2>
-			<a class="gd-link-more" href="dashboard/stats/songList.php" onclick="a(\'dashboard/stats/songList.php\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
+			<a class="gd-link-more" href="stats/songList.php" onclick="a(\'stats/songList.php\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
 		</div>
 		<div class="gd-playerlist">'.($songRows !== '' ? $songRows : '<div class="gd-empty"><i class="fa-solid fa-music"></i><p>'.$dl->getLocalizedString("empty").'</p></div>').'</div>
 	</section>
@@ -211,7 +211,7 @@ $content = $install.'
 '.($clansEnabled && $clanCards !== '' ? '<section class="gd-section">
 	<div class="gd-section-head">
 		<h2 class="gd-display">'.$dl->getLocalizedString("activeClans").'</h2>
-		<a class="gd-link-more" href="dashboard/clans" onclick="a(\'dashboard/clans\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
+		<a class="gd-link-more" href="clans" onclick="a(\'clans\', true, true);return false;">'.$dl->getLocalizedString("viewAll").' <i class="fa-solid fa-chevron-right"></i></a>
 	</div>
 	<div class="gd-grid gd-grid--3">'.$clanCards.'</div>
 </section>' : '').'

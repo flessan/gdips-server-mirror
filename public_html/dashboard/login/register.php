@@ -12,7 +12,6 @@ require_once "../".$dbPath."incl/lib/mainLib.php";
 $gs = new mainLib();
 $dl = new dashboardLib();
 $dl->title($dl->getLocalizedString("registerAcc"));
-$dl->printFooter('../');
 if(Automod::isAccountsDisabled(0)) exit($dl->printSong('<div class="form">
 	<h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
 	<form class="form__inner" method="post" action="">
@@ -191,4 +190,5 @@ if(!empty($_POST["username"]) AND !empty($_POST["email"]) AND !empty($_POST["rep
     </form>
 </div>');
 }
+$dl->printFooter('../');
 ?>

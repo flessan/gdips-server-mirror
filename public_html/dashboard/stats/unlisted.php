@@ -8,7 +8,6 @@ require "../".$dbPath."incl/lib/exploitPatch.php";
 $gs = new mainLib();
 require "../".$dbPath."incl/lib/connection.php";
 $dl->title($dl->getLocalizedString("unlistedLevels"));
-$dl->printFooter('../');
 if(!isset($_SESSION["accountID"]) || $_SESSION["accountID"] == 0) exit($dl->printSong('<div class="form">
     <h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
 	<form class="form__inner" method="post" action="./login/login.php">
@@ -88,4 +87,5 @@ $packcount = $query->fetchColumn();
 $pagecount = ceil($packcount / 10);
 $bottomrow = $dl->generateBottomRow($pagecount, $actualpage);
 $dl->printPage($pagel.$bottomrow, true, "account");
+$dl->printFooter('../');
 ?>

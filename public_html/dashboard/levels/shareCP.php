@@ -9,7 +9,6 @@ require_once "../".$dbPath."incl/lib/exploitPatch.php";
 require_once "../".$dbPath."incl/lib/cron.php";
 $dl = new dashboardLib();
 $gs = new mainLib();
-$dl->printFooter('../');
 $dl->title($dl->getLocalizedString("shareCPTitle"));
 if($gs->checkPermission($_SESSION["accountID"], "commandSharecpAll")){
 if(!empty($_POST["username"]) AND !empty($_POST["level"])) {
@@ -106,4 +105,5 @@ if(!empty($_POST["username"]) AND !empty($_POST["level"])) {
 	        <button type="button" onclick="a(\'\', true, false, \'GET\')" class="btn-primary">'.$dl->getLocalizedString("Kish!").'</button>
     </form>
 </div>', 'mod');
+$dl->printFooter('../');
 ?>

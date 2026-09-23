@@ -7,7 +7,6 @@ require_once "../".$dbPath."incl/lib/exploitPatch.php";
 require_once "../".$dbPath."incl/lib/mainLib.php";
 $dl = new dashboardLib();
 $gs = new mainLib();
-$dl->printFooter('../');
 $dl->title($dl->getLocalizedString("listTable"));
 if(isset($_GET["page"]) AND is_numeric($_GET["page"]) AND $_GET["page"] > 0) {
 	$page = ($_GET["page"] - 1) * 10;
@@ -98,4 +97,5 @@ $dl->printPage('<div class="form new-form"><h1>'.$dl->getLocalizedString('listTa
 		'.$packtable.'
 	</div>
 </div>'.$bottomrow, 'browse');
+$dl->printFooter('../');
 ?>

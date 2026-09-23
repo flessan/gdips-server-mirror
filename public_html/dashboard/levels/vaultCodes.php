@@ -8,7 +8,6 @@ require_once "../".$dbPath."incl/lib/exploitPatch.php";
 $gs = new mainLib();
 $dl = new dashboardLib();
 $dl->title($dl->getLocalizedString("vaultCodesTitle"));
-$dl->printFooter('../');
 $allVaultCodes = $vaultCodeName = $vaultCodeRewards = $vaultCodeUses = $vaultCodeDuration = '';
 if(isset($_GET['rewardID']) && !isset($_POST['rewardID'])) $_POST['rewardID'] = $_GET['rewardID'];
 if(!$gs->checkPermission($_SESSION["accountID"], "dashboardVaultCodesManage")) exit($dl->printSong('<div class="form">
@@ -197,4 +196,5 @@ function recreateRewards(rewards) {
 }
 '.(!empty($vaultCodeRewards) ? 'recreateRewards("'.$vaultCodeRewards.'");' : '').'
 </script>', 'mod');
+$dl->printFooter('../');
 ?>

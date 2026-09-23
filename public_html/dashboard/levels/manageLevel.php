@@ -10,7 +10,6 @@ require_once "../".$dbPath."incl/lib/cron.php";
 $dl = new dashboardLib();
 $gs = new mainLib();
 $dl->title($dl->getLocalizedString("manageLevel"));
-$dl->printFooter('../');
 $manageLevelCheck = $gs->checkPermission($_SESSION["accountID"], "dashboardManageLevels");
 if(!$manageLevelCheck) exit($dl->printSong('<div class="form">
     <h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
@@ -243,4 +242,5 @@ if(!empty($_POST["levelName"]) && !empty($_POST["levelAuthor"])) {
 		document.getElementById("stars").value = '.$level["starStars"].';
 	</script>', 'browse');
 }
+$dl->printFooter('../');
 ?>

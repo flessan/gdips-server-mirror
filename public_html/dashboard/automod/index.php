@@ -9,7 +9,6 @@ require "../".$dbPath."incl/lib/automod.php";
 $dl = new dashboardLib();
 $gs = new mainLib();
 $dl->title($dl->getLocalizedString("automodTitle"));
-$dl->printFooter('../');
 if(!$gs->checkPermission($_SESSION["accountID"], "dashboardManageAutomod")) {
 	exit($dl->printSong('<div class="form">
 		<h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
@@ -422,4 +421,5 @@ $dl->printPage('<div class="form new-form automod-form">
 		document.getElementById("accountsResolveInput").value = actionID == 0 ? 0 : 1;
 	}
 </script>', 'mod');
+$dl->printFooter('../');
 ?>

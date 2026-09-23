@@ -9,7 +9,6 @@ require "../".$dbPath."config/dashboard.php";
 $dl = new dashboardLib();
 $gs = new mainLib();
 $dl->title($dl->getLocalizedString("songLink"));
-$dl->printFooter('../');
 if(strpos($songEnabled, '2') === false) {
 	exit($dl->printSong('<div class="form">
 		<h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
@@ -116,4 +115,5 @@ if(isset($_SESSION["accountID"]) AND $_SESSION["accountID"] != 0) {
     </form>
 </div>', 'reupload');
 }
+$dl->printFooter('../');
 ?>

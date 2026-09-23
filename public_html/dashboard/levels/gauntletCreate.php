@@ -10,7 +10,6 @@ require "../".$dbPath."incl/lib/connection.php";
 require "../".$dbPath."incl/lib/exploitPatch.php";
 require "../".$dbPath."config/security.php";
 $dl->title($dl->getLocalizedString("gauntletCreateTitle"));
-$dl->printFooter('../');
 $allGauntlets = '';
 if($gs->checkPermission($_SESSION["accountID"], "dashboardGauntletCreate")) {
 	if(isset($_POST['level_1'], $_POST['level_2'], $_POST['level_3'], $_POST['level_4'], $_POST['level_5'], $_POST['gauntlet_id'])) {
@@ -253,4 +252,5 @@ if($gs->checkPermission($_SESSION["accountID"], "dashboardGauntletCreate")) {
 	        <button type="button" onclick="a(\'\', true, false, \'GET\')" class="btn-primary">'.$dl->getLocalizedString("Kish!").'</button>
     </form>
 </div>', 'mod');
+$dl->printFooter('../');
 ?>

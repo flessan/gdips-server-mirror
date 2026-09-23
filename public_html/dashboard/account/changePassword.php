@@ -14,7 +14,6 @@ use Defuse\Crypto\KeyProtectedByPassword;
 use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Key;
 $dl->title($dl->getLocalizedString("changePassTitle"));
-$dl->printFooter('../');
 if(isset($_SESSION["accountID"]) AND $_SESSION["accountID"] != 0){
 if($_POST["oldpassword"] != "" AND $_POST["newpassword"] != "" AND $_POST["newpassword"] == $_POST["newpassconfirm"]) {
 	if(!Captcha::validateCaptcha()) {
@@ -112,4 +111,5 @@ if($pass == 1) {
     </form>
 </div>', 'account');
 }
+$dl->printFooter('../');
 ?>

@@ -10,7 +10,6 @@ require "../".$dbPath."config/security.php";
 require "../".$dbPath."config/mail.php";
 $dl = new dashboardLib();
 $dl->title($dl->getLocalizedString("activateAccount"));
-$dl->printFooter('../');
 if(!$preactivateAccounts) {
 if(!isset($_SESSION["accountID"]) OR $_SESSION["accountID"] == 0){
 if($mailEnabled) {
@@ -134,4 +133,5 @@ if(!empty($_POST["userName"]) && !empty($_POST["password"])){
 		</form>
 	</div>');
 }
+$dl->printFooter('../');
 ?>

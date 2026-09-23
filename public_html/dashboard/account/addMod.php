@@ -9,7 +9,6 @@ $gs = new mainLib();
 require "../".$dbPath."incl/lib/exploitPatch.php";
 $ep = new exploitPatch();
 $dl->title($dl->getLocalizedString("addMod"));
-$dl->printFooter('../');
 $options = $allMods = '';
 if($gs->checkPermission($_SESSION["accountID"], "dashboardAddMod")){
 	$accountID = $_SESSION["accountID"];
@@ -238,4 +237,5 @@ function change(id) {
 	        <button type="button" onclick="a(\'\', true, false, \'GET\')" class="btn-primary">'.$dl->getLocalizedString("Kish!").'</button>
     </form>
 </div>');
+$dl->printFooter('../');
 ?>

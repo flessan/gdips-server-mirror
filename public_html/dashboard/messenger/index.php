@@ -10,7 +10,6 @@ require_once "../".$dbPath."incl/lib/exploitPatch.php";
 $dl = new dashboardLib();
 $gs = new mainLib();
 $xor = new XORCipher();
-$dl->printFooter('../');
 if(!isset($_POST["receiver"])) {
 	$getID = str_replace('%20', ' ', explode("/", $_GET["id"])[count(explode("/", $_GET["id"]))-1]);
 	$receiver = ExploitPatch::charclean($getID);
@@ -315,4 +314,5 @@ $dl->printSong('<div class="gd-pagehead">
 		friendsList();
 	}
 </script>', 'msg');
+$dl->printFooter('../');
 ?>

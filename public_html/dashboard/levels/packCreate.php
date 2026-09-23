@@ -10,7 +10,6 @@ require "../".$dbPath."incl/lib/connection.php";
 require "../".$dbPath."incl/lib/exploitPatch.php";
 $ep = new exploitPatch();
 $dl->title($dl->getLocalizedString("packCreateTitle"));
-$dl->printFooter('../');
 $allPacks = '';
 if($gs->checkPermission($_SESSION["accountID"], "dashboardLevelPackCreate")){
 if(!empty($_POST["packName"])) {
@@ -232,4 +231,5 @@ function change(id) {
 	        <button type="button" onclick="a(\'\', true, false, \'GET\')" class="btn-primary">'.$dl->getLocalizedString("Kish!").'</button>
     </form>
 </div>', 'mod');
+$dl->printFooter('../');
 ?>

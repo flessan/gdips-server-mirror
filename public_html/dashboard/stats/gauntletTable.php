@@ -5,7 +5,6 @@ $dl = new dashboardLib();
 require_once "../".$dbPath."incl/lib/mainLib.php";
 $gs = new mainLib();
 $dl->title($dl->getLocalizedString("gauntletTable"));
-$dl->printFooter('../');
 require "../".$dbPath."incl/lib/connection.php";
 require "../".$dbPath."incl/lib/exploitPatch.php";
 if(isset($_GET["page"]) AND is_numeric($_GET["page"]) AND $_GET["page"] > 0){
@@ -71,4 +70,5 @@ $dl->printPage('<div class="form new-form"><h1>'.$dl->getLocalizedString('gauntl
 		'.$packtable.'
 	</div>
 </div>'.$bottomrow, 'browse');
+$dl->printFooter('../');
 ?>

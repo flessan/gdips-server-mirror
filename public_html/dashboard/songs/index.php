@@ -8,7 +8,6 @@ require_once "../".$dbPath."incl/lib/mainLib.php";
 $dl = new dashboardLib();
 $gs = new mainLib();
 $dl->title($dl->getLocalizedString("songAdd"));
-$dl->printFooter('../');
 if(strpos($songEnabled, '1') === false) {
 	$dl->printSong('<div class="form">
 		<h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
@@ -192,4 +191,5 @@ if($_FILES && $_FILES['filename']['error'] == UPLOAD_ERR_OK) {
 		</form>
 	</div>', 'reupload');
 }
+$dl->printFooter('../');
 ?>
