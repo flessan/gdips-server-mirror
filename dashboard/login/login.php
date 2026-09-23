@@ -94,10 +94,26 @@ if(isset($_POST["userName"]) && isset($_POST["password"])) {
           $auth = $gs->randomString(8);
           $query = $db->prepare("UPDATE accounts SET auth = :auth WHERE accountID = :id");
           $query->execute([':auth' => $auth, ':id' => $accountID]);
-		  setcookie('auth', $auth, 2147483647, '/', '', true, true);
-    } else setcookie('auth', $auth["auth"], 2147483647, '/', '', true, true);
-	if(!empty($_SERVER["HTTP_REFERER"])) header('Location: '.$_SERVER["HTTP_REFERER"]);
-	else header('Location: ../');
+    }
+
+    $cookieValue = $auth["auth"] ?? $auth;
+    setcookie('auth', $cookieValue, [
+        'expires' => 2147483647,
+        'path' => '/',
+        'secure' => true,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+
+    $gdipsNext = $_SESSION['gdips_after_login'] ?? '/dashboard/';
+    unset($_SESSION['gdips_after_login']);
+
+    if (!is_string($gdipsNext) || strpos($gdipsNext, '/dashboard') !== 0 || strlen($gdipsNext) > 2048) {
+        $gdipsNext = '/dashboard/';
+    }
+
+    header('Location: '.$gdipsNext, true, 302);
+    exit;
 } else {
 	if(isset($_GET['resend_mail']) && $mailEnabled) {
 		$dl->title($dl->getLocalizedString("resendMailTitle"));
