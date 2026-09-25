@@ -123,7 +123,7 @@ if($accid == $_SESSION["accountID"] && $accid != 0 && !empty($_POST["msg"])) {
 	<h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
        	<form class="form__inner" method="post" action="">
        	<p id="dashboard-error-text">'.$dl->getLocalizedString("postingIsDisabled").'</p>
-       	<button type="button" onclick="a(\'profile/.'\', true, true, \'GET\')" class="btn-primary" name="accountID" value="'.$accid.'">'.$dl->getLocalizedString("tryAgainBTN").'</button>
+       	<button type="button" onclick="a(\'profile/\', true, true, \'GET\')" class="btn-primary" name="accountID" value="'.$accid.'">'.$dl->getLocalizedString("tryAgainBTN").'</button>
 		</form>
 	</div>', 'profile'));
 	$checkBan = $gs->getPersonBan($accid, $userID, 3);
@@ -142,7 +142,7 @@ if($accid == $_SESSION["accountID"] && $accid != 0 && !empty($_POST["msg"])) {
 	<h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
        	<form class="form__inner" method="post" action="">
        	<p id="dashboard-error-text">'.$dl->getLocalizedString("tooFast").'</p>
-       	<button type="button" onclick="a(\'profile/.'\', true, true, \'GET\')" class="btn-primary" name="accountID" value="'.$accid.'">'.$dl->getLocalizedString("tryAgainBTN").'</button>
+       	<button type="button" onclick="a(\'profile/\', true, true, \'GET\')" class="btn-primary" name="accountID" value="'.$accid.'">'.$dl->getLocalizedString("tryAgainBTN").'</button>
 		</form>
 	</div>', 'profile'));
 	$msg = ExploitPatch::url_base64_encode(ExploitPatch::rucharclean($_POST["msg"]));
@@ -163,7 +163,7 @@ if(isset($_POST["settings"]) AND $_POST["settings"] == 1 AND $accid == $_SESSION
 		$query["twitter"] = mb_ereg_replace("[^a-zA-Z0-9_]", "", $query["twitter"]);
 		$query["twitch"] = mb_ereg_replace("[^a-zA-Z0-9_]", "", $query["twitch"]);
     	exit($dl->printSong('<div class="gd-pagehead" style="max-width:640px;margin:0 auto var(--sp-5)">
-            <form method="post" style="margin:0px" action=""><button type="button" onclick="a(\'profile/.'\', true, true, \'GET\')" class="goback" aria-label="Back"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button></form>
+            <form method="post" style="margin:0px" action=""><button type="button" onclick="a(\'profile/\', true, true, \'GET\')" class="goback" aria-label="Back"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button></form>
             <h1 class="gd-display" style="margin-top:var(--sp-3)">'.$dl->getLocalizedString("settings").'</h1>
             <p class="gd-pagehead-sub">'.$accname.'</p>
         </div>
@@ -294,7 +294,7 @@ if($accid == $_SESSION["accountID"]) {
 	if(empty($comments)) $comments = '<div class="gd-empty" style="width:100%"><i class="fa-regular fa-comment-dots"></i><p>'.$dl->getLocalizedString("writeSomething").'</p></div>';
 	$send = '<form method="post" action="" class="gd-inlineform" style="margin-top:4px">
 		<input type="text" name="msg" id="p1" placeholder="'.$dl->getLocalizedString("msg").'" aria-label="'.$dl->getLocalizedString("msg").'" style="flex:1">
-		<button type="button" onclick="a(\'profile/.'\', true, true, \'POST\')" class="gd-btn gd-btn--primary" id="submit">'.$dl->getLocalizedString("send").'</button>
+		<button type="button" onclick="a(\'profile/\', true, true, \'POST\')" class="gd-btn gd-btn--primary" id="submit">'.$dl->getLocalizedString("send").'</button>
 	</form>';
 	$msgtopl = '<form method="post" name="settingsform"><input type="hidden" name="settings" value="1"><button type="button" onclick="a(\'profile/\', true, true, \'POST\', false, \'settingsform\')" title="'.$dl->getLocalizedString("settings").'" class="msgupd" name="settings" value="1"><i class="fa-solid fa-user-gear" aria-hidden="true"></i></button></form>';
 } else {
