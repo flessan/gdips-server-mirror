@@ -199,8 +199,26 @@ if($postedReceiver != 0 && ExploitPatch::number($postedReceiver) != $_SESSION['a
 		}
 		'.(!empty($alertScript) ? 'alert("'.$alertScript.'");' : '').'';
 }
-$query = $db->prepare("SELECT * FROM messages, (SELECT max(messageID) messageIDs, (CASE WHEN accID = :accountID THEN toAccountID ELSE accID END) receiverID FROM messages WHERE accID = :accountID OR toAccountID = :accountID GROUP BY receiverID ORDER BY timestamp DESC) messageIDs WHERE messageID = messageIDs ORDER BY timestamp DESC");
-$query->execute([':accountID' => $_SESSION['accountID']]);
+$query = $db->prepare("
+    SELECT m.*
+    FROM messages m
+    INNER JOIN (
+        SELECT MAX(messageID) AS latestMessageID
+        FROM messages
+        WHERE accID = :accountID1
+           OR toAccountID = :accountID2
+        GROUP BY CASE
+            WHEN accID = :accountID3 THEN toAccountID
+            ELSE accID
+        END
+    ) latest ON latest.latestMessageID = m.messageID
+    ORDER BY m.timestamp DESC
+");
+$query->execute([
+    ':accountID1' => $_SESSION['accountID'],
+    ':accountID2' => $_SESSION['accountID'],
+    ':accountID3' => $_SESSION['accountID']
+]);
 $result = $query->fetchAll();
 $playersLastMessage = [];
 if(!empty($result)) {
