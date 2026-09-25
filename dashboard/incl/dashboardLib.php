@@ -416,7 +416,7 @@ if($msgEnabled == 1 AND $logged) {
 		if($logged) {
 			$topbarRight .= '<div class="dropdown"><button class="gd-tbtn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="gd-userchip-name">'.$userName.'</span></button>
 				<div class="dropdown-menu dropdown-menu-right">
-					<a type="button" class="dropdown-item" href="profile/'.$userName.'" onclick="a(\'profile/'.$userName.'\', true, true);return false;"><div class="icon"><i class="fa-regular fa-id-badge"></i></div>'.$this->getLocalizedString("profile").'</a>'
+					<a type="button" class="dropdown-item" href="profile/" onclick="a(\'profile/'.$userName.'\', true, true);return false;"><div class="icon"><i class="fa-regular fa-id-badge"></i></div>'.$this->getLocalizedString("profile").'</a>'
 					.($userClanID ? '<a class="dropdown-item" href="clan/'.htmlspecialchars($gs->getClanInfo($userClanID, "clan")).'" onclick="a(\'clan/'.htmlspecialchars($gs->getClanInfo($userClanID, "clan")).'\', false, true);return false;"><div class="icon"><i class="fa-solid fa-dungeon"></i></div>'.$this->getLocalizedString("yourClan").'</a>' : '').'
 					<div class="dropdown-divider"></div>
 					<a class="dropdown-item dontblock" href="login/logout.php"><div class="icon"><i class="fa-solid fa-sign-out"></i></div>'.$this->getLocalizedString("logout").'</a>
@@ -444,7 +444,7 @@ if($msgEnabled == 1 AND $logged) {
 				</nav>
 				<div class="gd-sidebar-foot">';
 		if($logged) {
-			echo '<a class="gd-userchip" href="profile/'.$userName.'" onclick="a(\'profile/'.$userName.'\', true, true);return false;">
+			echo '<a class="gd-userchip" href="profile/" onclick="a(\'profile/'.$userName.'\', true, true);return false;">
 						'.$userAvatar.'
 						<span><span class="gd-userchip-name">'.htmlspecialchars($userName).'</span><span class="gd-userchip-sub">'.($_SESSION["accountID"] == 0 ? '' : $this->getLocalizedString("accountID").' '.$_SESSION["accountID"]).'</span></span>
 					</a>
