@@ -444,7 +444,7 @@ if($msgEnabled == 1 AND $logged) {
 				</nav>
 				<div class="gd-sidebar-foot">';
 		if($logged) {
-			echo '<a class="gd-userchip" href="profile/" onclick="a(\'profile/.'\', true, true);return false;">
+			echo '<a class="gd-userchip" href="profile/" onclick="a(\'profile/\', true, true);return false;">
 						'.$userAvatar.'
 						<span><span class="gd-userchip-name">'.htmlspecialchars($userName).'</span><span class="gd-userchip-sub">'.($_SESSION["accountID"] == 0 ? '' : $this->getLocalizedString("accountID").' '.$_SESSION["accountID"]).'</span></span>
 					</a>
