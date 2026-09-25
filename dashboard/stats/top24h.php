@@ -1,117 +1,236 @@
 <?php
 session_start();
+
 require "../incl/dashboardLib.php";
 require "../".$dbPath."incl/lib/connection.php";
-require "../".$dbPath."config/dashboard.php";
 require_once "../".$dbPath."incl/lib/mainLib.php";
+require_once "../".$dbPath."incl/lib/exploitPatch.php";
+
 $gs = new mainLib();
 $dl = new dashboardLib();
 $dl->title($dl->getLocalizedString("leaderboardTime"));
-if(isset($_GET["page"]) AND is_numeric($_GET["page"]) AND $_GET["page"] > 0){
-	$page = ($_GET["page"] - 1) * 10;
-	$actualpage = $_GET["page"];
-}else{
-	$page = 0;
-	$actualpage = 1;
-}
+
+$actualpage = (isset($_GET["page"]) && ctype_digit((string)$_GET["page"]) && (int)$_GET["page"] > 0)
+    ? (int)$_GET["page"] : 1;
+$page = ($actualpage - 1) * 10;
+
 $time = time() - 86400;
+$members = '';
+$result = [];
+
+$conditions = [
+    "actions.type = 9",
+    "actions.timestamp > :time",
+    "actions.value > 0"
+];
+$params = [":time" => $time];
+
+/*
+ * Exclude active bans without interpolating user data into the SQL.
+ * personType:
+ *   0 = account/extID
+ *   1 = player/userID
+ *   2 = IP
+ */
 $bans = $gs->getAllBansOfBanType(0);
-$extIDs = $userIDs = $bannedIPs = [];
-foreach($bans AS &$ban) {
-	switch($ban['personType']) {
-		case 0:
-			$extIDs[] = $ban['person'];
-			break;
-		case 1:
-			$userIDs[] = $ban['person'];
-			break;
-		case 2:
-			$bannedIPs[] = $gs->IPForBan($ban['person'], true);
-			break;
-	}
-}
-$extIDsString = implode("','", $extIDs);
-$userIDsString = implode("','", $userIDs);
-$bannedIPsString = implode("|", $bannedIPs);
-$queryArray = [];
-if(!empty($extIDsString)) $queryArray[] = "extID NOT IN ('".$extIDsString."')";
-if(!empty($userIDsString)) $queryArray[] = "userID NOT IN ('".$userIDsString."')";
-if(!empty($bannedIPsString)) $queryArray[] = "IP NOT REGEXP '".$bannedIPsString."'";
-$queryText = !empty($queryArray) ? '('.implode(' AND ', $queryArray).') AND' : '';
-$query = $db->prepare("SELECT users.extID, SUM(actions.value) AS stars, users.userName FROM actions INNER JOIN users ON actions.account = users.extID WHERE type = '9' AND timestamp > :time AND ".$queryText." actions.value > 0 GROUP BY (stars) DESC ORDER BY stars DESC LIMIT 10 OFFSET $page");
-$query->execute([':time' => $time]);
-$result = $query->fetchAll();
-$x = $page + 1;
-if(empty($result)) {
-	$dl->printSong('<div class="form">
-    <h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
-    <form class="form__inner" method="post" action=".">
-		<p id="dashboard-error-text">'.$dl->getLocalizedString("emptyPage").'</p>
-        <button type="button" onclick="a(\'\', true, false, \'GET\')" class="btn-primary">'.$dl->getLocalizedString("dashboard").'</button>
-    </form>
-</div>', 'stats');
-	die();
-} 
-foreach($result as &$action){
-	$userid = $action["extID"];
-	$stars = $action["stars"];
-	$strs = $stars[strlen($stars)-1];
-	if($strs == 1) $star = 0; elseif($strs < 5 AND $strs != 0 AND ($stars > 20 OR $stars < 10)) $star = 1; else $star = 2;
-	$coin = $db->prepare("SELECT SUM(coins) FROM levelscores WHERE accountID = :id AND uploadDate > :time");
-	$coin->execute([':id' => $userid, ':time' => $time]);
-	$coins = $coin->fetchColumn();
-	if(empty($coins)) $coins = 0;
-	$cns = $coins[strlen($coins)-1];
-  	if($cns == 1) $lvl = 0; elseif($cns < 5 AND $cns > 0 AND ($cns > 20 OR $cns < 10)) $lvl = 1; else $lvl = 2;
-	if(empty($action["userCoins"])) $action["userCoins"] = 0;
-	$st = '<p class="profilepic">'.$action["stars"].' <i class="fa-solid fa-star"></i></p>';
-	$uc = '<p class="profilepic">'.$action["userCoins"].' <i class="fa-solid fa-coins"></i></p>';
-	$stats = $dl->createProfileStats($action["stars"], 0, 0, 0, $action['userCoins'], 0, 0, 0);
-	switch($x) {
-		case 1:
-			$place = '<i class="fa-solid fa-trophy" style="color:#ffd700;"> 1</i>';
-			break;
-		case 2:
-			$place = '<i class="fa-solid fa-trophy" style="color:#c0c0c0;"> 2</i>';
-			break;
-		case 3:
-			$place = '<i class="fa-solid fa-trophy" style="color:#cd7f32;"> 3</i>';
-			break;
-		default:
-			$place = '<i class="fa" style="color:white;"># '.$x.'</i>';
-			break;
-	}
-	// Avatar management
-	$avatarImg = '';
-	$extIDvalue = $action['extID'];
-    $query = $db->prepare('SELECT userName, iconType, color1, color2, color3, accGlow, accIcon, accShip, accBall, accBird, accDart, accRobot, accSpider, accSwing, accJetpack FROM users WHERE extID = :extID');
-    $query->execute(['extID' => $extIDvalue]);
-    $userData = $query->fetch(PDO::FETCH_ASSOC);
-    if($userData) {
-        $iconType = ($userData['iconType'] > 8) ? 0 : $userData['iconType'];
-        $iconTypeMap = [0 => ['type' => 'cube', 'value' => $userData['accIcon']], 1 => ['type' => 'ship', 'value' => $userData['accShip']], 2 => ['type' => 'ball', 'value' => $userData['accBall']], 3 => ['type' => 'ufo', 'value' => $userData['accBird']], 4 => ['type' => 'wave', 'value' => $userData['accDart']], 5 => ['type' => 'robot', 'value' => $userData['accRobot']], 6 => ['type' => 'spider', 'value' => $userData['accSpider']], 7 => ['type' => 'swing', 'value' => $userData['accSwing']], 8 => ['type' => 'jetpack', 'value' => $userData['accJetpack']]];
-        $iconValue = (isset($iconTypeMap[$iconType]) && $iconTypeMap[$iconType]['value'] > 0) ? $iconTypeMap[$iconType]['value'] : 1;
-        $avatarImg = '<img src="'.$iconsRendererServer.'/icon.png?type=' . $iconTypeMap[$iconType]['type'] . '&value=' . $iconValue . '&color1=' . $userData['color1'] . '&color2=' . $userData['color2'] . ($userData['accGlow'] != 0 ? '&glow=' . $userData['accGlow'] . '&color3=' . $userData['color3'] : '') . '" alt="Avatar" style="width: 30px; height: 30px; vertical-align: middle; object-fit: contain;">';
+$banExtIDs = [];
+$banUserIDs = [];
+$bannedIPs = [];
+
+foreach($bans as $ban) {
+    switch((int)$ban["personType"]) {
+        case 0:
+            $banExtIDs[] = (string)$ban["person"];
+            break;
+        case 1:
+            $banUserIDs[] = (string)$ban["person"];
+            break;
+        case 2:
+            $ip = $gs->IPForBan($ban["person"], true);
+            if($ip !== false && $ip !== '') $bannedIPs[] = $ip;
+            break;
     }
-	$members .= '<div style="width: 100%;display: flex;flex-wrap: wrap;justify-content: center;">
-			<div class="profile"><div style="display: flex;width: 100%;justify-content: space-between;margin-bottom: 7px;align-items: center;"><button style="display:contents;cursor:pointer" type="button" onclick="a(\'profile/'.$action["userName"].'\', true, true, \'GET\')"><div class="acclistdiv">
-				<h2 style="color:rgb('.$gs->getAccountCommentColor($userid).'); align-items: baseline;" class="profilenick acclistnick"><div class="accounts-badge-icon-div">'.$place.$action["userName"].$avatarImg.'</div></h2>
-			</div></button></div>
-			<div class="form-control" style="display: flex;width: 100%;height: max-content;align-items: center;">'.$stats.'</div>
-			<div class="acccomments"><h3 class="comments" style="margin: 0px;width: max-content;">'.$dl->getLocalizedString("accountID").': <b>'.(is_numeric($userid) ? $userid : 0).'</b></h3></div>
-		</div></div>';
-		$x++;
 }
-$pagel = '<div class="form new-form">
-<h1 style="margin-bottom:5px">'.$dl->getLocalizedString("leaderboardTime").'</h1>
-<div class="form-control new-form-control">
-		'.$members.'
-	</div></div>';
-$query = $db->prepare("SELECT users.extID, SUM(actions.value) AS stars, users.userName FROM actions INNER JOIN users ON actions.account = users.userID WHERE type = '9' AND ".$queryText." timestamp > :time  GROUP BY (stars) DESC ORDER BY stars DESC");
-$query->execute([':time' => $time]);
-$packcount = 0;
-$pagecount = ceil($packcount / 10);
+
+if(!empty($banExtIDs)) {
+    $placeholders = [];
+    foreach($banExtIDs as $i => $value) {
+        $key = ":banExt".$i;
+        $placeholders[] = $key;
+        $params[$key] = $value;
+    }
+    $conditions[] = "users.extID NOT IN (".implode(",", $placeholders).")";
+}
+
+if(!empty($banUserIDs)) {
+    $placeholders = [];
+    foreach($banUserIDs as $i => $value) {
+        $key = ":banUser".$i;
+        $placeholders[] = $key;
+        $params[$key] = $value;
+    }
+    $conditions[] = "users.userID NOT IN (".implode(",", $placeholders).")";
+}
+
+if(!empty($bannedIPs)) {
+    $regex = implode("|", array_map(
+        static function($ip) { return preg_quote($ip, "/"); },
+        $bannedIPs
+    ));
+    $conditions[] = "users.IP NOT REGEXP :banRegex";
+    $params[":banRegex"] = $regex;
+}
+
+$where = implode(" AND ", $conditions);
+
+/*
+ * Strict and deterministic leaderboard query.
+ * Group by the actual selected user identity instead of a SUM alias.
+ */
+$sql = "
+    SELECT users.extID, users.userName, SUM(actions.value) AS stars
+    FROM actions
+    INNER JOIN users ON users.extID = actions.account
+    WHERE ".$where."
+    GROUP BY users.extID, users.userName
+    ORDER BY stars DESC, users.extID ASC
+    LIMIT 10 OFFSET ".$page;
+$query = $db->prepare($sql);
+$query->execute($params);
+$result = $query->fetchAll(PDO::FETCH_ASSOC);
+
+if(empty($result)) {
+    $dl->printPage(
+        '<div class="gd-card">
+            <div class="gd-empty">
+                <i class="fa-solid fa-ranking-star"></i>
+                <h2>'.$dl->getLocalizedString("emptyPage").'</h2>
+                <p style="color:var(--tx-2)">There are no leaderboard results for this page yet.</p>
+            </div>
+        </div>',
+        true,
+        "stats"
+    );
+    $dl->printFooter("../");
+    exit;
+}
+
+$rank = $page + 1;
+
+foreach($result as $action) {
+    $userid = $action["extID"];
+    $stars = (int)$action["stars"];
+    $username = $action["userName"];
+
+    $stats = $dl->createProfileStats($stars, 0, 0, 0, 0, 0, 0, 0);
+
+    switch($rank) {
+        case 1:
+            $place = '<i class="fa-solid fa-trophy" style="color:#ffd700"> 1</i>';
+            break;
+        case 2:
+            $place = '<i class="fa-solid fa-trophy" style="color:#c0c0c0"> 2</i>';
+            break;
+        case 3:
+            $place = '<i class="fa-solid fa-trophy" style="color:#cd7f32"> 3</i>';
+            break;
+        default:
+            $place = '<span style="color:var(--tx-2)"># '.$rank.'</span>';
+            break;
+    }
+
+    $avatarImg = '';
+    $queryAvatar = $db->prepare(
+        'SELECT iconType, color1, color2, color3, accGlow, accIcon, accShip, accBall,
+                accBird, accDart, accRobot, accSpider, accSwing, accJetpack
+         FROM users WHERE extID = :extID LIMIT 1'
+    );
+    $queryAvatar->execute([":extID" => $userid]);
+    $userData = $queryAvatar->fetch(PDO::FETCH_ASSOC);
+
+    if($userData) {
+        $iconType = (int)$userData["iconType"];
+        if($iconType < 0 || $iconType > 8) $iconType = 0;
+
+        $iconTypeMap = [
+            0 => ["type" => "cube", "value" => $userData["accIcon"]],
+            1 => ["type" => "ship", "value" => $userData["accShip"]],
+            2 => ["type" => "ball", "value" => $userData["accBall"]],
+            3 => ["type" => "ufo", "value" => $userData["accBird"]],
+            4 => ["type" => "wave", "value" => $userData["accDart"]],
+            5 => ["type" => "robot", "value" => $userData["accRobot"]],
+            6 => ["type" => "spider", "value" => $userData["accSpider"]],
+            7 => ["type" => "swing", "value" => $userData["accSwing"]],
+            8 => ["type" => "jetpack", "value" => $userData["accJetpack"]]
+        ];
+
+        $iconValue = (int)$iconTypeMap[$iconType]["value"];
+        if($iconValue <= 0) $iconValue = 1;
+
+        $avatarImg =
+            '<img src="'.$iconsRendererServer.'/icon.png?type='.$iconTypeMap[$iconType]["type"].
+            '&value='.$iconValue.
+            '&color1='.rawurlencode($userData["color1"]).
+            '&color2='.rawurlencode($userData["color2"]).
+            ((int)$userData["accGlow"] !== 0
+                ? '&glow='.(int)$userData["accGlow"].'&color3='.rawurlencode($userData["color3"])
+                : '').
+            '" alt="" style="width:30px;height:30px;object-fit:contain" loading="lazy">';
+    }
+
+    $commentColor = $gs->getAccountCommentColor($userid);
+    if($commentColor === false || !preg_match('/^\d{1,3},\d{1,3},\d{1,3}$/', (string)$commentColor)) {
+        $commentColor = "255,255,255";
+    }
+
+    $members .= '
+        <div class="gd-account">
+            '.$avatarImg.'
+            <div style="min-width:0;flex:1">
+                <div class="gd-account-head">
+                    <button type="button"
+                        onclick="a(\'profile/'.htmlspecialchars($username, ENT_QUOTES, "UTF-8").'\', true, true, \'GET\')"
+                        class="gd-account-name"
+                        style="color:rgb('.htmlspecialchars($commentColor, ENT_QUOTES, "UTF-8").')">'
+                        .htmlspecialchars($username, ENT_QUOTES, "UTF-8").
+                    '</button>
+                </div>
+                <div class="gd-account-stats">'.$stats.'</div>
+            </div>
+            <div class="gd-account-foot">
+                <span>ID <b style="color:var(--tx-2)">'.htmlspecialchars((string)$userid, ENT_QUOTES, "UTF-8").'</b></span>
+            </div>
+        </div>';
+    $rank++;
+}
+
+/* Count groups for pagination. */
+$countSql = "
+    SELECT COUNT(*)
+    FROM (
+        SELECT users.extID
+        FROM actions
+        INNER JOIN users ON users.extID = actions.account
+        WHERE ".$where."
+        GROUP BY users.extID
+    ) ranked";
+$countQuery = $db->prepare($countSql);
+$countQuery->execute($params);
+$total = (int)$countQuery->fetchColumn();
+$pagecount = max(1, (int)ceil($total / 10));
+
+$pagel = '<div class="gd-pagehead">
+    <p class="gd-eyebrow">GDIPS</p>
+    <div class="gd-pagehead-row">
+        <div>
+            <h1 class="gd-display">'.$dl->getLocalizedString("leaderboardTime").'</h1>
+            <p class="gd-pagehead-sub">Top players by star activity during the last 24 hours.</p>
+        </div>
+    </div>
+</div>
+<div class="gd-list">'.$members.'</div>';
+
 $bottomrow = $dl->generateBottomRow($pagecount, $actualpage);
 $dl->printPage($pagel.$bottomrow, true, "stats");
-$dl->printFooter('../');
+$dl->printFooter("../");
 ?>
