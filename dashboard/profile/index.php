@@ -156,8 +156,7 @@ if($accid == $_SESSION["accountID"] && $accid != 0 && !empty($_POST["msg"])) {
 }
 if(isset($_POST["settings"]) AND $_POST["settings"] == 1 AND $accid == $_SESSION["accountID"]) {
     if(!isset($_POST["ichangedsmth"]) OR $_POST["ichangedsmth"] != 1) {
-        echo '<base href="../../">';
-        $query = $db->prepare("SELECT mS, frS, cS, youtubeurl, twitter, twitch, timezone FROM accounts WHERE accountID=:id");
+                $query = $db->prepare("SELECT mS, frS, cS, youtubeurl, twitter, twitch, timezone FROM accounts WHERE accountID=:id");
         $query->execute([':id' => $accid]);
         $query = $query->fetch();
 		$query["youtubeurl"] = mb_ereg_replace("(?!^@)[^a-zA-Z0-9_]", "", $query["youtubeurl"]);
@@ -168,7 +167,7 @@ if(isset($_POST["settings"]) AND $_POST["settings"] == 1 AND $accid == $_SESSION
             <h1 class="gd-display" style="margin-top:var(--sp-3)">'.$dl->getLocalizedString("settings").'</h1>
             <p class="gd-pagehead-sub">'.$accname.'</p>
         </div>
-        <form method="post" style="max-width:640px;margin:0 auto;display:grid;gap:var(--sp-5)">
+        <form method="post" name="settingsform" style="max-width:640px;margin:0 auto;display:grid;gap:var(--sp-5)">
             <div class="gd-card" style="display:grid;gap:var(--sp-4)">
                 <div>
                     <label class="gd-eyebrow" for="set-messages" style="display:block">'.$dl->getLocalizedString("allowMessagesFrom").'</label>
@@ -222,7 +221,7 @@ if(isset($_POST["settings"]) AND $_POST["settings"] == 1 AND $accid == $_SESSION
                 <input type="hidden" name="ichangedsmth" value="1">
                 <input type="hidden" name="settings" value="1">
             </div>
-            <button style="margin-bottom:10px" class="gd-btn gd-btn--primary" type="button" onclick="a(\'profile/'.$accname.'/settings\', true, true, \'POST\')">'.$dl->getLocalizedString("saveSettings").'</button>
+            <button style="margin-bottom:10px" class="gd-btn gd-btn--primary" type="button" onclick="a(\'profile/\', true, true, \'POST\')">'.$dl->getLocalizedString("saveSettings").'</button>
         </form>'));
     } else {
 		$getAccountData = $db->prepare("SELECT * FROM accounts WHERE accountID = :accountID");
@@ -297,7 +296,7 @@ if($accid == $_SESSION["accountID"]) {
 		<input type="text" name="msg" id="p1" placeholder="'.$dl->getLocalizedString("msg").'" aria-label="'.$dl->getLocalizedString("msg").'" style="flex:1">
 		<button type="button" onclick="a(\'profile/'.$accname.'\', true, true, \'POST\')" class="gd-btn gd-btn--primary" id="submit">'.$dl->getLocalizedString("send").'</button>
 	</form>';
-	$msgtopl = '<form method="post" name="settingsform"><input type="hidden" name="settings" value="1"><button type="button" onclick="a(\'profile/'.$accname.'/settings\', true, true, \'POST\', false, \'settingsform\')" title="'.$dl->getLocalizedString("settings").'" class="msgupd" name="settings" value="1"><i class="fa-solid fa-user-gear" aria-hidden="true"></i></button></form>';
+	$msgtopl = '<form method="post" name="settingsform"><input type="hidden" name="settings" value="1"><button type="button" onclick="a(\'profile/\', true, true, \'POST\', false, \'settingsform\')" title="'.$dl->getLocalizedString("settings").'" class="msgupd" name="settings" value="1"><i class="fa-solid fa-user-gear" aria-hidden="true"></i></button></form>';
 } else {
 	$privacySettings = $db->prepare("SELECT mS FROM accounts WHERE accountID = :receiver");
 	$privacySettings->execute([':receiver' => $accid]);
