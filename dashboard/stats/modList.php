@@ -9,8 +9,8 @@ require_once "../".$dbPath."incl/lib/exploitPatch.php";
 $gs = new mainLib();
 $dl = new dashboardLib();
 $dl->title($dl->getLocalizedString("modActions"));
-$dl->printFooter('../');
-$modtable = "";
+$members = "";
+$x = 1;
 $pagelol = explode("/", $_SERVER["REQUEST_URI"]);
 $pagelol = $pagelol[count($pagelol)-2]."/".$pagelol[count($pagelol)-1];
 $pagelol = explode("?", $pagelol)[0];
@@ -100,5 +100,9 @@ $pagel = '<div class="gd-pagehead">
 </div>
 <div class="gd-toolbar">'.$searchbar.'</div>
 <div class="gd-list">'.$members.'</div>';
+$packcount = count($result);
+$pagecount = max(1, (int)ceil($packcount / 10));
+$bottomrow = $dl->generateBottomRow($pagecount, 1);
 $dl->printPage($pagel.$bottomrow, true, "stats");
+$dl->printFooter('../');
 ?>
