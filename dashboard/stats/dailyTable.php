@@ -21,6 +21,7 @@ $query = $db->prepare("SELECT count(*) FROM dailyfeatures WHERE timestamp < :tim
 $query->execute([':time' => time()]);
 $dailycount = $query->fetchColumn();
 $x = $dailycount - $page;
+$levels = '';
 if(empty($result)) {
 	$dl->printSong('<div class="form">
     <h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
