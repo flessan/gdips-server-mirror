@@ -109,11 +109,31 @@ if ($levelString === "") {
     exit;
 }
 
+$decodedPayload = null;
+$decodedPayload = base64_decode(strtr($levelString, '-_', '+/'), true);
+$decompressedPayload = null;
+if($decodedPayload !== false && $decodedPayload !== null) {
+    $decompressedPayload = @gzdecode($decodedPayload);
+    if($decompressedPayload === false) $decompressedPayload = @gzuncompress($decodedPayload);
+}
+
 $result["payload"] = [
     "length" => strlen($levelString),
     "sha256" => hash("sha256", $levelString),
     "prefix" => substr($levelString, 0, 32),
     "suffix" => strlen($levelString) > 32 ? substr($levelString, -32) : $levelString,
+    "wireEncoding" => (
+        $decodedPayload !== false && $decodedPayload !== null && strlen($decodedPayload) > 2
+        && substr($decodedPayload, 0, 2) === "\x1f\x8b"
+    ) ? "base64url+gzip" : "unknown",
+    "compressedBytes" => $decodedPayload === false || $decodedPayload === null ? null : strlen($decodedPayload),
+    "decompressed" => is_string($decompressedPayload) ? [
+        "length" => strlen($decompressedPayload),
+        "sha256" => hash("sha256", $decompressedPayload),
+        "prefix" => substr($decompressedPayload, 0, 48),
+        "suffix" => strlen($decompressedPayload) > 48 ? substr($decompressedPayload, -48) : $decompressedPayload,
+        "startsWithK" => preg_match('/^kS[0-9]+[,;]/', $decompressedPayload) === 1,
+    ] : null,
     "containsLevelSignature" => (
         strpos($levelString, "kS1") === 0 ||
         strpos($levelString, "kS2") === 0
