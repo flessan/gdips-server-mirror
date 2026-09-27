@@ -30,8 +30,7 @@ class gdTelegraphCloud {
     }
 
     public static function enabled() {
-        try { return self::config() !== null; }
-        catch (Throwable $e) { return false; }
+        return self::config() !== null;
     }
 
     private static function objectUrl($base, $bucket, $key) {
