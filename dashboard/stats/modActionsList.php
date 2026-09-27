@@ -137,7 +137,7 @@ foreach($result as &$action) {
 			break;
 		case 20:
 		case 24:
-			$value = '<form style="margin:0" method="post" action="./profile/"><button type="button" onclick="a(\'profile/'.$value.'\', true, true, \'POST\')" style="margin:0" class="accbtn" name="accountID" value="'.$value2.'">'.$value.'</button></form>';
+			$value = '<form style="margin:0" method="post" action="./profile/"><button type="button" onclick="a(\'profile/?id='.$value.'\', true, true, \'POST\')" style="margin:0" class="accbtn" name="accountID" value="'.$value2.'">'.$value.'</button></form>';
 			if(!empty($value3) && $value3 != "-1") {
 				$clr = $db->prepare("SELECT commentColor, roleName FROM roles WHERE roleID = :id");
 				$clr->execute([':id' => $value3]);
@@ -157,7 +157,7 @@ foreach($result as &$action) {
 			break;
 		case 26:
 			$username26 = $gs->getAccountName($action["value"]);
-			$value = '<button href="profile/'.$username26.'" class="accbtn" onclick="a(\'profile/'.$username26.'\', true, true)">'.$username26.'</button>';
+			$value = '<button href="profile/?id='.$username26.'" class="accbtn" onclick="a(\'profile/?id='.$username26.'\', true, true)">'.$username26.'</button>';
 			$value2 = $action["value"];
 			if($value2 == 'Password') $value3 = $dl->getLocalizedString("password");
 			else $value3 = $dl->getLocalizedString("username");
@@ -166,7 +166,7 @@ foreach($result as &$action) {
 			switch($value3) {
 				case 0:
 					$username28 = $gs->getAccountName($action["value"]);
-					$value = '<button href="profile/'.$username28.'" class="accbtn" onclick="a(\'profile/'.$username28.'\', true, true)">'.$username28.'</button>';
+					$value = '<button href="profile/?id='.$username28.'" class="accbtn" onclick="a(\'profile/?id='.$username28.'\', true, true)">'.$username28.'</button>';
 					break;
 				case 1:
 					$value = $gs->getUserName($value);
