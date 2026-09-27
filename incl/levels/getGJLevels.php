@@ -12,6 +12,7 @@ $lvlstring = $userstring = $songsstring = $suggestColumn = $suggestJoin = $str =
 $lvlsmultistring = $epicParams = [];
 $order = "uploadDate";
 $orderenabled = $ordergauntlet = $isIDSearch = false;
+$accountID = 0;
 $params = ["unlisted = 0"];
 if(!empty($_POST['accountID'])) {
 	$accountID = GJPCheck::getAccountIDOrDie();
@@ -23,10 +24,10 @@ if(!empty($_POST['accountID'])) {
 	}
 }
 
-$gameVersion = ExploitPatch::number($_POST["gameVersion"]) ?: 0;
-$binaryVersion = ExploitPatch::number($_POST["binaryVersion"]) ?: 0;
-$type = ExploitPatch::number($_POST["type"]) ?: 0;
-$diff = ExploitPatch::numbercolon($_POST["diff"]) ?: '-';
+$gameVersion = ExploitPatch::number($_POST["gameVersion"] ?? 0) ?: 0;
+$binaryVersion = ExploitPatch::number($_POST["binaryVersion"] ?? 0) ?: 0;
+$type = ExploitPatch::number($_POST["type"] ?? 0) ?: 0;
+$diff = ExploitPatch::numbercolon($_POST["diff"] ?? '-') ?: '-';
 
 // Additional search parameters
 
@@ -37,8 +38,12 @@ if(!$showAllLevels) {
 if(isset($_POST["original"]) && $_POST["original"] == 1) $params[] = "original = 0";
 if(isset($_POST["coins"]) && $_POST["coins"] == 1) $params[] = "starCoins = 1 AND NOT levels.coins = 0";
 if((isset($_POST["uncompleted"]) || isset($_POST["onlyCompleted"])) && ($_POST["uncompleted"] == 1 || $_POST["onlyCompleted"] == 1)) {
-	$completedLevels = ExploitPatch::numbercolon($_POST["completedLevels"]);
-	$params[] = ($_POST['uncompleted'] == 1 ? 'NOT ' : '')."levelID IN ($completedLevels)";
+	$completedLevels = ExploitPatch::numbercolon($_POST["completedLevels"] ?? "");
+	if($completedLevels !== '') {
+		$params[] = ($_POST['uncompleted'] == 1 ? 'NOT ' : '')."levelID IN ($completedLevels)";
+	} else {
+		$params[] = $_POST['uncompleted'] == 1 ? "1 = 1" : "1 = 0";
+	}
 }
 if(isset($_POST["song"]) && $_POST["song"] > 0) {
 	$song = ExploitPatch::number($_POST["song"]);
@@ -57,7 +62,12 @@ if(isset($_POST["gauntlet"]) && $_POST["gauntlet"] != 0) {
 	$query = $db->prepare("SELECT * FROM gauntlets WHERE ID = :gauntlet");
 	$query->execute([':gauntlet' => $gauntlet]);
 	$actualgauntlet = $query->fetch();
-	$str = $actualgauntlet["level1"].",".$actualgauntlet["level2"].",".$actualgauntlet["level3"].",".$actualgauntlet["level4"].",".$actualgauntlet["level5"];
+	if(!$actualgauntlet) {
+		$params[] = "1 = 0";
+		$str = "";
+	} else {
+		$str = $actualgauntlet["level1"].",".$actualgauntlet["level2"].",".$actualgauntlet["level3"].",".$actualgauntlet["level4"].",".$actualgauntlet["level5"];
+	}
 	$params[] = "levelID IN ($str)";
 	$type = -1;
 }
@@ -111,7 +121,7 @@ switch($diff) {
 // Type detection
 // TODO: the 2 non-friend types that send GJP in 2.11
 if(isset($_POST["str"])) $str = ExploitPatch::rucharclean($_POST["str"]) ?: '';
-$offset = is_numeric($_POST["page"]) ? ExploitPatch::number($_POST["page"]) . "0" : 0;
+$offset = is_numeric($_POST["page"] ?? null) ? ExploitPatch::number($_POST["page"]) . "0" : 0;
 switch($type){
 	case 0: // Search
 	case 15: // Most liked, changed to 15 in GDW for whatever reason
@@ -154,21 +164,25 @@ switch($type){
 	case 10: // Map Packs
 	case 19: // Unknown, but same as Map Packs (on real GD type 10 has star rated filter and 19 doesn't)
 		$order = false;
-		$params[] = "levelID IN ($str)";
+		$params[] = $str !== '' ? "levelID IN ($str)" : "1 = 0";
 		break;
 	case 11: // Awarded
 		$params[] = "NOT starStars = 0";
 		$order = "rateDate DESC,uploadDate";
 		break;
 	case 12: // Followed
-		$followed = ExploitPatch::numbercolon($_POST["followed"]);
-		$params[] = "users.extID IN ($followed)";
+		$followed = ExploitPatch::numbercolon($_POST["followed"] ?? "");
+		$params[] = $followed !== '' ? "users.extID IN ($followed)" : "1 = 0";
 		break;
 	case 13: // Friends
 		if(!isset($accountID)) $accountID = GJPCheck::getAccountIDOrDie();
 		$peoplearray = $gs->getFriends($accountID);
-		$whereor = implode(",", $peoplearray);
-		$params[] = "users.extID IN ($whereor)";
+		if(empty($peoplearray)) {
+			$params[] = "1 = 0";
+		} else {
+			$peoplearray = array_values(array_filter($peoplearray, 'is_numeric'));
+			$params[] = !empty($peoplearray) ? "users.extID IN (".implode(",", $peoplearray).")" : "1 = 0";
+		}
 		break;
 	case 21: // Daily safe
 		$morejoins = "INNER JOIN dailyfeatures ON levels.levelID = dailyfeatures.levelID";
@@ -187,7 +201,7 @@ switch($type){
 		break;
 	case 25: // List levels
 		$listLevels = $gs->getListLevels($str);
-		$params = array("levelID IN (".$listLevels.")");
+		$params = !empty($listLevels) ? array("levelID IN (".$listLevels.")") : array("1 = 0");
 		break;
 	case 27: // Sent levels
 		$suggestColumn = ", s.max_timestamp";
