@@ -71,8 +71,29 @@ if (!is_array($data)) {
 
 $data["_storedAt"] = $row["updated_at"];
 
+$listTrace = null;
+try {
+    $listQuery = $db->query(
+        "SELECT updated_at, payload
+         FROM debug_gjlevels_trace
+         WHERE id = 1
+         LIMIT 1"
+    );
+    $listRow = $listQuery ? $listQuery->fetch(PDO::FETCH_ASSOC) : false;
+    if ($listRow) {
+        $listData = json_decode((string)$listRow["payload"], true);
+        if (is_array($listData)) {
+            $listData["_storedAt"] = $listRow["updated_at"];
+            $listTrace = $listData;
+        }
+    }
+} catch (Throwable $ignored) {
+    // Level-list tracing is optional.
+}
+
 echo json_encode([
     "ok" => true,
-    "snapshot" => $data
+    "snapshot" => $data,
+    "levelListSnapshot" => $listTrace
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 ?>
