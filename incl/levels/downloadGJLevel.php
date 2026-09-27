@@ -83,9 +83,8 @@ if($result) {
 	$desc = ExploitPatch::translit(ExploitPatch::rucharclean(ExploitPatch::url_base64_decode($result["levelDesc"])));
 	if($gs->checkModIPPermission("actionFreeCopy") == 1) $pass = "1";
 	$xorPass = $pass;
-	$levelFile = __DIR__ . "/../../data/levels/" . $levelID;
-	$levelstring = !empty($result["levelString"]) ? $result["levelString"] : (is_file($levelFile) ? file_get_contents($levelFile) : "");
-	if($levelstring === false || $levelstring === "") exit("-1");
+	$levelstring = (string)($result["levelString"] ?? "");
+	if($levelstring === "") exit("-1");
 	if($gameVersion > 18) {
 		if(substr($levelstring, 0, 3) == 'kS1') $levelstring = ExploitPatch::url_base64_encode(gzcompress($levelstring));
 		if($gameVersion > 19) {
