@@ -9,10 +9,22 @@ require_once "../lib/GJPCheck.php";
 require_once "../lib/telegraphCloud.php";
 require "../../config/misc.php";
 
-// Secret-free request tracing for diagnosing Geometry Dash download failures.
-// This survives early exits and fatal errors, so we can identify exactly where
-// the request stops before returning the normal level response.
-$debugPath = sys_get_temp_dir() . "/gdips-last-download.json";
+// Persistent, secret-free request tracing. Wasmer may handle the Geometry Dash
+// request and the admin/debug request on different PHP instances, so /tmp is not
+// a reliable shared store. Keep only diagnostic metadata in MySQL.
+$debugTableReady = false;
+try {
+    $db->exec("CREATE TABLE IF NOT EXISTS debug_download_trace (
+        id TINYINT UNSIGNED NOT NULL,
+        updated_at DATETIME NOT NULL,
+        payload LONGTEXT NOT NULL,
+        PRIMARY KEY (id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    $debugTableReady = true;
+} catch (Throwable $traceSetupError) {
+    // Do not break the real GD endpoint just because diagnostics are unavailable.
+}
+
 $debugTrace = [
     "ok" => false,
     "stage" => "entered",
@@ -22,32 +34,41 @@ $debugTrace = [
     "contentType" => $_SERVER["CONTENT_TYPE"] ?? null,
     "postKeys" => array_values(array_keys($_POST)),
 ];
-$writeDebug = static function(array $patch) use (&$debugTrace, $debugPath): void {
+
+$writeDebug = static function(array $patch) use (&$debugTrace, $db, $debugTableReady): void {
+    if (!$debugTableReady) return;
     $debugTrace = array_merge($debugTrace, $patch, ["updatedAt" => gmdate("c")]);
-    @file_put_contents(
-        $debugPath,
-        json_encode($debugTrace, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
-        LOCK_EX
-    );
+    try {
+        $stmt = $db->prepare(
+            "REPLACE INTO debug_download_trace (id, updated_at, payload)
+             VALUES (1, NOW(), :payload)"
+        );
+        $stmt->execute([
+            ":payload" => json_encode(
+                $debugTrace,
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+            )
+        ]);
+    } catch (Throwable $ignored) {
+        // Diagnostics must never break the actual level download.
+    }
 };
-register_shutdown_function(static function() use (&$debugTrace, $debugPath): void {
+
+register_shutdown_function(static function() use (&$debugTrace, $writeDebug): void {
     $error = error_get_last();
     if ($error && in_array($error["type"], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true)) {
-        $debugTrace["fatalError"] = [
-            "type" => $error["type"],
-            "message" => $error["message"],
-            "file" => basename($error["file"]),
-            "line" => $error["line"],
-        ];
-        $debugTrace["stage"] = $debugTrace["stage"] . ":fatal";
-        $debugTrace["updatedAt"] = gmdate("c");
-        @file_put_contents(
-            $debugPath,
-            json_encode($debugTrace, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
-            LOCK_EX
-        );
+        $writeDebug([
+            "stage" => ($debugTrace["stage"] ?? "unknown") . ":fatal",
+            "fatalError" => [
+                "type" => $error["type"],
+                "message" => $error["message"],
+                "file" => basename($error["file"]),
+                "line" => $error["line"],
+            ],
+        ]);
     }
 });
+
 $writeDebug([
     "request" => [
         "gameVersion" => $_POST["gameVersion"] ?? null,
@@ -61,6 +82,7 @@ $writeDebug([
         "hasChk" => !empty($_POST["chk"]),
     ],
 ]);
+
 $gs = new mainLib();
 if(empty($_POST["levelID"]) || !is_numeric($_POST["levelID"])) exit("-1");
 $levelID = ExploitPatch::numbercolon($_POST["levelID"]);
@@ -242,11 +264,10 @@ if($result) {
 			"cacheControl" => "no-store",
 		],
 	];
-	@file_put_contents(
-		$debugPath,
-		json_encode($debugSnapshot, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
-		LOCK_EX
-	);
+	$writeDebug([
+		"stage" => "response_ready",
+		"response" => $debugSnapshot["response"],
+	]);
 	// Geometry Dash's HTTP client is happier when the level endpoint
 	// declares a plain-text response and an exact body length. This also avoids
 	// any ambiguity from transfer framing on lightweight PHP hosts.
