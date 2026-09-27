@@ -38,24 +38,31 @@ try {
 	$query->execute([':levelID' => $levelID]);
 	$query = $db->prepare("DELETE FROM levels WHERE levelID = :levelID AND userID = :userID LIMIT 1");
 	$query->execute([':levelID' => $levelID, ':userID' => $userID]);
+	$deletedRows = $query->rowCount();
+	if($deletedRows !== 1) {
+		throw new RuntimeException("Level delete affected no rows");
+	}
 	$db->commit();
 } catch (Throwable $deleteError) {
 	if($db->inTransaction()) $db->rollBack();
 	exit("-1");
 }
-$query->execute([':levelID' => $levelID, ':userID' => $userID]);
 $levelFile = __DIR__ . "/../../data/levels/" . $levelID;
 	$deletedDir = __DIR__ . "/../../data/levels/deleted";
 	if (is_file($levelFile)) {
 		if (!is_dir($deletedDir)) @mkdir($deletedDir, 0755, true);
 		if (!@rename($levelFile, $deletedDir . "/" . $levelID)) @unlink($levelFile);
 	}
-echo "1";
-$gs->logAction($accountID, 8, $getLevelData['levelName'], $getLevelData['levelDesc'], $getLevelData['extID'], $levelID, $getLevelData['starStars'], $getLevelData['starDifficulty']);
-$gs->sendLogsLevelChangeWebhook($levelID, $accountID, $getLevelData);
-if($automaticCron) {
-	Cron::autoban($accountID, false);
-	Cron::updateCreatorPoints($accountID, false);
-	Cron::updateSongsUsage($accountID, false);
+try {
+	$gs->logAction($accountID, 8, $getLevelData['levelName'], $getLevelData['levelDesc'], $getLevelData['extID'], $levelID, $getLevelData['starStars'], $getLevelData['starDifficulty']);
+	$gs->sendLogsLevelChangeWebhook($levelID, $accountID, $getLevelData);
+	if($automaticCron) {
+		Cron::autoban($accountID, false);
+		Cron::updateCreatorPoints($accountID, false);
+		Cron::updateSongsUsage($accountID, false);
+	}
+} catch (Throwable $hookError) {
+	error_log("GDIPS level deletion hook failed for level ".$levelID.": ".$hookError->getMessage());
 }
+echo "1";
 ?>
