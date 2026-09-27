@@ -234,10 +234,10 @@ if($result) {
 	if($gameVersion > 18) {
 		// GD 2.2 level payloads may arrive either already encoded/compressed
 		// (H4sIA...) or as the raw kS* level string. The download protocol
-		// requires field 4 to be URL-safe base64+gzip, so compress any raw
+		// requires field 4 to be URL-safe base64+gzip, so gzip any raw
 		// kS payload instead of only the legacy kS1 format.
 		if(preg_match('/^kS[0-9]+[,;]/', $levelstring) === 1) {
-			$levelstring = ExploitPatch::url_base64_encode(gzcompress($levelstring));
+			$levelstring = ExploitPatch::url_base64_encode(gzencode($levelstring, 9, ZLIB_ENCODING_GZIP));
 		}
 		if($gameVersion > 19) {
 			if($pass != 0) $xorPass = ExploitPatch::url_base64_encode(XORCipher::cipher($pass, 26364));
