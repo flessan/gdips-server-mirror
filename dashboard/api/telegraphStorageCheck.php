@@ -135,14 +135,17 @@ try {
         }
 
         curl_setopt_array($ch, [
-            CURLOPT_CUSTOMREQUEST => "HEAD",
+            CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_HTTPHEADER => [
                 "Authorization: Bearer " . $telegraphCloudApiKey,
-                "Accept: application/json",
+                "Accept: application/octet-stream",
+                "Range: bytes=0-0",
             ],
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CONNECTTIMEOUT => 10,
-            CURLOPT_TIMEOUT => 20,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_ENCODING => "",
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
         ]);
@@ -152,7 +155,7 @@ try {
         $http = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        $available = ($errno === 0 && $http >= 200 && $http < 300);
+        $available = ($errno === 0 && ($http === 200 || $http === 206));
         if (!$available) $allAvailable = false;
 
         $result["remoteObjects"][] = [
