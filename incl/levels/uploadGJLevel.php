@@ -83,12 +83,15 @@ $query = $db->prepare("INSERT INTO levels (levelName, gameVersion, binaryVersion
 VALUES (:levelName, :gameVersion, :binaryVersion, :userName, :levelDesc, :levelVersion, :levelLength, :audioTrack, :auto, :password, :original, :twoPlayer, :songID, :objects, :coins, :requestedStars, :extraString, :levelString, :levelInfo, :secret, :uploadDate, :userID, :id, :uploadDate, :unlisted, :hostname, :ldm, :wt, :wt2, :unlisted2, :settingsString, :songIDs, :sfxIDs, :ts)");
 
 if($levelString != "" AND $levelName != "") {
-	$querye=$db->prepare("SELECT levelID, updateLocked FROM levels WHERE levelName = :levelName AND userID = :userID");
-	$querye->execute([':levelName' => $levelName, ':userID' => $userID]);
-	$level = $querye->fetch();
-	if($level && !empty($level['updateLocked'])) exit("-1");
+	$level = false;
+	if($levelID > 0) {
+		$querye=$db->prepare("SELECT levelID, updateLocked FROM levels WHERE levelID = :levelID AND userID = :userID");
+		$querye->execute([':levelID' => $levelID, ':userID' => $userID]);
+		$level = $querye->fetch();
+		if(!$level) exit("-1");
+		if(!empty($level['updateLocked'])) exit("-1");
+	}
 	if($level) {
-		$levelID = (int)$level['levelID'];
 		$query = $db->prepare("SELECT * FROM levels WHERE levelID = :levelID");
 		$query->execute([":levelID"=> $levelID]);
 		$getLevelData = $query->fetch();
