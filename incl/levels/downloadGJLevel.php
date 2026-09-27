@@ -1,4 +1,7 @@
 <?php
+// Geometry Dash's native client expects the response body to start immediately
+// with the level object. Some legacy PHP includes can leak whitespace/newlines.
+ob_start();
 chdir(dirname(__FILE__));
 require "../lib/connection.php";
 require_once "../lib/XORCipher.php";
@@ -296,12 +299,12 @@ if($result) {
 		"stage" => "response_ready",
 		"response" => $debugSnapshot["response"],
 	]);
-	// Geometry Dash's HTTP client is happier when the level endpoint
-	// declares a plain-text response and an exact body length. This also avoids
-	// any ambiguity from transfer framing on lightweight PHP hosts.
+	// Strip anything accidentally emitted by the legacy include chain.
+	// The response must begin exactly with "1:<levelID>...".
+	while (ob_get_level() > 0) {
+		ob_end_clean();
+	}
 	header("Content-Type: text/plain; charset=utf-8");
-	header("Content-Length: ".strlen($response));
-	header("Cache-Control: no-store");
 	echo $response;
 	exit;
 } else exit('-1');
