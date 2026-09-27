@@ -116,6 +116,41 @@ if($result) {
 		*/
 		$response .= "#" . $somestring;
 	}
+	// Keep a tiny, secret-free snapshot of the last successful download request
+	// so an administrator can inspect what the Geometry Dash client actually sent
+	// (especially gameVersion/binaryVersion) without exposing POST credentials.
+	$debugSnapshot = [
+		"timestamp" => gmdate("c"),
+		"levelID" => (int)$levelID,
+		"gameVersion" => (int)$gameVersion,
+		"binaryVersion" => (int)$binaryVersion,
+		"extras" => (bool)$extras,
+		"inc" => (bool)$inc,
+		"accountIDProvided" => !empty($_POST["accountID"]),
+		"storedGameVersion" => (int)($result["gameVersion"] ?? 0),
+		"storedBinaryVersion" => (int)($result["binaryVersion"] ?? 0),
+		"payload" => [
+			"length" => strlen($levelstring),
+			"sha256" => hash("sha256", $levelstring),
+			"prefix" => substr($levelstring, 0, 16),
+			"wireEncoding" => str_starts_with($levelstring, "H4sIA") ? "base64+gzip" : "plain",
+		],
+		"response" => [
+			"length" => strlen($response),
+			"sha256" => hash("sha256", $response),
+			"contentLength" => strlen($response),
+			"hashDelimiterCount" => substr_count($response, "#"),
+		],
+		"headers" => [
+			"contentType" => "text/plain; charset=utf-8",
+			"cacheControl" => "no-store",
+		],
+	];
+	@file_put_contents(
+		sys_get_temp_dir() . "/gdips-last-download.json",
+		json_encode($debugSnapshot, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+		LOCK_EX
+	);
 	// Geometry Dash's HTTP client is happier when the level endpoint
 	// declares a plain-text response and an exact body length. This also avoids
 	// any ambiguity from transfer framing on lightweight PHP hosts.
