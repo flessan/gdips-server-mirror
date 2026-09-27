@@ -13,7 +13,7 @@ $lvlsmultistring = $epicParams = [];
 $order = "uploadDate";
 $orderenabled = $ordergauntlet = $isIDSearch = false;
 $accountID = 0;
-$params = ["unlisted = 0", "isDeleted = 0"];
+$params = ["unlisted = 0"];
 if(!empty($_POST['accountID'])) {
 	$accountID = GJPCheck::getAccountIDOrDie();
 	if($unlistedLevelsForAdmins) {
