@@ -30,7 +30,8 @@ class gdTelegraphCloud {
     }
 
     public static function enabled() {
-        return self::config() !== null;
+        require __DIR__ . "/../../config/telegraph.php";
+        return !empty($telegraphCloudEnabled);
     }
 
     private static function objectUrl($base, $bucket, $key) {
