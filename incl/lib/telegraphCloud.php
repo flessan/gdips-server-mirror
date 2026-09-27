@@ -200,6 +200,10 @@ class gdTelegraphCloud {
         return $result;
     }
 
+    public static function isManifest($storedValue) {
+        return self::parseManifest($storedValue) !== null;
+    }
+
     public static function deleteLevel($storedValue) {
         $manifest = self::parseManifest($storedValue);
         if ($manifest === null) return;
