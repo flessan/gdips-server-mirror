@@ -80,7 +80,7 @@ $q->execute();
 $recent = $q->fetchAll();
 foreach($recent as $level) $recentCards .= $dl->generateMiniLevelCard($level);
 
-$q = $db->prepare("SELECT userName, stars, iconType, color1, color2, color3, accGlow, accIcon, accShip, accBall, accBird, accDart, accRobot, accSpider, accSwing, accJetpack FROM users WHERE stars > 0 AND extID != '' AND extID != '0' ORDER BY stars DESC LIMIT 5");
+$q = $db->prepare("SELECT userName, extID, stars, iconType, color1, color2, color3, accGlow, accIcon, accShip, accBall, accBird, accDart, accRobot, accSpider, accSwing, accJetpack FROM users WHERE stars > 0 AND extID != '' AND extID != '0' ORDER BY stars DESC LIMIT 5");
 $q->execute();
 $x = 0;
 foreach($q->fetchAll() as $user) $playerRows .= $dl->generateMiniPlayerRow(++$x, $user);
