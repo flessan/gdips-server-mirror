@@ -2,31 +2,26 @@
 /*
  * Telegraph Cloud storage for large GDIPS assets.
  *
- * Keep credentials out of Git. Replace these values in the deployed
- * configuration, or load them from your platform's secret/config system.
- *
- * The level storage adapter uses raw PUT/GET/DELETE requests against the
- * Telegraph Cloud object API. Each level is split into bounded objects so
- * very large Geometry Dash levels do not have to fit inside one provider
- * object or inside MariaDB.
+ * All production values should come from Wasmer/environment secrets.
+ * No Telegraph Cloud API key belongs in Git.
  */
 
-$telegraphCloudEnabled = false;
+$telegraphCloudEnabled = filter_var(
+    getenv('GDIPS_TELEGRAPH_CLOUD_ENABLED') ?: '0',
+    FILTER_VALIDATE_BOOLEAN
+);
 
-// Example: https://telestorage.pages.dev
-$telegraphCloudBaseUrl = '';
+$telegraphCloudBaseUrl = (string)(getenv('GDIPS_TELEGRAPH_CLOUD_BASE_URL') ?: '');
+$telegraphCloudProjectId = (string)(getenv('GDIPS_TELEGRAPH_CLOUD_PROJECT_ID') ?: '');
+$telegraphCloudApiKey = (string)(getenv('GDIPS_TELEGRAPH_CLOUD_API_KEY') ?: '');
+$telegraphCloudBucket = (string)(getenv('GDIPS_TELEGRAPH_CLOUD_BUCKET') ?: 'gdips');
 
-// Project ID from Telegraph Cloud.
-$telegraphCloudProjectId = '';
-
-// Developer API key with storage:read and storage:write scopes.
-$telegraphCloudApiKey = '';
-
-// Object bucket to use for GDIPS level payloads.
-$telegraphCloudBucket = 'gdips';
-
-// Keep this below Telegraph Cloud's default 10 MiB object limit.
-$telegraphCloudChunkBytes = 8 * 1024 * 1024;
-
-// Every new upload gets a unique immutable object prefix.
-$telegraphCloudLevelPrefix = 'levels';
+/*
+ * Keep this at or below the Telegraph Cloud object limit.
+ * 8 MiB works with the current 10 MiB default.
+ * The value can be increased after setting the matching
+ * TELEGRAPH_CLOUD_MAX_OBJECT_BYTES on Telegraph Cloud.
+ */
+$telegraphCloudChunkBytes = (int)(
+    getenv('GDIPS_TELEGRAPH_CLOUD_CHUNK_BYTES') ?: (8 * 1024 * 1024)
+);
