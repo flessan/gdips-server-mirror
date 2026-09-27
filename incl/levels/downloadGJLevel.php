@@ -9,20 +9,24 @@ require_once "../lib/GJPCheck.php";
 require_once "../lib/telegraphCloud.php";
 require "../../config/misc.php";
 
-// Persistent, secret-free request tracing. Wasmer may handle the Geometry Dash
-// request and the admin/debug request on different PHP instances, so /tmp is not
-// a reliable shared store. Keep only diagnostic metadata in MySQL.
-$debugTableReady = false;
+// Persistent, secret-free request tracing.
+// Keep multiple requests because Geometry Dash can make more than one download
+// request during a single click; a single "last request" snapshot can hide the
+// request we actually need to diagnose.
+$debugTraceTableReady = false;
+$debugTraceRowId = 0;
 try {
-    $db->exec("CREATE TABLE IF NOT EXISTS debug_download_trace (
-        id TINYINT UNSIGNED NOT NULL,
+    $db->exec("CREATE TABLE IF NOT EXISTS debug_download_traces (
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+        created_at DATETIME NOT NULL,
         updated_at DATETIME NOT NULL,
         payload LONGTEXT NOT NULL,
-        PRIMARY KEY (id)
+        PRIMARY KEY (id),
+        KEY idx_created_at (created_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-    $debugTableReady = true;
+    $debugTraceTableReady = true;
 } catch (Throwable $traceSetupError) {
-    // Do not break the real GD endpoint just because diagnostics are unavailable.
+    // Diagnostics are optional and must never break live downloads.
 }
 
 $debugTrace = [
@@ -35,13 +39,34 @@ $debugTrace = [
     "postKeys" => array_values(array_keys($_POST)),
 ];
 
-$writeDebug = static function(array $patch) use (&$debugTrace, $db, $debugTableReady): void {
-    if (!$debugTableReady) return;
+$writeDebug = static function(array $patch) use (&$debugTrace, &$debugTraceRowId, $db, $debugTraceTableReady): void {
+    if (!$debugTraceTableReady || $debugTraceRowId <= 0) return;
+
     $debugTrace = array_merge($debugTrace, $patch, ["updatedAt" => gmdate("c")]);
     try {
         $stmt = $db->prepare(
-            "REPLACE INTO debug_download_trace (id, updated_at, payload)
-             VALUES (1, NOW(), :payload)"
+            "UPDATE debug_download_traces
+             SET updated_at = NOW(), payload = :payload
+             WHERE id = :id"
+        );
+        $stmt->execute([
+            ":id" => $debugTraceRowId,
+            ":payload" => json_encode(
+                $debugTrace,
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+            )
+        ]);
+    } catch (Throwable $ignored) {
+        // Diagnostics must never break the actual endpoint.
+    }
+};
+
+if ($debugTraceTableReady) {
+    try {
+        $stmt = $db->prepare(
+            "INSERT INTO debug_download_traces
+             (created_at, updated_at, payload)
+             VALUES (NOW(), NOW(), :payload)"
         );
         $stmt->execute([
             ":payload" => json_encode(
@@ -49,10 +74,27 @@ $writeDebug = static function(array $patch) use (&$debugTrace, $db, $debugTableR
                 JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
             )
         ]);
+        $debugTraceRowId = (int)$db->lastInsertId();
     } catch (Throwable $ignored) {
-        // Diagnostics must never break the actual level download.
+        $debugTraceRowId = 0;
     }
-};
+}
+
+$writeDebug([
+    "request" => [
+        "gameVersion" => $_POST["gameVersion"] ?? null,
+        "binaryVersion" => $_POST["binaryVersion"] ?? null,
+        "levelID" => $_POST["levelID"] ?? null,
+        "inc" => $_POST["inc"] ?? null,
+        "extras" => $_POST["extras"] ?? null,
+        "hasAccountID" => !empty($_POST["accountID"]),
+        "hasSecret" => !empty($_POST["secret"]),
+        "hasGjp" => !empty($_POST["gjp"]),
+        "hasGjp2" => !empty($_POST["gjp2"]),
+        "hasRs" => !empty($_POST["rs"]),
+        "hasChk" => !empty($_POST["chk"]),
+    ],
+]);
 
 register_shutdown_function(static function() use (&$debugTrace, $writeDebug): void {
     $error = error_get_last();
@@ -68,20 +110,6 @@ register_shutdown_function(static function() use (&$debugTrace, $writeDebug): vo
         ]);
     }
 });
-
-$writeDebug([
-    "request" => [
-        "gameVersion" => $_POST["gameVersion"] ?? null,
-        "binaryVersion" => $_POST["binaryVersion"] ?? null,
-        "levelID" => $_POST["levelID"] ?? null,
-        "inc" => $_POST["inc"] ?? null,
-        "extras" => $_POST["extras"] ?? null,
-        "hasAccountID" => !empty($_POST["accountID"]),
-        "hasSecret" => !empty($_POST["secret"]),
-        "hasRs" => !empty($_POST["rs"]),
-        "hasChk" => !empty($_POST["chk"]),
-    ],
-]);
 
 $gs = new mainLib();
 if(empty($_POST["levelID"]) || !is_numeric($_POST["levelID"])) exit("-1");
