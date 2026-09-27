@@ -30,59 +30,6 @@ try {
 } catch (Throwable $error) {
     http_response_code(500);
     echo json_encode([
-        "ok" => false,
-        "error" => "debug_storage_unavailable"
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    exit;
-}
-
-$query = $db->query("SELECT updated_at, payload FROM debug_download_trace WHERE id = 1 LIMIT 1");
-$row = $query ? $query->fetch(PDO::FETCH_ASSOC) : false;
-
-if (!$row) {
-    http_response_code(404);
-    echo json_encode([
-        "ok" => false,
-        "error" => "no_download_snapshot",
-        "message" => "Trigger one level download in Geometry Dash first, then refresh this endpoint."
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    exit;
-}
-
-$data = json_decode((string)$row["payload"], true);
-
-if (!is_array($data)) {
-    http_response_code(500);
-    echo json_encode([
-        "ok" => false,
-        "error" => "invalid_snapshot"
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    exit;
-}
-
-$data["_storedAt"] = $row["updated_at"];
-
-echo json_encode([
-        "ok" => false,
-        "error" => "no_download_snapshot",
-        "message" => "Trigger one level download in Geometry Dash first, then refresh this endpoint."
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    exit;
-}
-
-$raw = @file_get_contents($path);
-$data = is_string($raw) ? json_decode($raw, true) : null;
-
-if (!is_array($data)) {
-    http_response_code(500);
-    echo json_encode([
-        "ok" => false,
-        "error" => "invalid_snapshot"
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    exit;
-}
-
-echo json_encode([
     "ok" => true,
     "snapshot" => $data
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
