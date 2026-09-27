@@ -15,30 +15,34 @@ $extras = !empty($_POST["extras"]) && $_POST["extras"];
 $inc = !empty($_POST["inc"]) && $_POST["inc"];
 $ip = $gs->getIP();
 $binaryVersion = !empty($_POST["binaryVersion"]) ? ExploitPatch::number($_POST["binaryVersion"]) : 0;
+$accountID = 0;
 $feaID = 0;
 switch($levelID) {
 	case -1: // Daily level
 		$query = $db->prepare("SELECT feaID, levelID FROM dailyfeatures WHERE timestamp < :time AND type = 0 ORDER BY timestamp DESC LIMIT 1");
 		$query->execute([':time' => time()]);
-		$result = $query->fetch();
-		$levelID = $result["levelID"];
-		$feaID = $result["feaID"];
+		$feature = $query->fetch();
+		if(!$feature) exit("-1");
+		$levelID = $feature["levelID"];
+		$feaID = $feature["feaID"];
 		$daily = 1;
 		break;
 	case -2: // Weekly level
 		$query = $db->prepare("SELECT feaID, levelID FROM dailyfeatures WHERE timestamp < :time AND type = 1 ORDER BY timestamp DESC LIMIT 1");
 		$query->execute([':time' => time()]);
-		$result = $query->fetch();
-		$levelID = $result["levelID"];
-		$feaID = $result["feaID"] + 100000;
+		$feature = $query->fetch();
+		if(!$feature) exit("-1");
+		$levelID = $feature["levelID"];
+		$feaID = $feature["feaID"] + 100000;
 		$daily = 1;
 		break;
 	case -3: // Event level
 		$query = $db->prepare("SELECT feaID, levelID FROM events WHERE timestamp < :time AND duration >= :time ORDER BY timestamp DESC LIMIT 1");
 		$query->execute([':time' => time()]);
-		$result = $query->fetch();
-		$levelID = $result["levelID"];
-		$feaID = $result["feaID"] + 200000;
+		$feature = $query->fetch();
+		if(!$feature) exit("-1");
+		$levelID = $feature["levelID"];
+		$feaID = $feature["feaID"] + 200000;
 		$daily = 1;
 		break;
 	default:
@@ -60,7 +64,10 @@ if($result) {
 			if($checkAdmin) $isPlayerAnAdmin = true;
 		}
 	}
-	if($result["unlisted2"] == 1) if(!($result["extID"] == $accountID || $gs->isFriends($accountID, $result["extID"])) && !$isPlayerAnAdmin) exit("-1"); // Verifying friends only unlisted
+	if($result["unlisted2"] == 1) {
+		if(empty($accountID)) exit("-1");
+		if(!($result["extID"] == $accountID || $gs->isFriends($accountID, $result["extID"])) && !$isPlayerAnAdmin) exit("-1");
+	} // Verifying friends-only unlisted levels
 	// Adding the download
 	$query6 = $db->prepare("SELECT count(*) FROM actions_downloads WHERE levelID=:levelID AND ip=INET6_ATON(:ip)");
 	$query6->execute([':levelID' => $levelID, ':ip' => $ip]);
