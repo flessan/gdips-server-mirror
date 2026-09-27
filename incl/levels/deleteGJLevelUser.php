@@ -14,15 +14,35 @@ $accountID = GJPCheck::getAccountIDOrDie();
 if(!is_numeric($levelID)) exit("-1");
 
 $userID = $gs->getUserID($accountID);
-$query = $db->prepare("SELECT * FROM levels WHERE levelID = :levelID AND userID = :userID AND starStars = 0");
+$query = $db->prepare("SELECT * FROM levels WHERE levelID = :levelID AND userID = :userID");
 $query->execute([':levelID' => $levelID, ':userID' => $userID]);
 $getLevelData = $query->fetch();
 
 if(!$getLevelData) exit("-1");
 
-$query = $db->prepare("DELETE FROM comments WHERE levelID = :levelID");
-$query->execute([':levelID' => $levelID]);
-$query = $db->prepare("DELETE FROM levels WHERE levelID = :levelID AND userID = :userID LIMIT 1");
+$db->beginTransaction();
+try {
+	$query = $db->prepare("DELETE FROM comments WHERE levelID = :levelID");
+	$query->execute([':levelID' => $levelID]);
+	$query = $db->prepare("DELETE FROM levelscores WHERE levelID = :levelID");
+	$query->execute([':levelID' => $levelID]);
+	$query = $db->prepare("DELETE FROM actions_downloads WHERE levelID = :levelID");
+	$query->execute([':levelID' => $levelID]);
+	$query = $db->prepare("DELETE FROM cpshares WHERE levelID = :levelID");
+	$query->execute([':levelID' => $levelID]);
+	$query = $db->prepare("DELETE FROM demonlist WHERE levelID = :levelID");
+	$query->execute([':levelID' => $levelID]);
+	$query = $db->prepare("DELETE FROM dlsubmits WHERE levelID = :levelID");
+	$query->execute([':levelID' => $levelID]);
+	$query = $db->prepare("DELETE FROM suggest WHERE suggestLevelId = :levelID");
+	$query->execute([':levelID' => $levelID]);
+	$query = $db->prepare("DELETE FROM levels WHERE levelID = :levelID AND userID = :userID LIMIT 1");
+	$query->execute([':levelID' => $levelID, ':userID' => $userID]);
+	$db->commit();
+} catch (Throwable $deleteError) {
+	if($db->inTransaction()) $db->rollBack();
+	exit("-1");
+}
 $query->execute([':levelID' => $levelID, ':userID' => $userID]);
 $levelFile = __DIR__ . "/../../data/levels/" . $levelID;
 	$deletedDir = __DIR__ . "/../../data/levels/deleted";
