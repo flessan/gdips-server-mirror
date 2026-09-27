@@ -209,8 +209,24 @@ if($result) {
 			"storedPrefix" => substr((string)($result["levelString"] ?? ""), 0, 12),
 		],
 	]);
+	// Preserve the exact wire representation emitted by the client.
+	// The upload handler writes this same request payload to data/levels/<id>,
+	// making the local object the safest source for a download. Telegraph Cloud
+	// remains the durable fallback when the local object is unavailable.
+	$localLevelFile = dirname(__DIR__, 2) . "/data/levels/" . $levelID;
+	$storageSource = "telegraph-cloud";
 	try {
-		$levelstring = gdTelegraphCloud::readLevel((string)($result["levelString"] ?? ""));
+		if (is_file($localLevelFile) && is_readable($localLevelFile)) {
+			$localLevelstring = file_get_contents($localLevelFile);
+			if ($localLevelstring !== false && $localLevelstring !== "") {
+				$levelstring = (string)$localLevelstring;
+				$storageSource = "local-wire";
+			} else {
+				$levelstring = gdTelegraphCloud::readLevel((string)($result["levelString"] ?? ""));
+			}
+		} else {
+			$levelstring = gdTelegraphCloud::readLevel((string)($result["levelString"] ?? ""));
+		}
 	} catch (Throwable $storageError) {
 		$writeDebug([
 			"stage" => "storage_read_failed",
@@ -221,6 +237,7 @@ if($result) {
 	$levelstring = (string)$levelstring;
 	$writeDebug([
 		"stage" => "storage_read_ok",
+		"storageSource" => $storageSource,
 		"payload" => [
 			"length" => strlen($levelstring),
 			"sha256" => hash("sha256", $levelstring),
@@ -296,12 +313,9 @@ if($result) {
 		"stage" => "response_ready",
 		"response" => $debugSnapshot["response"],
 	]);
-	// Geometry Dash's HTTP client is happier when the level endpoint
-	// declares a plain-text response and an exact body length. This also avoids
-	// any ambiguity from transfer framing on lightweight PHP hosts.
+	// Keep response transport minimal; the original private-server endpoint
+	// only needs to return the plain-text body.
 	header("Content-Type: text/plain; charset=utf-8");
-	header("Content-Length: ".strlen($response));
-	header("Cache-Control: no-store");
 	echo $response;
 	exit;
 } else exit('-1');
