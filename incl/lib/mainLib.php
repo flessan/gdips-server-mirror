@@ -2927,7 +2927,13 @@ class mainLib {
 		$level->execute([':levelID' => $levelID]);
 		$level = $level->fetch();
 		if(!$level) return false;
-		$levelString = file_get_contents(__DIR__.'/../../data/levels/'.$levelID) ?? $level['levelString'];
+		require_once __DIR__ . "/telegraphCloud.php";
+		try {
+			$levelString = gdTelegraphCloud::readLevel((string)($level['levelString'] ?? ''));
+		} catch (Throwable $storageError) {
+			return false;
+		}
+		if(!is_string($levelString) || $levelString === '') return false;
 		$gmdFile = '<?xml version="1.0"?><plist version="1.0" gjver="2.0"><dict>';
 		
 		$gmdFile .= '<k>k1</k><i>'.$levelID.'</i>';
