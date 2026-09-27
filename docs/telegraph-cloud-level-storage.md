@@ -18,16 +18,20 @@ The manifest in `levels.levelString` records the bucket, project, total size, SH
 
 ## Configure
 
-Edit `config/telegraph.php` in the deployed GDIPS configuration:
+Set these Wasmer/environment variables instead of committing credentials:
 
-- `$telegraphCloudEnabled = true`
-- `$telegraphCloudBaseUrl`: the Telegraph Cloud deployment URL
-- `$telegraphCloudProjectId`: the project that owns the GDIPS bucket
-- `$telegraphCloudApiKey`: a developer API key with `storage:read` and `storage:write`
-- `$telegraphCloudBucket`: for example `gdips`
-- `$telegraphCloudChunkBytes`: keep it at or below the Telegraph Cloud object limit. The default 8 MiB is intentionally below the current 10 MiB default object limit.
+- `GDIPS_TELEGRAPH_CLOUD_ENABLED=true`
+- `GDIPS_TELEGRAPH_CLOUD_BASE_URL`: the Telegraph Cloud deployment URL
+- `GDIPS_TELEGRAPH_CLOUD_PROJECT_ID`: the project that owns the GDIPS bucket
+- `GDIPS_TELEGRAPH_CLOUD_API_KEY`: a developer API key with `storage:read` and `storage:write`
+- `GDIPS_TELEGRAPH_CLOUD_BUCKET`: for example `gdips`
+- `GDIPS_TELEGRAPH_CLOUD_CHUNK_BYTES`: keep it at or below the Telegraph Cloud object limit. The default 8 MiB is intentionally below the current 10 MiB default object limit.
 
-Do not commit the real API key.
+Never commit the real API key.
+
+## Recommended Telegraph Cloud settings
+
+The current object API defaults to a 10 MiB object limit and its storage mutation guard defaults to 20 mutations per minute. For chunked GDIPS uploads, leave the object limit at 10 MiB or raise it to the supported ceiling, and consider setting `TELEGRAPH_CLOUD_STORAGE_MUTATIONS_PER_MINUTE=120` on the Telegraph Cloud deployment so a very large level does not hit the default 20-PUT window.
 
 ## Behavior
 
