@@ -13,7 +13,7 @@ $lvlsmultistring = $epicParams = [];
 $order = "uploadDate";
 $orderenabled = $ordergauntlet = $isIDSearch = false;
 $accountID = 0;
-$params = ["unlisted = 0"];
+$params = ["unlisted = 0", "isDeleted = 0"];
 if(!empty($_POST['accountID'])) {
 	$accountID = GJPCheck::getAccountIDOrDie();
 	if($unlistedLevelsForAdmins) {
@@ -67,8 +67,8 @@ if(isset($_POST["gauntlet"]) && $_POST["gauntlet"] != 0) {
 		$str = "";
 	} else {
 		$str = $actualgauntlet["level1"].",".$actualgauntlet["level2"].",".$actualgauntlet["level3"].",".$actualgauntlet["level4"].",".$actualgauntlet["level5"];
+		$params[] = "levelID IN ($str)";
 	}
-	$params[] = "levelID IN ($str)";
 	$type = -1;
 }
 $len = ExploitPatch::numbercolon($_POST["len"]) ?: '-';
@@ -124,6 +124,7 @@ if(isset($_POST["str"])) $str = ExploitPatch::rucharclean($_POST["str"]) ?: '';
 $offset = is_numeric($_POST["page"] ?? null) ? ExploitPatch::number($_POST["page"]) . "0" : 0;
 switch($type){
 	case 0: // Search
+	case 4: // Recent
 	case 15: // Most liked, changed to 15 in GDW for whatever reason
 		$order = "likes";
 		if(!empty($str)) {
