@@ -6,10 +6,10 @@
  */
 session_start();
 
-require_once "../../config/connection.php";
-require_once "../../config/misc.php";
-require_once "../../config/telegraph.php";
-require_once "../../incl/lib/telegraphCloud.php";
+require_once __DIR__ . "/../../config/connection.php";
+require_once __DIR__ . "/../../config/misc.php";
+require_once __DIR__ . "/../../config/telegraph.php";
+require_once __DIR__ . "/../../incl/lib/telegraphCloud.php";
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
