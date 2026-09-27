@@ -300,9 +300,46 @@ foreach($result as &$level1) {
 $lvlstring = substr($lvlstring, 0, -1);
 $userstring = substr($userstring, 0, -1);
 $songsstring = substr($songsstring, 0, -3);
-echo $lvlstring."#".$userstring;
-if($gameVersion > 18) echo "#".$songsstring;
-echo "#".$totallvlcount.":".$offset.":10";
-echo "#";
-echo GenerateHash::genMulti($lvlsmultistring);
+
+$finalResponse = $lvlstring."#".$userstring;
+if($gameVersion > 18) $finalResponse .= "#".$songsstring;
+$finalResponse .= "#".$totallvlcount.":".$offset.":10";
+$finalResponse .= "#";
+$finalResponse .= GenerateHash::genMulti($lvlsmultistring);
+
+// Persist a safe view of the exact response we are about to send.
+// The full response is not stored; only enough of the first level section
+// is retained to diagnose client-side parsing.
+try {
+	$traceQuery = $db->prepare("SELECT payload FROM debug_gjlevels_trace WHERE id = 1 LIMIT 1");
+	$traceQuery->execute();
+	$existingTrace = $traceQuery->fetchColumn();
+	$traceData = is_string($existingTrace) ? json_decode($existingTrace, true) : null;
+	if(!is_array($traceData)) $traceData = [];
+
+	$firstSection = explode("#", $finalResponse, 2)[0];
+	$traceData["response"] = [
+		"length" => strlen($finalResponse),
+		"sha256" => hash("sha256", $finalResponse),
+		"hashDelimiterCount" => substr_count($finalResponse, "#"),
+		"prefix" => substr($firstSection, 0, 1200),
+		"startsWithLevelOne" => str_starts_with($firstSection, "1:1:"),
+		"firstSectionLength" => strlen($firstSection)
+	];
+	$traceStmt = $db->prepare(
+		"UPDATE debug_gjlevels_trace
+		 SET updated_at = NOW(), payload = :payload
+		 WHERE id = 1"
+	);
+	$traceStmt->execute([
+		":payload" => json_encode(
+			$traceData,
+			JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+		)
+	]);
+} catch(Throwable $traceError) {
+	// Never affect the live Geometry Dash level list.
+}
+
+echo $finalResponse;
 ?>
