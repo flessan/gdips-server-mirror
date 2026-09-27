@@ -8,6 +8,7 @@ require_once "../lib/exploitPatch.php";
 require_once "../lib/automod.php";
 require_once "../lib/mainLib.php";
 require_once "../lib/cron.php";
+require_once "../lib/telegraphCloud.php";
 $gs = new mainLib();
 if(Automod::isLevelsDisabled(0)) exit('-1');
 //here im getting all the data
@@ -96,8 +97,25 @@ if($levelString != "" AND $levelName != "") {
 		$getLevelData = $query->fetch();
 		$stars = $getLevelData['starStars'];
 		if(!$ratedLevelsUpdates && !in_array($levelID, $ratedLevelsUpdatesExceptions) && $stars > 0) exit("-1");
-		$query = $db->prepare("UPDATE levels SET levelName=:levelName, gameVersion=:gameVersion,  binaryVersion=:binaryVersion, userName=:userName, levelDesc=:levelDesc, levelVersion=:levelVersion, levelLength=:levelLength, audioTrack=:audioTrack, auto=:auto, password=:password, original=:original, twoPlayer=:twoPlayer, songID=:songID, objects=:objects, coins=:coins, requestedStars=:requestedStars, extraString=:extraString, levelString=:levelString, levelInfo=:levelInfo, secret=:secret, updateDate=:uploadDate, unlisted=:unlisted, hostname=:hostname, isLDM=:ldm, wt=:wt, wt2=:wt2, unlisted2=:unlisted2, settingsString=:settingsString, songIDs=:songIDs, sfxIDs=:sfxIDs, ts=:ts WHERE levelID=:levelID AND userID=:userID");	
-		$query->execute([':levelName' => $levelName, ':gameVersion' => $gameVersion, ':binaryVersion' => $binaryVersion, ':userName' => $userName, ':levelDesc' => $levelDesc, ':levelVersion' => $levelVersion, ':levelLength' => $levelLength, ':audioTrack' => $audioTrack, ':auto' => $auto, ':password' => $password, ':original' => $original, ':twoPlayer' => $twoPlayer, ':songID' => $songID, ':objects' => $objects, ':coins' => $coins, ':requestedStars' => $requestedStars, ':extraString' => $extraString, ':levelInfo' => $levelInfo, ':secret' => $secret, ':levelString' => $levelString, ':levelID' => $levelID, ':userID' => $userID, ':uploadDate' => $uploadDate, ':unlisted' => $unlisted, ':hostname' => $hostname, ':ldm' => $ldm, ':wt' => $wt, ':wt2' => $wt2, ':unlisted2' => $unlisted2, ':settingsString' => $settingsString, ':songIDs' => $songIDs, ':sfxIDs' => $sfxIDs, ':ts' => $ts]);
+		$storedLevelString = $levelString;
+		if (gdTelegraphCloud::enabled()) {
+			try {
+				$storedLevelString = gdTelegraphCloud::storeLevel($levelString);
+			} catch (Throwable $storageError) {
+				exit("-1");
+			}
+		}
+
+		$query = $db->prepare("UPDATE levels SET levelName=:levelName, gameVersion=:gameVersion, binaryVersion=:binaryVersion, userName=:userName, levelDesc=:levelDesc, levelVersion=:levelVersion, levelLength=:levelLength, audioTrack=:audioTrack, auto=:auto, password=:password, original=:original, twoPlayer=:twoPlayer, songID=:songID, objects=:objects, coins=:coins, requestedStars=:requestedStars, extraString=:extraString, levelString=:levelString, levelInfo=:levelInfo, secret=:secret, updateDate=:uploadDate, unlisted=:unlisted, hostname=:hostname, isLDM=:ldm, wt=:wt, wt2=:wt2, unlisted2=:unlisted2, settingsString=:settingsString, songIDs=:songIDs, sfxIDs=:sfxIDs, ts=:ts WHERE levelID=:levelID AND userID=:userID");
+		try {
+			$query->execute([':levelName' => $levelName, ':gameVersion' => $gameVersion, ':binaryVersion' => $binaryVersion, ':userName' => $userName, ':levelDesc' => $levelDesc, ':levelVersion' => $levelVersion, ':levelLength' => $levelLength, ':audioTrack' => $audioTrack, ':auto' => $auto, ':password' => $password, ':original' => $original, ':twoPlayer' => $twoPlayer, ':songID' => $songID, ':objects' => $objects, ':coins' => $coins, ':requestedStars' => $requestedStars, ':extraString' => $extraString, ':levelString' => $storedLevelString, ':levelInfo' => $levelInfo, ':secret' => $secret, ':levelID' => $levelID, ':userID' => $userID, ':uploadDate' => $uploadDate, ':unlisted' => $unlisted, ':hostname' => $hostname, ':ldm' => $ldm, ':wt' => $wt, ':wt2' => $wt2, ':unlisted2' => $unlisted2, ':settingsString' => $settingsString, ':songIDs' => $songIDs, ':sfxIDs' => $sfxIDs, ':ts' => $ts]);
+		} catch (Throwable $storageError) {
+			gdTelegraphCloud::deleteLevel($storedLevelString);
+			exit("-1");
+		}
+		if (gdTelegraphCloud::isManifest($getLevelData['levelString'] ?? '')) {
+			gdTelegraphCloud::deleteLevel($getLevelData['levelString']);
+		}
 		$levelFile = $levelStorageDir . "/" . $levelID;
 		@file_put_contents($levelFile, $levelString, LOCK_EX);
 		echo $levelID;
@@ -110,9 +128,25 @@ if($levelString != "" AND $levelName != "") {
 			error_log("GDIPS level update hook failed for level ".$levelID.": ".$hookError->getMessage());
 		}
 	} else {
-		$query->execute([':levelName' => $levelName, ':gameVersion' => $gameVersion, ':binaryVersion' => $binaryVersion, ':userName' => $userName, ':levelDesc' => $levelDesc, ':levelVersion' => $levelVersion, ':levelLength' => $levelLength, ':audioTrack' => $audioTrack, ':auto' => $auto, ':password' => $password, ':original' => $original, ':twoPlayer' => $twoPlayer, ':songID' => $songID, ':objects' => $objects, ':coins' => $coins, ':requestedStars' => $requestedStars, ':extraString' => $extraString, ':levelString' => $levelString, ':levelInfo' => $levelInfo, ':secret' => $secret, ':uploadDate' => $uploadDate, ':userID' => $userID, ':id' => $id, ':unlisted' => $unlisted, ':hostname' => $hostname, ':ldm' => $ldm, ':wt' => $wt, ':wt2' => $wt2, ':unlisted2' => $unlisted2, ':settingsString' => $settingsString, ':songIDs' => $songIDs, ':sfxIDs' => $sfxIDs, ':ts' => $ts]);
+		$storedLevelString = $levelString;
+		if (gdTelegraphCloud::enabled()) {
+			try {
+				$storedLevelString = gdTelegraphCloud::storeLevel($levelString);
+			} catch (Throwable $storageError) {
+				exit("-1");
+			}
+		}
+		try {
+			$query->execute([':levelName' => $levelName, ':gameVersion' => $gameVersion, ':binaryVersion' => $binaryVersion, ':userName' => $userName, ':levelDesc' => $levelDesc, ':levelVersion' => $levelVersion, ':levelLength' => $levelLength, ':audioTrack' => $audioTrack, ':auto' => $auto, ':password' => $password, ':original' => $original, ':twoPlayer' => $twoPlayer, ':songID' => $songID, ':objects' => $objects, ':coins' => $coins, ':requestedStars' => $requestedStars, ':extraString' => $extraString, ':levelString' => $storedLevelString, ':levelInfo' => $levelInfo, ':secret' => $secret, ':uploadDate' => $uploadDate, ':userID' => $userID, ':id' => $id, ':unlisted' => $unlisted, ':hostname' => $hostname, ':ldm' => $ldm, ':wt' => $wt, ':wt2' => $wt2, ':unlisted2' => $unlisted2, ':settingsString' => $settingsString, ':songIDs' => $songIDs, ':sfxIDs' => $sfxIDs, ':ts' => $ts]);
+		} catch (Throwable $storageError) {
+			gdTelegraphCloud::deleteLevel($storedLevelString);
+			exit("-1");
+		}
 		$levelID = (int)$db->lastInsertId();
-		if($levelID <= 0) exit("-1");
+		if($levelID <= 0) {
+			gdTelegraphCloud::deleteLevel($storedLevelString);
+			exit("-1");
+		}
 		$levelFile = $levelStorageDir . "/" . $levelID;
 		@file_put_contents($levelFile, $levelString, LOCK_EX);
 		echo $levelID;
