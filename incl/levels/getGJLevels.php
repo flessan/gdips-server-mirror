@@ -137,6 +137,7 @@ switch($type){
 		break;
 	case 15: // Most liked, changed to 15 in GDW for whatever reason
 		$order = "likes";
+		break;
 	case 1: // Most downloaded
 		$order = "downloads";
 		break;
