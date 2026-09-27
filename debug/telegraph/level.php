@@ -17,6 +17,7 @@ require_once __DIR__ . "/../../incl/lib/adminLib.php";
 require_once __DIR__ . "/../../incl/lib/mainLib.php";
 require_once __DIR__ . "/../../incl/lib/exploitPatch.php";
 require_once __DIR__ . "/../../incl/lib/generateHash.php";
+require_once __DIR__ . "/../../incl/lib/XORCipher.php";
 require_once __DIR__ . "/../../incl/lib/telegraphCloud.php";
 require __DIR__ . "/../../config/misc.php";
 
