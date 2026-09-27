@@ -1160,11 +1160,15 @@ public function printPage($content, $isSubdirectory = true, $navbar = "home"){
 	}
 
 	public function generateMiniPlayerRow($rank, $user) {
-		global $dbPath;
-		require __DIR__."/../".$dbPath."incl/lib/connection.php";
 		$name = ($user["userName"] == "Undefined" OR empty($user["userName"])) ? '#' : $user["userName"];
+		$accountID = isset($user["extID"]) && is_numeric($user["extID"]) ? (int)$user["extID"] : 0;
+		$profileHref = $accountID > 0
+			? 'profile/index.php?id='.$accountID
+			: 'profile/index.php?id='.rawurlencode($name);
+		$profileHrefHtml = htmlspecialchars($profileHref, ENT_QUOTES, 'UTF-8');
+		$profileJs = htmlspecialchars($profileHref, ENT_QUOTES, 'UTF-8');
 		$medal = $rank <= 3 ? '<i class="fa-solid fa-trophy" style="color:'.($rank == 1 ? '#ffd700' : ($rank == 2 ? '#c0c0c0' : '#cd7f32')).'"></i>' : '# '.$rank;
-		return '<a class="gd-playerrow" href="profile/'.htmlspecialchars($name).'" onclick="a(\'profile/'.htmlspecialchars($name).'\', true, true);return false;">
+		return '<a class="gd-playerrow" href="'.$profileHrefHtml.'" onclick="a(\''.$profileJs.'\', true, true);return false;">
 			<span class="gd-playerrow-rank">'.$medal.'</span>
 			'.$this->gdAvatar($user, 30).'
 			<span class="gd-playerrow-name">'.htmlspecialchars($name).'</span>
