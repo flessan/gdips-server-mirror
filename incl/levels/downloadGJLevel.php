@@ -9,10 +9,11 @@ require_once "../lib/GJPCheck.php";
 require_once "../lib/telegraphCloud.php";
 require "../../config/misc.php";
 
-// Write an entry marker before any validation so we can tell whether
-// Geometry Dash actually reaches this endpoint at all.
+// Secret-free request tracing for diagnosing Geometry Dash download failures.
+// This survives early exits and fatal errors, so we can identify exactly where
+// the request stops before returning the normal level response.
 $debugPath = sys_get_temp_dir() . "/gdips-last-download.json";
-$debugEntry = [
+$debugTrace = [
     "ok" => false,
     "stage" => "entered",
     "timestamp" => gmdate("c"),
@@ -21,15 +22,56 @@ $debugEntry = [
     "contentType" => $_SERVER["CONTENT_TYPE"] ?? null,
     "postKeys" => array_values(array_keys($_POST)),
 ];
-@file_put_contents(
-    $debugPath,
-    json_encode($debugEntry, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
-    LOCK_EX
-);
+$writeDebug = static function(array $patch) use (&$debugTrace, $debugPath): void {
+    $debugTrace = array_merge($debugTrace, $patch, ["updatedAt" => gmdate("c")]);
+    @file_put_contents(
+        $debugPath,
+        json_encode($debugTrace, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+        LOCK_EX
+    );
+};
+register_shutdown_function(static function() use (&$debugTrace, $debugPath): void {
+    $error = error_get_last();
+    if ($error && in_array($error["type"], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true)) {
+        $debugTrace["fatalError"] = [
+            "type" => $error["type"],
+            "message" => $error["message"],
+            "file" => basename($error["file"]),
+            "line" => $error["line"],
+        ];
+        $debugTrace["stage"] = $debugTrace["stage"] . ":fatal";
+        $debugTrace["updatedAt"] = gmdate("c");
+        @file_put_contents(
+            $debugPath,
+            json_encode($debugTrace, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+            LOCK_EX
+        );
+    }
+});
+$writeDebug([
+    "request" => [
+        "gameVersion" => $_POST["gameVersion"] ?? null,
+        "binaryVersion" => $_POST["binaryVersion"] ?? null,
+        "levelID" => $_POST["levelID"] ?? null,
+        "inc" => $_POST["inc"] ?? null,
+        "extras" => $_POST["extras"] ?? null,
+        "hasAccountID" => !empty($_POST["accountID"]),
+        "hasSecret" => !empty($_POST["secret"]),
+        "hasRs" => !empty($_POST["rs"]),
+        "hasChk" => !empty($_POST["chk"]),
+    ],
+]);
 $gs = new mainLib();
 if(empty($_POST["levelID"]) || !is_numeric($_POST["levelID"])) exit("-1");
 $levelID = ExploitPatch::numbercolon($_POST["levelID"]);
 $gameVersion = !empty($_POST["gameVersion"]) ? ExploitPatch::number($_POST["gameVersion"]) : 1;
+$writeDebug([
+    "stage" => "parsed_request",
+    "parsed" => [
+        "levelID" => $levelID,
+        "gameVersion" => $gameVersion,
+    ],
+]);
 $extras = !empty($_POST["extras"]) && $_POST["extras"];
 $inc = !empty($_POST["inc"]) && $_POST["inc"];
 $ip = $gs->getIP();
@@ -72,6 +114,13 @@ if($daily == 1) $query = $db->prepare("SELECT levels.*, users.userName, users.ex
 else $query = $db->prepare("SELECT * FROM levels WHERE levelID = :levelID");
 $query->execute([':levelID' => $levelID]);
 $result = $query->fetch();
+$writeDebug([
+    "stage" => $result ? "level_found" : "level_not_found",
+    "database" => [
+        "found" => (bool)$result,
+        "levelID" => $levelID,
+    ],
+]);
 if($result) {
 	$isPlayerAnAdmin = false;
 	if(!empty($_POST['accountID'])) {
@@ -102,12 +151,32 @@ if($result) {
 	$desc = ExploitPatch::translit(ExploitPatch::rucharclean(ExploitPatch::url_base64_decode($result["levelDesc"])));
 	if($gs->checkModIPPermission("actionFreeCopy") == 1) $pass = "1";
 	$xorPass = $pass;
+	$writeDebug([
+		"stage" => "before_storage_read",
+		"storage" => [
+			"enabled" => gdTelegraphCloud::enabled(),
+			"storedLength" => strlen((string)($result["levelString"] ?? "")),
+			"storedPrefix" => substr((string)($result["levelString"] ?? ""), 0, 12),
+		],
+	]);
 	try {
 		$levelstring = gdTelegraphCloud::readLevel((string)($result["levelString"] ?? ""));
 	} catch (Throwable $storageError) {
+		$writeDebug([
+			"stage" => "storage_read_failed",
+			"storageError" => get_class($storageError) . ": " . $storageError->getMessage(),
+		]);
 		exit("-1");
 	}
 	$levelstring = (string)$levelstring;
+	$writeDebug([
+		"stage" => "storage_read_ok",
+		"payload" => [
+			"length" => strlen($levelstring),
+			"sha256" => hash("sha256", $levelstring),
+			"prefix" => substr($levelstring, 0, 16),
+		],
+	]);
 	if($levelstring === "") exit("-1");
 	if($gameVersion > 18) {
 		if(substr($levelstring, 0, 3) == 'kS1') $levelstring = ExploitPatch::url_base64_encode(gzcompress($levelstring));
@@ -116,6 +185,15 @@ if($result) {
 			$desc = ExploitPatch::url_base64_encode($desc);
 		}
 	}
+	$writeDebug([
+		"stage" => "building_response",
+		"responseMode" => [
+			"gameVersion" => $gameVersion,
+			"binaryVersion" => $binaryVersion,
+			"payloadLength" => strlen($levelstring),
+			"payloadPrefix" => substr($levelstring, 0, 16),
+		],
+	]);
 	$response = "1:".$result["levelID"].":2:".ExploitPatch::translit($result["levelName"]).":3:".$desc.":4:".$levelstring.":5:".$result["levelVersion"].":6:".$result["userID"].":8:10:9:".$result["starDifficulty"].":10:".$result["downloads"].":11:1:12:".$result["audioTrack"].":13:".$result["gameVersion"].":14:".$result["likes"].":17:".$result["starDemon"].":43:".$result["starDemonDiff"].":25:".$result["starAuto"].":18:".$result["starStars"].":19:".$result["starFeatured"].":42:".$result["starEpic"].":45:".$result["objects"].":15:".$result["levelLength"].":30:".$result["original"].":31:".$result['twoPlayer'].":28:".$uploadDate. ":29:".$updateDate. ":35:".$result["songID"].":36:".$result["extraString"].":37:".$result["coins"].":38:".$result["starCoins"].":39:".$result["requestedStars"].":46:".$result["wt"].":47:".$result["wt2"].":48:".$result["settingsString"].":40:".$result["isLDM"].":27:$xorPass:52:".$result["songIDs"].":53:".$result["sfxIDs"].":57:".$result['ts'];
 	if($daily == 1) $response .= ":41:".$feaID;
 	if($extras) $response .= ":26:" . $result["levelInfo"];
