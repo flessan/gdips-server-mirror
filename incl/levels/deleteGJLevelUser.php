@@ -6,6 +6,7 @@ require_once "../lib/GJPCheck.php";
 require_once "../lib/exploitPatch.php";
 require_once "../lib/mainLib.php";
 require_once "../lib/cron.php";
+require_once "../lib/telegraphCloud.php";
 $gs = new mainLib();
 
 $levelID = ExploitPatch::remove($_POST["levelID"]);
@@ -19,6 +20,7 @@ $query->execute([':levelID' => $levelID, ':userID' => $userID]);
 $getLevelData = $query->fetch();
 
 if(!$getLevelData) exit("-1");
+$storedLevelString = (string)($getLevelData["levelString"] ?? "");
 
 $db->beginTransaction();
 try {
@@ -47,6 +49,7 @@ try {
 	if($db->inTransaction()) $db->rollBack();
 	exit("-1");
 }
+gdTelegraphCloud::deleteLevel($storedLevelString);
 $levelFile = __DIR__ . "/../../data/levels/" . $levelID;
 	$deletedDir = __DIR__ . "/../../data/levels/deleted";
 	if (is_file($levelFile)) {
