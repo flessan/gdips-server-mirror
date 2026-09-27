@@ -230,6 +230,55 @@ $countquery->execute();
 $totallvlcount = $countquery->fetchColumn();
 $result = $query->fetchAll();
 $levelcount = $query->rowCount();
+
+// Secret-free trace of the level-list response that Geometry Dash parses.
+// This helps correlate a visible level with the levelID sent later to
+// downloadGJLevel22.php.
+try {
+	$db->exec("CREATE TABLE IF NOT EXISTS debug_gjlevels_trace (
+		id TINYINT UNSIGNED NOT NULL,
+		updated_at DATETIME NOT NULL,
+		payload LONGTEXT NOT NULL,
+		PRIMARY KEY (id)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+	$traceLevelIds = [];
+	foreach($result as $traceLevel) {
+		$traceLevelIds[] = [
+			"levelID" => (int)($traceLevel["levelID"] ?? 0),
+			"levelName" => (string)($traceLevel["levelName"] ?? ""),
+			"gameVersion" => (int)($traceLevel["gameVersion"] ?? 0)
+		];
+	}
+
+	$trace = [
+		"timestamp" => gmdate("c"),
+		"requestUri" => $_SERVER["REQUEST_URI"] ?? null,
+		"gameVersion" => $gameVersion,
+		"binaryVersion" => $binaryVersion,
+		"type" => $type,
+		"page" => (int)($offset / 10),
+		"strProvided" => isset($_POST["str"]),
+		"strIsNumeric" => isset($_POST["str"]) && is_numeric($_POST["str"]),
+		"resultCount" => count($result),
+		"totalLevelCount" => (int)$totallvlcount,
+		"levels" => $traceLevelIds
+	];
+
+	$traceStmt = $db->prepare(
+		"REPLACE INTO debug_gjlevels_trace (id, updated_at, payload)
+		 VALUES (1, NOW(), :payload)"
+	);
+	$traceStmt->execute([
+		":payload" => json_encode(
+			$trace,
+			JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+		)
+	]);
+} catch(Throwable $traceError) {
+	// Never affect the live Geometry Dash level list.
+}
+
 foreach($result as &$level1) {
 	if(empty($level1["levelID"])) continue;
 	if($isIDSearch && $level1['unlisted'] > 0) {
