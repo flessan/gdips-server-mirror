@@ -116,6 +116,13 @@ if($result) {
 		*/
 		$response .= "#" . $somestring;
 	}
+	// Geometry Dash's HTTP client is happier when the level endpoint
+	// declares a plain-text response and an exact body length. This also avoids
+	// any ambiguity from transfer framing on lightweight PHP hosts.
+	header("Content-Type: text/plain; charset=utf-8");
+	header("Content-Length: ".strlen($response));
+	header("Cache-Control: no-store");
 	echo $response;
+	exit;
 } else exit('-1');
 ?>
