@@ -1,3 +1,3 @@
 <?php
-require "incl/levels/deleteGJLevelUser.php";
+require __DIR__ . "/incl/levels/deleteGJLevelUser.php";
 ?>
