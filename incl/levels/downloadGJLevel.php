@@ -8,6 +8,24 @@ require_once "../lib/generateHash.php";
 require_once "../lib/GJPCheck.php";
 require_once "../lib/telegraphCloud.php";
 require "../../config/misc.php";
+
+// Write an entry marker before any validation so we can tell whether
+// Geometry Dash actually reaches this endpoint at all.
+$debugPath = sys_get_temp_dir() . "/gdips-last-download.json";
+$debugEntry = [
+    "ok" => false,
+    "stage" => "entered",
+    "timestamp" => gmdate("c"),
+    "method" => $_SERVER["REQUEST_METHOD"] ?? null,
+    "requestUri" => $_SERVER["REQUEST_URI"] ?? null,
+    "contentType" => $_SERVER["CONTENT_TYPE"] ?? null,
+    "postKeys" => array_values(array_keys($_POST)),
+];
+@file_put_contents(
+    $debugPath,
+    json_encode($debugEntry, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+    LOCK_EX
+);
 $gs = new mainLib();
 if(empty($_POST["levelID"]) || !is_numeric($_POST["levelID"])) exit("-1");
 $levelID = ExploitPatch::numbercolon($_POST["levelID"]);
@@ -147,7 +165,7 @@ if($result) {
 		],
 	];
 	@file_put_contents(
-		sys_get_temp_dir() . "/gdips-last-download.json",
+		$debugPath,
 		json_encode($debugSnapshot, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
 		LOCK_EX
 	);
