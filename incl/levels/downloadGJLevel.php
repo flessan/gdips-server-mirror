@@ -6,6 +6,7 @@ require_once "../lib/exploitPatch.php";
 require_once "../lib/mainLib.php";
 require_once "../lib/generateHash.php";
 require_once "../lib/GJPCheck.php";
+require_once "../lib/telegraphCloud.php";
 require "../../config/misc.php";
 $gs = new mainLib();
 if(empty($_POST["levelID"]) || !is_numeric($_POST["levelID"])) exit("-1");
@@ -83,7 +84,12 @@ if($result) {
 	$desc = ExploitPatch::translit(ExploitPatch::rucharclean(ExploitPatch::url_base64_decode($result["levelDesc"])));
 	if($gs->checkModIPPermission("actionFreeCopy") == 1) $pass = "1";
 	$xorPass = $pass;
-	$levelstring = (string)($result["levelString"] ?? "");
+	try {
+		$levelstring = gdTelegraphCloud::readLevel((string)($result["levelString"] ?? ""));
+	} catch (Throwable $storageError) {
+		exit("-1");
+	}
+	$levelstring = (string)$levelstring;
 	if($levelstring === "") exit("-1");
 	if($gameVersion > 18) {
 		if(substr($levelstring, 0, 3) == 'kS1') $levelstring = ExploitPatch::url_base64_encode(gzcompress($levelstring));
