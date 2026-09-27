@@ -52,7 +52,9 @@ $levelInfo = !empty($_POST["levelInfo"]) ? ExploitPatch::remove($_POST["levelInf
 //TODO: optionally utilize the 2.2 parameter instead
 $unlisted = !empty($_POST["unlisted1"]) ? ExploitPatch::remove($_POST["unlisted1"]) : 
 	(!empty($_POST["unlisted"]) ? ExploitPatch::remove($_POST["unlisted"]) : 0);
+$unlisted = ($unlisted == 1) ? 1 : 0;
 $unlisted2 = !empty($_POST["unlisted2"]) ? ExploitPatch::remove($_POST["unlisted2"]) : $unlisted;
+$unlisted2 = ($unlisted2 == 1) ? 1 : 0;
 $ldm = !empty($_POST["ldm"]) ? ExploitPatch::remove($_POST["ldm"]) : 0;
 $wt = !empty($_POST["wt"]) ? ExploitPatch::remove($_POST["wt"]) : 0;
 $wt2 = !empty($_POST["wt2"]) ? ExploitPatch::remove($_POST["wt2"]) : 0;
@@ -97,20 +99,29 @@ if($levelString != "" AND $levelName != "") {
 		$levelFile = $levelStorageDir . "/" . $levelID;
 		@file_put_contents($levelFile, $levelString, LOCK_EX);
 		echo $levelID;
-		$gs->logAction($id, 23, $levelName, $levelDesc, $levelID);
-		$gs->sendLogsLevelChangeWebhook($levelID, $id, $getLevelData);
-		Automod::checkLevelsCount();
-		if($automaticCron) Cron::updateSongsUsage($id, false);
+		try {
+			$gs->logAction($id, 23, $levelName, $levelDesc, $levelID);
+			$gs->sendLogsLevelChangeWebhook($levelID, $id, $getLevelData);
+			Automod::checkLevelsCount();
+			if($automaticCron) Cron::updateSongsUsage($id, false);
+		} catch (Throwable $hookError) {
+			error_log("GDIPS level update hook failed for level ".$levelID.": ".$hookError->getMessage());
+		}
 	} else {
 		$query->execute([':levelName' => $levelName, ':gameVersion' => $gameVersion, ':binaryVersion' => $binaryVersion, ':userName' => $userName, ':levelDesc' => $levelDesc, ':levelVersion' => $levelVersion, ':levelLength' => $levelLength, ':audioTrack' => $audioTrack, ':auto' => $auto, ':password' => $password, ':original' => $original, ':twoPlayer' => $twoPlayer, ':songID' => $songID, ':objects' => $objects, ':coins' => $coins, ':requestedStars' => $requestedStars, ':extraString' => $extraString, ':levelString' => $levelString, ':levelInfo' => $levelInfo, ':secret' => $secret, ':uploadDate' => $uploadDate, ':userID' => $userID, ':id' => $id, ':unlisted' => $unlisted, ':hostname' => $hostname, ':ldm' => $ldm, ':wt' => $wt, ':wt2' => $wt2, ':unlisted2' => $unlisted2, ':settingsString' => $settingsString, ':songIDs' => $songIDs, ':sfxIDs' => $sfxIDs, ':ts' => $ts]);
-		$levelID = $db->lastInsertId();
+		$levelID = (int)$db->lastInsertId();
+		if($levelID <= 0) exit("-1");
 		$levelFile = $levelStorageDir . "/" . $levelID;
 		@file_put_contents($levelFile, $levelString, LOCK_EX);
 		echo $levelID;
-		$gs->logAction($id, 22, $levelName, $levelDesc, $levelID);
-		$gs->sendLogsLevelChangeWebhook($levelID, $id);
-		Automod::checkLevelsCount();
-		if($automaticCron) Cron::updateSongsUsage($id, false);
+		try {
+			$gs->logAction($id, 22, $levelName, $levelDesc, $levelID);
+			$gs->sendLogsLevelChangeWebhook($levelID, $id);
+			Automod::checkLevelsCount();
+			if($automaticCron) Cron::updateSongsUsage($id, false);
+		} catch (Throwable $hookError) {
+			error_log("GDIPS level upload hook failed for level ".$levelID.": ".$hookError->getMessage());
+		}
 	}
 } else {
 	exit('-1');
