@@ -1,6 +1,6 @@
 <?php
 /**
- * Show the last Geometry Dash level-download diagnostic.
+ * Show recent Geometry Dash level-download diagnostics.
  * Administrator-only. No auth cookies, passwords, API keys, or raw level payloads.
  */
 
@@ -53,16 +53,42 @@ try {
 $requests = [];
 foreach (array_reverse($rows) as $row) {
     $data = json_decode((string)$row["payload"], true);
+
     if (!is_array($data)) {
         $data = [
             "ok" => false,
-            "stage" => "invalid_snapshot",
+            "stage" => "invalid_snapshot"
         ];
     }
+
     $data["_id"] = (int)$row["id"];
     $data["_createdAt"] = $row["created_at"];
     $data["_storedAt"] = $row["updated_at"];
     $requests[] = $data;
+}
+
+$listTrace = null;
+
+try {
+    $listQuery = $db->query(
+        "SELECT updated_at, payload
+         FROM debug_gjlevels_trace
+         WHERE id = 1
+         LIMIT 1"
+    );
+
+    $listRow = $listQuery ? $listQuery->fetch(PDO::FETCH_ASSOC) : false;
+
+    if ($listRow) {
+        $listData = json_decode((string)$listRow["payload"], true);
+
+        if (is_array($listData)) {
+            $listData["_storedAt"] = $listRow["updated_at"];
+            $listTrace = $listData;
+        }
+    }
+} catch (Throwable $ignored) {
+    // Optional diagnostic only.
 }
 
 if (empty($requests)) {
@@ -73,73 +99,6 @@ if (empty($requests)) {
         "message" => "Trigger one level download in Geometry Dash first, then refresh this endpoint."
     ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     exit;
-}
-
-echo json_encode([
-        "ok" => false,
-        "error" => "debug_storage_unavailable"
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    exit;
-}
-
-try {
-    $query = $db->query(
-        "SELECT updated_at, payload
-         FROM debug_download_trace
-         WHERE id = 1
-         LIMIT 1"
-    );
-    $row = $query ? $query->fetch(PDO::FETCH_ASSOC) : false;
-} catch (Throwable $error) {
-    http_response_code(500);
-    echo json_encode([
-        "ok" => false,
-        "error" => "debug_trace_read_failed"
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    exit;
-}
-
-if (!$row) {
-    http_response_code(404);
-    echo json_encode([
-        "ok" => false,
-        "error" => "no_download_snapshot",
-        "message" => "Trigger one level download in Geometry Dash first, then refresh this endpoint."
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    exit;
-}
-
-$data = json_decode((string)$row["payload"], true);
-
-if (!is_array($data)) {
-    http_response_code(500);
-    echo json_encode([
-        "ok" => false,
-        "error" => "invalid_snapshot"
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    exit;
-}
-
-$data["_storedAt"] = $row["updated_at"];
-
-$listTrace = null;
-try {
-    $listQuery = $db->query(
-        "SELECT updated_at, payload
-         FROM debug_gjlevels_trace
-         WHERE id = 1
-         LIMIT 1"
-    );
-    $listRow = $listQuery ? $listQuery->fetch(PDO::FETCH_ASSOC) : false;
-    if ($listRow) {
-        $listData = json_decode((string)$listRow["payload"], true);
-        if (is_array($listData)) {
-            $listData["_storedAt"] = $listRow["updated_at"];
-            $listTrace = $listData;
-        }
-    }
-} catch (Throwable $ignored) {
-    // Level-list tracing is optional.
 }
 
 echo json_encode([
