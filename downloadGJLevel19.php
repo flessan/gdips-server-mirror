@@ -1,3 +1,3 @@
 <?php
-require "incl/levels/downloadGJLevel.php";
+require __DIR__ . "/incl/levels/downloadGJLevel.php";
 ?>
