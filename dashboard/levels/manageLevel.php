@@ -33,8 +33,10 @@ if(isset($_GET['deleteLevel'])) {
 	if(isset($_POST['yesIAmSure']) && (string)$_POST['yesIAmSure'] === '1') {
 		$query = $db->prepare("DELETE FROM comments WHERE levelID = :levelID");
 		$query->execute([':levelID' => $levelID]);
-		$query = $db->prepare("DELETE from levels WHERE levelID = :levelID LIMIT 1");
+		$query = $db->prepare("DELETE FROM levels WHERE levelID = :levelID LIMIT 1");
 		$query->execute([':levelID' => $levelID]);
+		$levelFile = dirname(__DIR__, 2) . "/data/levels/" . $levelID;
+		if (is_file($levelFile)) @unlink($levelFile);
 		$query = $db->prepare("INSERT INTO modactions (type, value, value2, value3, timestamp, account) VALUES ('6', :value, :value2, :levelID, :timestamp, :id)");
 		$query->execute([':value' => "1", ":value2" => $level['levelName'], ':timestamp' => time(), ':id' => $_SESSION['accountID'], ':levelID' => $levelID]);
 		if($automaticCron) {
