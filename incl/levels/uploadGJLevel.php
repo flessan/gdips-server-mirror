@@ -88,8 +88,7 @@ if($levelString != "" AND $levelName != "") {
 		$querye=$db->prepare("SELECT levelID, updateLocked FROM levels WHERE levelID = :levelID AND userID = :userID");
 		$querye->execute([':levelID' => $levelID, ':userID' => $userID]);
 		$level = $querye->fetch();
-		if(!$level) exit("-1");
-		if(!empty($level['updateLocked'])) exit("-1");
+		if($level && !empty($level['updateLocked'])) exit("-1");
 	}
 	if($level) {
 		$query = $db->prepare("SELECT * FROM levels WHERE levelID = :levelID");
