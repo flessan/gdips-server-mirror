@@ -30,7 +30,7 @@ if(empty($level)) die($dl->printSong('<div class="form">
 	</form>
 </div>', 'browse'));
 if(isset($_GET['deleteLevel'])) {
-	if($_POST['yesIAmSure'] == 1) {
+	if(isset($_POST['yesIAmSure']) && (string)$_POST['yesIAmSure'] === '1') {
 		$query = $db->prepare("DELETE FROM comments WHERE levelID = :levelID");
 		$query->execute([':levelID' => $levelID]);
 		$query = $db->prepare("DELETE from levels WHERE levelID = :levelID LIMIT 1");
@@ -51,7 +51,7 @@ if(isset($_GET['deleteLevel'])) {
 		</div>', 'browse');
 	} else die($dl->printSong('<div class="form">
 		<h1>'.$dl->getLocalizedString("manageLevel").'</h1>
-		<form class="form__inner" method="post" action="">
+		<form class="form__inner" method="post" action="" name="deletelevelconfirm">
 		<p>'.$dl->getLocalizedString("areYouSure").'</p>
 		<input type="hidden" name="yesIAmSure" value="1"></input>
 		<button type="button" onclick="a(\'levels/manageLevel.php?levelID='.$levelID.'\', true, false, \'GET\')" class="btn-song">'.$dl->getLocalizedString("change").'</button>
