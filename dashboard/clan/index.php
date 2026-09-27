@@ -53,7 +53,7 @@ if(!empty($clan)) {
                 	   <h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
                	 	   <form class="form__inner" method="post" action="">
               		  <p id="dashboard-error-text">'.$dl->getLocalizedString("notInYourClan").'</p>
-              		  <button type="button" onclick="a(\'clan/'.$clan["clan"].'/settings\', true, true, \'GET\')" class="btn-primary">'.$dl->getLocalizedString("settings").'</button>
+              		  <button type="button" onclick="a(\'clan/?id='.$clan["clan"].'/settings\', true, true, \'GET\')" class="btn-primary">'.$dl->getLocalizedString("settings").'</button>
       				 </form>
     			</div>', 'profile'));
     			    else {
@@ -63,7 +63,7 @@ if(!empty($clan)) {
                         	   <h1>'.$dl->getLocalizedString("clan").'</h1>
                        	 	   <form class="form__inner" method="post" action="">
                       		  <p>'.sprintf($dl->getLocalizedString("givedClan"), $gs->getAccountName($newOwner)).'</p>
-                      		  <button type="button" onclick="a(\'clan/'.$clan["clan"].'\', true, true, \'GET\')" class="btn-primary">'.$dl->getLocalizedString("clan").'</button>
+                      		  <button type="button" onclick="a(\'clan/?id='.$clan["clan"]\', true, true, \'GET\')" class="btn-primary">'.$dl->getLocalizedString("clan").'</button>
               				 </form>
         			</div>', 'profile'));
     			    }
@@ -74,7 +74,7 @@ if(!empty($clan)) {
                 foreach($mbrs as &$mbr) $members .= '<option value="'.$mbr["extID"].'">'.$mbr["userName"].'</option>';
                 exit($dl->printSong('<div class="form" style="width: 60vw;max-height: 80vh;position:relative">
             	<div style="height: 100%;width: 100%;"><div class="smallpage">
-                	<form method="post" style="margin:0px" action=""><button type="button" onclick="a(\'clan/'.$clan["clan"].'/settings\', true, true, \'GET\')" class="goback" style="margin-top:0px"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button></form>
+                	<form method="post" style="margin:0px" action=""><button type="button" onclick="a(\'clan/?id='.$clan["clan"].'/settings\', true, true, \'GET\')" class="goback" style="margin-top:0px"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button></form>
                 	<div style="display: flex;flex-direction: column;align-items: center"><h1 style="margin: 0px">'.$dl->getLocalizedString("areYouSure").'</h1></div>
                 	<p style="margin-bottom: 10px;">'.$dl->getLocalizedString("giveClanDesc").'</p>
                 	<form method="post" style="width:100%">
@@ -83,7 +83,7 @@ if(!empty($clan)) {
                 	    </select>
                 	<input type="hidden" name="givethisclan" value="1"></input>
                 	</form>
-                	<button style="margin-bottom:10px" class="btn-song" type="button" onclick="a(\'clan/'.$clan["clan"].'/settings\', true, true, \'POST\')">'.$dl->getLocalizedString("giveClan").'</button>
+                	<button style="margin-bottom:10px" class="btn-song" type="button" onclick="a(\'clan/?id='.$clan["clan"].'/settings\', true, true, \'POST\')">'.$dl->getLocalizedString("giveClan").'</button>
                 	</div>
         </div>', 'profile'));
             } elseif(isset($_POST["delclan"])) {
@@ -102,7 +102,7 @@ if(!empty($clan)) {
                 }
                 exit($dl->printSong('<div class="form" style="width: 60vw;max-height: 80vh;position:relative">
             	<div style="height: 100%;width: 100%;"><div class="smallpage">
-                	<form method="post" style="margin:0px" action=""><button type="button" onclick="a(\'clan/'.$clan["clan"].'/settings\', true, true, \'GET\')" class="goback" style="margin-top:0px"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button></form>
+                	<form method="post" style="margin:0px" action=""><button type="button" onclick="a(\'clan/?id='.$clan["clan"].'/settings\', true, true, \'GET\')" class="goback" style="margin-top:0px"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button></form>
                 	<div style="display: flex;flex-direction: column;align-items: center"><h1 style="margin: 0px">'.$dl->getLocalizedString("areYouSure").'</h1></div>
                 	<p style="margin-bottom: 10px;">'.$dl->getLocalizedString("deleteClanDesc").'</p>
                 	<form method="post" style="width:100%;margin:0px" name="nolol">
@@ -113,8 +113,8 @@ if(!empty($clan)) {
                 	    <input type="hidden" name="yesdelete" value="1"></input>
                 	    <input type="hidden" name="delclan" value="1"></input>
                 	</form>
-                	<div class="btns"><button style="margin-bottom:10px" class="btn-song btn-success" type="button" onclick="a(\'clan/'.$clan["clan"].'/settings\', true, true, \'POST\', false, \'nolol\')">'.$dl->getLocalizedString("goBack").'</button>
-                	<button style="margin-bottom:10px;width:50%" style="margin-bottom:10px;width: 50%;" class="btn-song btn-size" type="button" onclick="a(\'clan/'.$clan["clan"].'/settings\', true, true, \'POST\', false, \'delete\')">'.$dl->getLocalizedString("deleteClan").'</button></div>
+                	<div class="btns"><button style="margin-bottom:10px" class="btn-song btn-success" type="button" onclick="a(\'clan/?id='.$clan["clan"].'/settings\', true, true, \'POST\', false, \'nolol\')">'.$dl->getLocalizedString("goBack").'</button>
+                	<button style="margin-bottom:10px;width:50%" style="margin-bottom:10px;width: 50%;" class="btn-song btn-size" type="button" onclick="a(\'clan/?id='.$clan["clan"].'/settings\', true, true, \'POST\', false, \'delete\')">'.$dl->getLocalizedString("deleteClan").'</button></div>
                 	</div>
         </div>', 'profile'));
             } elseif(isset($_POST["pending"])) {
@@ -141,7 +141,7 @@ if(!empty($clan)) {
 					$mbr = $mbrs->fetch();
 					$stats = $dl->createProfileStats($mbr['stars'], $mbr['moons'], $mbr['diamonds'], $mbr['coins'], $mbr['userCoins'], $mbr['demons'], $mbr['creatorPoints'], 0);
 					$requests .= '<div style="width: 100%;display: flex;flex-wrap: wrap;justify-content: center;">
-						<div class="profile"><div style="display:flex"><button style="display:contents;cursor:pointer" type="button" onclick="a(\'profile/'.$mbr["userName"].'\', true, true, \'GET\')"><h2 style="color:rgb('.$gs->getAccountCommentColor($mbr["extID"]).')" class="profilenick">'.$mbr["userName"].'</h2></button></div>
+						<div class="profile"><div style="display:flex"><button style="display:contents;cursor:pointer" type="button" onclick="a(\'profile/?id='.$mbr["userName"].'\', true, true, \'GET\')"><h2 style="color:rgb('.$gs->getAccountCommentColor($mbr["extID"]).')" class="profilenick">'.$mbr["userName"].'</h2></button></div>
 						<div class="form-control" style="display: flex;width: 100%;height: max-content;align-items: center;">'.$stats.'</div>
 						<form style="width:100%"></form>
 						<form name="yes">
@@ -154,8 +154,8 @@ if(!empty($clan)) {
 							<input type="hidden" name="pending" value="1"></input>
 							<input type="hidden" name="accountID" value="'.$rqs["accountID"].'"></input>
 						</form>
-						<div style="display:flex;width:100%;grid-gap:5px"><button class="btn-song btn-success" type="button" onclick="a(\'clan/'.$clan["clan"].'/settings\', true, true, \'POST\', false, \'yes\')">'.$dl->getLocalizedString("approve").'</button>
-						<button class="btn-song btn-size" type="button" onclick="a(\'clan/'.$clan["clan"].'/settings\', true, true, \'POST\', false, \'no\')">'.$dl->getLocalizedString("deny").'</button></div>
+						<div style="display:flex;width:100%;grid-gap:5px"><button class="btn-song btn-success" type="button" onclick="a(\'clan/?id='.$clan["clan"].'/settings\', true, true, \'POST\', false, \'yes\')">'.$dl->getLocalizedString("approve").'</button>
+						<button class="btn-song btn-size" type="button" onclick="a(\'clan/?id='.$clan["clan"].'/settings\', true, true, \'POST\', false, \'no\')">'.$dl->getLocalizedString("deny").'</button></div>
 					</div></div>';
 				}
 				if(empty($requests)) $requests = '<div class="messenger" style="grid-gap: 10px;display: grid;align-content: space-between;">
@@ -168,7 +168,7 @@ if(!empty($clan)) {
 							'.$requests.'
 						</div>
 						<input type="hidden" name="pending" value="1"></input>
-              		  <button type="button" onclick="a(\'clan/'.$clan["clan"].'/settings\', true, true, \'GET\')" class="btn-primary">'.$dl->getLocalizedString("settings").'</button>
+              		  <button type="button" onclick="a(\'clan/?id='.$clan["clan"].'/settings\', true, true, \'GET\')" class="btn-primary">'.$dl->getLocalizedString("settings").'</button>
       				 </form>
     			</div>', 'profile'));
 			}
@@ -182,7 +182,7 @@ if(!empty($clan)) {
 			else $clIcon = '<i id="closeicon" class="fa-solid fa-toggle-off"></i>';
         	exit($dl->printSong('<div class="form" style="width: 60vw;max-height: 80vh;position:relative">
             	<div style="height: 100%;width: 100%;"><div style="display: flex;align-items: center;justify-content: center;flex-wrap:wrap">
-                	<form method="post" style="margin:0px" action=""><button type="button" onclick="a(\'clan/'.$clan["clan"].'\', true, true, \'GET\')" class="goback" style="margin-top:0px"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button></form>
+                	<form method="post" style="margin:0px" action=""><button type="button" onclick="a(\'clan/?id='.$clan["clan"]\', true, true, \'GET\')" class="goback" style="margin-top:0px"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button></form>
                       <div style="display: flex;flex-direction: column;align-items: center"><h1>'.$dl->getLocalizedString("settings").'</h1></div>
                       <div style="width: 100%">
                       <form method="post" class="mainsettings" name="mainsettings">
@@ -232,7 +232,7 @@ if(!empty($clan)) {
                               </div></div>
                         </div>
                        </form>
-                    <button style="margin-bottom:10px" class="btn-song" type="button" onclick="a(\'clan/'.$clan["clan"].'/settings\', true, true, \'POST\', false, \'mainsettings\')">'.$dl->getLocalizedString("saveSettings").'</button>
+                    <button style="margin-bottom:10px" class="btn-song" type="button" onclick="a(\'clan/?id='.$clan["clan"].'/settings\', true, true, \'POST\', false, \'mainsettings\')">'.$dl->getLocalizedString("saveSettings").'</button>
                 </div>
         </div></div>
 		<script>
@@ -382,7 +382,7 @@ if(!empty($clan)) {
     $mbrs = $mbrs->fetchAll();
     foreach($mbrs as &$mbr) {
 		if($clan["clanOwner"] == $_SESSION["accountID"]) $kick = '<form name="kick'.$mbr["extID"].'" style="margin:0px"><input type="hidden" name="kick" value="1"></input><input type="hidden" name="accountID" value="'.$mbr["extID"].'"></input></form>
-			<button type="button" onclick="a(\'clan/'.$clan["clan"].'\', true, true, \'POST\', false, \'kick'.$mbr["extID"].'\')" style="width: max-content;height: max-content;color: #ffbbbb;padding: 7px 10px;" title="'.$dl->getLocalizedString("kickMember").'" class="btn-rendel"><i class="fa-solid fa-xmark"></i></button>';
+			<button type="button" onclick="a(\'clan/?id='.$clan["clan"]\', true, true, \'POST\', false, \'kick'.$mbr["extID"].'\')" style="width: max-content;height: max-content;color: #ffbbbb;padding: 7px 10px;" title="'.$dl->getLocalizedString("kickMember").'" class="btn-rendel"><i class="fa-solid fa-xmark"></i></button>';
 		$allstars += $mbr['stars'];
 		$allmoons += $mbr['moons'];
 		$alldias += $mbr['diamonds'];
@@ -410,7 +410,7 @@ if(!empty($clan)) {
 			}	
 			$avatarImg = '<img src="'.$iconsRendererServer.'/icon.png?type=' . $iconTypeMap[$iconType]['type'] . '&value=' . $iconValue . '&color1=' . $mbr['color1'] . '&color2=' . $mbr['color2'] . ($mbr['accGlow'] != 0 ? '&glow=' . $mbr['accGlow'] . '&color3=' . $mbr['color3'] : '') . '" alt="Avatar" style="width: 30px; height: 30px; vertical-align: middle; object-fit: contain;">';
 			$members .= '<div style="width: 100%;display: flex;flex-wrap: wrap;justify-content: center;">
-				<div class="profile"><div class="clanmemberndiv"><button style="display:contents;cursor:pointer" type="button" onclick="a(\'profile/'.$mbr["userName"].'\', true, true, \'GET\')"><h2 style="color:rgb('.$gs->getAccountCommentColor($mbr["extID"]).')" class="profilenick clanmembernick"><div class="accounts-badge-icon-div">'.$avatarImg.$mbr["userName"].$badgeImg.'</div></h2></button>'.$kick.'</div>
+				<div class="profile"><div class="clanmemberndiv"><button style="display:contents;cursor:pointer" type="button" onclick="a(\'profile/?id='.$mbr["userName"].'\', true, true, \'GET\')"><h2 style="color:rgb('.$gs->getAccountCommentColor($mbr["extID"]).')" class="profilenick clanmembernick"><div class="accounts-badge-icon-div">'.$avatarImg.$mbr["userName"].$badgeImg.'</div></h2></button>'.$kick.'</div>
 				<div class="form-control" style="display: flex;width: 100%;height: max-content;align-items: center;">'.$stats.'</div>
 				<h3 id="comments" style="justify-content: flex-end;grid-gap: 0.5vh;">'.sprintf($dl->getLocalizedString("joinedAt"), $dl->convertToDate($mbr["joinedAt"], true)).'</h3>
 			</div></div>';
@@ -431,16 +431,16 @@ if(!empty($clan)) {
 			    <h1 style="margin: 10;margin-top: 20px;">'.$dl->getLocalizedString("noMembers").'</h1>
 			</div>';
 	if(empty($clan["desc"])) $clan["desc"] = $dl->getLocalizedString("noClanDesc");
-    if($clan["clanOwner"] == $_SESSION["accountID"]) $settings = '<form method="post" style="margin:0px" name="settingsform"><input type="hidden" name="settings" value="1"><button style="margin-top: 5px;margin-bottom:5px;position: relative" type="button" onclick="a(\'clan/'.$clan["clan"].'/settings\', true, true, \'POST\', false, \'settingsform\')" title="'.$dl->getLocalizedString("settings").'" class="msgupd" name="settings" value="1">'.($gs->isPendingRequests($clan['ID']) ? '<i style=" position: absolute;top: 18%; left: 18%;font-size: 40%; border: solid 3px #212529;border-radius: 500px;color: #e35151;" class="fa-solid fa-circle" aria-hidden="true"></i>' : '').'<i class="fa-solid fa-gear" aria-hidden="true"></i></button></form>';
-    elseif($isPlayerInClan == $clan["ID"]) $membermenu = '<form name="leave" style="margin:0"><input name="leave" type="hidden" value="1"></input></form><button type="button" onclick="a(\'clan/'.$clan["clan"].'\', true, true, \'POST\', false, \'leave\')" class="dropdown-item"><div class="icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></div>'.$dl->getLocalizedString("leaveFromClan").'</button>';
+    if($clan["clanOwner"] == $_SESSION["accountID"]) $settings = '<form method="post" style="margin:0px" name="settingsform"><input type="hidden" name="settings" value="1"><button style="margin-top: 5px;margin-bottom:5px;position: relative" type="button" onclick="a(\'clan/?id='.$clan["clan"].'/settings\', true, true, \'POST\', false, \'settingsform\')" title="'.$dl->getLocalizedString("settings").'" class="msgupd" name="settings" value="1">'.($gs->isPendingRequests($clan['ID']) ? '<i style=" position: absolute;top: 18%; left: 18%;font-size: 40%; border: solid 3px #212529;border-radius: 500px;color: #e35151;" class="fa-solid fa-circle" aria-hidden="true"></i>' : '').'<i class="fa-solid fa-gear" aria-hidden="true"></i></button></form>';
+    elseif($isPlayerInClan == $clan["ID"]) $membermenu = '<form name="leave" style="margin:0"><input name="leave" type="hidden" value="1"></input></form><button type="button" onclick="a(\'clan/?id='.$clan["clan"]\', true, true, \'POST\', false, \'leave\')" class="dropdown-item"><div class="icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></div>'.$dl->getLocalizedString("leaveFromClan").'</button>';
     elseif(!$isPlayerInClan) {
         if($clan["isClosed"] == 1) {
             $join = $db->prepare("SELECT * FROM clanrequests WHERE accountID = :acc AND clanID = :cid");
             $join->execute([':acc' => $_SESSION["accountID"], ':cid' => $clan["ID"]]);
             $join = $join->fetch();
-            if(empty($join)) $membermenu = '<form name="join" style="margin:0"><input name="join" type="hidden" value="1"></input></form><button type="button" onclick="a(\'clan/'.$clan["clan"].'\', true, true, \'POST\', false, \'join\')" class="dropdown-item"><div class="icon"><i class="fa-solid fa-arrow-right-to-bracket"></i></div>'.$dl->getLocalizedString("askToJoin").'</button>';
-            else $membermenu = '<form name="join" style="margin:0"><input name="join" type="hidden" value="-1"></input></form><button type="button" onclick="a(\'clan/'.$clan["clan"].'\', true, true, \'POST\', false, \'join\')" class="dropdown-item"><div class="icon"><i class="fa-solid fa-xmark"></i></div>'.$dl->getLocalizedString("removeClanRequest").'</button>';
-        } else $membermenu = '<form name="join" style="margin:0"><input name="join" type="hidden" value="1"></input></form><button type="button" onclick="a(\'clan/'.$clan["clan"].'\', true, true, \'POST\', false, \'join\')" class="dropdown-item"><div class="icon"><i class="fa-solid fa-user-plus"></i></div>'.$dl->getLocalizedString("joinClan").'</button>';
+            if(empty($join)) $membermenu = '<form name="join" style="margin:0"><input name="join" type="hidden" value="1"></input></form><button type="button" onclick="a(\'clan/?id='.$clan["clan"]\', true, true, \'POST\', false, \'join\')" class="dropdown-item"><div class="icon"><i class="fa-solid fa-arrow-right-to-bracket"></i></div>'.$dl->getLocalizedString("askToJoin").'</button>';
+            else $membermenu = '<form name="join" style="margin:0"><input name="join" type="hidden" value="-1"></input></form><button type="button" onclick="a(\'clan/?id='.$clan["clan"]\', true, true, \'POST\', false, \'join\')" class="dropdown-item"><div class="icon"><i class="fa-solid fa-xmark"></i></div>'.$dl->getLocalizedString("removeClanRequest").'</button>';
+        } else $membermenu = '<form name="join" style="margin:0"><input name="join" type="hidden" value="1"></input></form><button type="button" onclick="a(\'clan/?id='.$clan["clan"]\', true, true, \'POST\', false, \'join\')" class="dropdown-item"><div class="icon"><i class="fa-solid fa-user-plus"></i></div>'.$dl->getLocalizedString("joinClan").'</button>';
     }
     $membercount = count($mbrs) - 1; // cuz owner
     $dontmind = mb_substr($membercount, -1);
