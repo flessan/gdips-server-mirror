@@ -247,7 +247,12 @@ try {
 		$traceLevelIds[] = [
 			"levelID" => (int)($traceLevel["levelID"] ?? 0),
 			"levelName" => (string)($traceLevel["levelName"] ?? ""),
-			"gameVersion" => (int)($traceLevel["gameVersion"] ?? 0)
+			"gameVersion" => (int)($traceLevel["gameVersion"] ?? 0),
+			"userID" => (int)($traceLevel["userID"] ?? 0),
+			"userName" => (string)($traceLevel["userName"] ?? ""),
+			"extID" => (int)($traceLevel["extID"] ?? 0),
+			"starStars" => (int)($traceLevel["starStars"] ?? 0),
+			"starCoins" => (int)($traceLevel["starCoins"] ?? 0)
 		];
 	}
 
@@ -326,6 +331,12 @@ try {
 		"startsWithLevelOne" => str_starts_with($firstSection, "1:1:"),
 		"firstSectionLength" => strlen($firstSection)
 	];
+	$responseSections = explode("#", $finalResponse);
+	$traceData["response"]["sectionLengths"] = array_map("strlen", $responseSections);
+	$traceData["response"]["sectionPrefixes"] = array_map(
+		static function($section) { return substr($section, 0, 500); },
+		$responseSections
+	);
 	$traceStmt = $db->prepare(
 		"UPDATE debug_gjlevels_trace
 		 SET updated_at = NOW(), payload = :payload
