@@ -1,63 +1,86 @@
 <?php
 /*
- * Lightweight Telegraph Cloud diagnostic for administrators.
- * Deliberately does not download/reassemble a level payload, so a huge level
- * cannot exhaust PHP memory merely by opening this diagnostic URL.
+ * Lightweight administrator diagnostic for GDIPS -> Telegraph Cloud.
+ * This endpoint intentionally reports only bounded, non-secret stage codes.
  */
-session_start();
-
-require_once __DIR__ . "/../../config/connection.php";
-require_once __DIR__ . "/../../config/misc.php";
-require_once __DIR__ . "/../../config/telegraph.php";
-require_once __DIR__ . "/../../incl/lib/telegraphCloud.php";
-
-header('Content-Type: application/json; charset=utf-8');
-header('Cache-Control: no-store');
+$stage = "boot";
 
 function tcOut(array $payload, int $status = 200) {
     http_response_code($status);
-    exit(json_encode($payload, JSON_UNESCAPED_SLASHES));
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
+    echo json_encode($payload, JSON_UNESCAPED_SLASHES);
+    exit;
 }
 
 try {
-    if (empty($_SESSION["accountID"])) {
+    $stage = "session";
+    if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+
+    $stage = "connection";
+    require_once __DIR__ . "/../../incl/lib/connection.php";
+
+    $stage = "telegraph_config";
+    require_once __DIR__ . "/../../config/telegraph.php";
+
+    $stage = "telegraph_client";
+    require_once __DIR__ . "/../../incl/lib/telegraphCloud.php";
+
+    $stage = "auth";
+    $accountID = (int)($_SESSION["accountID"] ?? 0);
+    if ($accountID < 1) {
         $cookie = $_COOKIE["auth"] ?? "";
-        if (is_string($cookie) && trim($cookie) !== "") {
-            $authQuery = $db->prepare("SELECT accountID FROM accounts WHERE BINARY auth = BINARY :auth AND auth != '' LIMIT 1");
+        if (is_string($cookie) && trim($cookie) !== "" && strtolower(trim($cookie)) !== "none") {
+            $authQuery = $db->prepare(
+                "SELECT accountID FROM accounts WHERE BINARY auth = BINARY :auth AND auth != '' LIMIT 1"
+            );
             $authQuery->execute([":auth" => $cookie]);
-            $sessionAccount = $authQuery->fetchColumn();
-            if ($sessionAccount) $_SESSION["accountID"] = (int)$sessionAccount;
+            $accountID = (int)$authQuery->fetchColumn();
+            if ($accountID > 0) $_SESSION["accountID"] = $accountID;
         }
     }
+    if ($accountID < 1) tcOut(["ok" => false, "error" => "not_authenticated"], 401);
 
-    if (empty($_SESSION["accountID"])) {
-        tcOut(["ok" => false, "error" => "not_authenticated"], 401);
-    }
-
+    $stage = "admin_check";
     $adminQuery = $db->prepare("SELECT isAdmin FROM accounts WHERE accountID = :accountID LIMIT 1");
-    $adminQuery->execute([":accountID" => $_SESSION["accountID"]]);
+    $adminQuery->execute([":accountID" => $accountID]);
     if ((int)$adminQuery->fetchColumn() !== 1) {
         tcOut(["ok" => false, "error" => "admin_required"], 403);
     }
 
+    $stage = "level_query";
     $levelID = isset($_GET["levelID"]) ? (int)$_GET["levelID"] : 0;
     if ($levelID < 1) tcOut(["ok" => false, "error" => "invalid_level_id"], 400);
 
-    $query = $db->prepare("SELECT levelID, levelName, levelString FROM levels WHERE levelID = :levelID LIMIT 1");
+    $query = $db->prepare(
+        "SELECT levelID, levelName, levelString FROM levels WHERE levelID = :levelID LIMIT 1"
+    );
     $query->execute([":levelID" => $levelID]);
     $level = $query->fetch(PDO::FETCH_ASSOC);
     if (!$level) tcOut(["ok" => false, "error" => "level_not_found"], 404);
 
     $stored = (string)($level["levelString"] ?? "");
+
+    $stage = "manifest_parse";
     $manifest = gdTelegraphCloud::parseManifest($stored);
+
+    $stage = "config_read";
+    $configState = [
+        "enabled" => !empty($telegraphCloudEnabled),
+        "baseUrl" => !empty($telegraphCloudBaseUrl),
+        "projectId" => !empty($telegraphCloudProjectId),
+        "apiKey" => !empty($telegraphCloudApiKey),
+        "bucket" => (string)$telegraphCloudBucket,
+        "chunkBytes" => (int)$telegraphCloudChunkBytes,
+    ];
 
     $result = [
         "ok" => false,
         "levelID" => (int)$level["levelID"],
         "levelName" => $level["levelName"],
-        "telegraphEnabled" => gdTelegraphCloud::enabled(),
         "storage" => $manifest ? "telegraph-cloud" : "database",
         "storedLength" => strlen($stored),
+        "config" => $configState,
     ];
 
     if (!$manifest) {
@@ -70,47 +93,44 @@ try {
 
     $result["chunkCount"] = count($manifest["chunks"]);
     $result["remoteSize"] = (int)$manifest["size"];
-    $result["contentSha256"] = $manifest["sha256"];
+    $result["contentSha256"] = (string)$manifest["sha256"];
 
-    $config = [
-        "baseUrlPresent" => !empty($telegraphCloudBaseUrl),
-        "projectIdPresent" => !empty($telegraphCloudProjectId),
-        "apiKeyPresent" => !empty($telegraphCloudApiKey),
-        "bucket" => (string)$telegraphCloudBucket,
-    ];
-
-    if (!$config["baseUrlPresent"] || !$config["projectIdPresent"] || !$config["apiKeyPresent"]) {
-        $result["error"] = "telegraph_not_configured";
-        $result["config"] = [
-            "baseUrlPresent" => $config["baseUrlPresent"],
-            "projectIdPresent" => $config["projectIdPresent"],
-            "apiKeyPresent" => $config["apiKeyPresent"],
-            "bucket" => $config["bucket"],
-        ];
-        tcOut($result);
-    }
+    $base = rtrim((string)$telegraphCloudBaseUrl, "/");
+    $bucket = (string)$telegraphCloudBucket;
 
     $result["remoteObjects"] = [];
     $allAvailable = true;
 
     foreach ($manifest["chunks"] as $index => $chunk) {
+        $stage = "chunk_probe";
         if (!is_array($chunk) || !is_string($chunk["key"] ?? null) || !isset($chunk["size"])) {
             $allAvailable = false;
-            $result["remoteObjects"][] = ["index" => $index, "status" => "invalid_manifest"];
+            $result["remoteObjects"][] = [
+                "index" => $index,
+                "status" => "invalid_manifest"
+            ];
             continue;
         }
 
-        // HEAD-only probe: verifies Telegram can resolve the object pointer
-        // through the Telegraph Cloud API without downloading the bytes.
-        $base = rtrim((string)$telegraphCloudBaseUrl, "/");
-        $bucket = (string)$telegraphCloudBucket;
         $parts = array_merge([$bucket], explode("/", trim($chunk["key"], "/")));
         $url = $base . "/api/storage/" . implode("/", array_map("rawurlencode", $parts));
+
+        if (!function_exists("curl_init")) {
+            $allAvailable = false;
+            $result["remoteObjects"][] = [
+                "index" => $index,
+                "status" => "curl_unavailable"
+            ];
+            break;
+        }
 
         $ch = curl_init($url);
         if ($ch === false) {
             $allAvailable = false;
-            $result["remoteObjects"][] = ["index" => $index, "status" => "curl_init_failed"];
+            $result["remoteObjects"][] = [
+                "index" => $index,
+                "status" => "curl_init_failed"
+            ];
             continue;
         }
 
@@ -126,6 +146,7 @@ try {
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
         ]);
+
         curl_exec($ch);
         $errno = curl_errno($ch);
         $http = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -139,15 +160,23 @@ try {
             "expectedBytes" => (int)$chunk["size"],
             "status" => $available ? "available" : "unavailable",
             "httpStatus" => $http ?: null,
+            "networkError" => $errno ? $errno : null,
         ];
     }
 
     $result["ok"] = $allAvailable;
-    if (!$allAvailable) $result["error"] = "one_or_more_remote_objects_unavailable";
+    if (!$allAvailable && empty($result["error"])) {
+        $result["error"] = "one_or_more_remote_objects_unavailable";
+    }
 
     tcOut($result);
 } catch (Throwable $error) {
-    error_log("GDIPS Telegraph Cloud diagnostic failed.");
-    tcOut(["ok" => false, "error" => "diagnostic_failed"], 500);
+    // Never echo provider details, credentials, URLs, or file paths.
+    tcOut([
+        "ok" => false,
+        "error" => "diagnostic_failed",
+        "stage" => $stage,
+        "errorType" => get_class($error),
+    ], 500);
 }
 ?>
