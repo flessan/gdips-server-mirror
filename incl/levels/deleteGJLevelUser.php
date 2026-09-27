@@ -24,7 +24,12 @@ $query = $db->prepare("DELETE FROM comments WHERE levelID = :levelID");
 $query->execute([':levelID' => $levelID]);
 $query = $db->prepare("DELETE FROM levels WHERE levelID = :levelID AND userID = :userID LIMIT 1");
 $query->execute([':levelID' => $levelID, ':userID' => $userID]);
-if(file_exists("../../data/levels/$levelID")) rename("../../data/levels/$levelID","../../data/levels/deleted/$levelID");
+$levelFile = __DIR__ . "/../../data/levels/" . $levelID;
+	$deletedDir = __DIR__ . "/../../data/levels/deleted";
+	if (is_file($levelFile)) {
+		if (!is_dir($deletedDir)) @mkdir($deletedDir, 0755, true);
+		if (!@rename($levelFile, $deletedDir . "/" . $levelID)) @unlink($levelFile);
+	}
 echo "1";
 $gs->logAction($accountID, 8, $getLevelData['levelName'], $getLevelData['levelDesc'], $getLevelData['extID'], $levelID, $getLevelData['starStars'], $getLevelData['starDifficulty']);
 $gs->sendLogsLevelChangeWebhook($levelID, $accountID, $getLevelData);
