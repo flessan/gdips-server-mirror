@@ -268,7 +268,7 @@ if($msgEnabled == 1 AND $logged) {
 		$clanLink = '';
 		if($userClanID) {
 			$clanInfo = $gs->getClanInfo($userClanID);
-			$clanLink = $this->gdNavItem('clan/'.htmlspecialchars($clanInfo["clan"]), 'fa-dungeon', htmlspecialchars($clanInfo["clan"]), $active === "clan", '');
+			$clanLink = $this->gdNavItem('clan/?id='.rawurlencode($clanInfo["clan"]), 'fa-dungeon', htmlspecialchars($clanInfo["clan"]), $active === "clan", '');
 		}
 
 		/* ---- navigation model ---- */
