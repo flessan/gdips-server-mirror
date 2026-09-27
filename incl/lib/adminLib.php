@@ -12,7 +12,48 @@
  */
 class gdAdminLib {
     public static function accountId() {
-        return (int)($_SESSION['accountID'] ?? 0);
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            @session_start();
+        }
+
+        // Standalone admin/debug endpoints do not pass through dashboardLib,
+        // so hydrate the same account session from the dashboard auth cookie.
+        // This keeps administrator rights identical everywhere without trusting
+        // a client-supplied account ID.
+        $cookieAuth = $_COOKIE['auth'] ?? '';
+        if (!is_string($cookieAuth) || trim($cookieAuth) === '' || strtolower(trim($cookieAuth)) === 'none') {
+            $_SESSION['accountID'] = 0;
+            return 0;
+        }
+
+        global $db;
+        if (!($db instanceof PDO)) {
+            return (int)($_SESSION['accountID'] ?? 0);
+        }
+
+        $sessionAccountID = (int)($_SESSION['accountID'] ?? 0);
+
+        if ($sessionAccountID > 0) {
+            try {
+                $q = $db->prepare("SELECT accountID FROM accounts WHERE accountID = :id AND BINARY auth = BINARY :auth AND auth != '' LIMIT 1");
+                $q->execute([':id' => $sessionAccountID, ':auth' => $cookieAuth]);
+                if ($q->fetchColumn()) {
+                    return $sessionAccountID;
+                }
+            } catch (Throwable $e) {
+                return 0;
+            }
+        }
+
+        try {
+            $q = $db->prepare("SELECT accountID FROM accounts WHERE BINARY auth = BINARY :auth AND auth != '' LIMIT 1");
+            $q->execute([':auth' => $cookieAuth]);
+            $accountID = (int)($q->fetchColumn() ?: 0);
+            $_SESSION['accountID'] = $accountID;
+            return $accountID;
+        } catch (Throwable $e) {
+            return 0;
+        }
     }
 
     public static function isLoggedIn() {
