@@ -7,6 +7,7 @@ require_once "../".$dbPath."incl/lib/mainLib.php";
 require_once "../".$dbPath."incl/lib/exploitPatch.php";
 require_once "../".$dbPath."incl/lib/Captcha.php";
 require_once "../".$dbPath."incl/lib/cron.php";
+require_once "../".$dbPath."incl/lib/telegraphCloud.php";
 $dl = new dashboardLib();
 $gs = new mainLib();
 $dl->title($dl->getLocalizedString("manageLevel"));
@@ -22,6 +23,7 @@ $levelID = ExploitPatch::number($_GET['levelID']);
 $query = $db->prepare("SELECT * FROM levels WHERE levelID = :levelID");
 $query->execute([':levelID' => $levelID]);
 $level = $query->fetch();
+$storedLevelString = (string)($level["levelString"] ?? "");
 if(empty($level)) die($dl->printSong('<div class="form">
 	<h1>'.$dl->getLocalizedString("errorGeneric").'</h1>
 	<form class="form__inner" method="post" action="">
@@ -35,6 +37,7 @@ if(isset($_GET['deleteLevel'])) {
 		$query->execute([':levelID' => $levelID]);
 		$query = $db->prepare("DELETE FROM levels WHERE levelID = :levelID LIMIT 1");
 		$query->execute([':levelID' => $levelID]);
+		gdTelegraphCloud::deleteLevel($storedLevelString);
 		$levelFile = dirname(__DIR__, 2) . "/data/levels/" . $levelID;
 		if (is_file($levelFile)) @unlink($levelFile);
 		$query = $db->prepare("INSERT INTO modactions (type, value, value2, value3, timestamp, account) VALUES ('6', :value, :value2, :levelID, :timestamp, :id)");
