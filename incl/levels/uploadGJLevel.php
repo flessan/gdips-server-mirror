@@ -68,8 +68,8 @@ $hostname = $gs->getIP();
 $userID = $gs->getUserID($id, $userName);
 
 $levelStorageDir = dirname(__DIR__, 2) . "/data/levels";
-if (!is_dir($levelStorageDir) && !@mkdir($levelStorageDir, 0755, true) && !is_dir($levelStorageDir)) {
-	exit("-1");
+if (!is_dir($levelStorageDir)) {
+	@mkdir($levelStorageDir, 0755, true);
 }
 $checkBan = $gs->getPersonBan($id, $userID, 2);
 if($checkBan) exit("-1");
@@ -95,10 +95,7 @@ if($levelString != "" AND $levelName != "") {
 		$query = $db->prepare("UPDATE levels SET levelName=:levelName, gameVersion=:gameVersion,  binaryVersion=:binaryVersion, userName=:userName, levelDesc=:levelDesc, levelVersion=:levelVersion, levelLength=:levelLength, audioTrack=:audioTrack, auto=:auto, password=:password, original=:original, twoPlayer=:twoPlayer, songID=:songID, objects=:objects, coins=:coins, requestedStars=:requestedStars, extraString=:extraString, levelString=:levelString, levelInfo=:levelInfo, secret=:secret, updateDate=:uploadDate, unlisted=:unlisted, hostname=:hostname, isLDM=:ldm, wt=:wt, wt2=:wt2, unlisted2=:unlisted2, settingsString=:settingsString, songIDs=:songIDs, sfxIDs=:sfxIDs, ts=:ts WHERE levelName=:levelName AND extID=:id");	
 		$query->execute([':levelName' => $levelName, ':gameVersion' => $gameVersion, ':binaryVersion' => $binaryVersion, ':userName' => $userName, ':levelDesc' => $levelDesc, ':levelVersion' => $levelVersion, ':levelLength' => $levelLength, ':audioTrack' => $audioTrack, ':auto' => $auto, ':password' => $password, ':original' => $original, ':twoPlayer' => $twoPlayer, ':songID' => $songID, ':objects' => $objects, ':coins' => $coins, ':requestedStars' => $requestedStars, ':extraString' => $extraString, ':levelString' => $levelString, ':levelInfo' => $levelInfo, ':secret' => $secret, ':levelName' => $levelName, ':id' => $id, ':uploadDate' => $uploadDate, ':unlisted' => $unlisted, ':hostname' => $hostname, ':ldm' => $ldm, ':wt' => $wt, ':wt2' => $wt2, ':unlisted2' => $unlisted2, ':settingsString' => $settingsString, ':songIDs' => $songIDs, ':sfxIDs' => $sfxIDs, ':ts' => $ts]);
 		$levelFile = $levelStorageDir . "/" . $levelID;
-		if (@file_put_contents($levelFile, $levelString, LOCK_EX) === false) {
-			// DB already contains the payload, so future downloads can still use the fallback.
-			exit("-1");
-		}
+		@file_put_contents($levelFile, $levelString, LOCK_EX);
 		echo $levelID;
 		$gs->logAction($id, 23, $levelName, $levelDesc, $levelID);
 		$gs->sendLogsLevelChangeWebhook($levelID, $id, $getLevelData);
@@ -108,10 +105,7 @@ if($levelString != "" AND $levelName != "") {
 		$query->execute([':levelName' => $levelName, ':gameVersion' => $gameVersion, ':binaryVersion' => $binaryVersion, ':userName' => $userName, ':levelDesc' => $levelDesc, ':levelVersion' => $levelVersion, ':levelLength' => $levelLength, ':audioTrack' => $audioTrack, ':auto' => $auto, ':password' => $password, ':original' => $original, ':twoPlayer' => $twoPlayer, ':songID' => $songID, ':objects' => $objects, ':coins' => $coins, ':requestedStars' => $requestedStars, ':extraString' => $extraString, ':levelString' => $levelString, ':levelInfo' => $levelInfo, ':secret' => $secret, ':uploadDate' => $uploadDate, ':userID' => $userID, ':id' => $id, ':unlisted' => $unlisted, ':hostname' => $hostname, ':ldm' => $ldm, ':wt' => $wt, ':wt2' => $wt2, ':unlisted2' => $unlisted2, ':settingsString' => $settingsString, ':songIDs' => $songIDs, ':sfxIDs' => $sfxIDs, ':ts' => $ts]);
 		$levelID = $db->lastInsertId();
 		$levelFile = $levelStorageDir . "/" . $levelID;
-		if (@file_put_contents($levelFile, $levelString, LOCK_EX) === false) {
-			// DB already contains the payload, so future downloads can still use the fallback.
-			exit("-1");
-		}
+		@file_put_contents($levelFile, $levelString, LOCK_EX);
 		echo $levelID;
 		$gs->logAction($id, 22, $levelName, $levelDesc, $levelID);
 		$gs->sendLogsLevelChangeWebhook($levelID, $id);
