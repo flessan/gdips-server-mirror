@@ -139,8 +139,15 @@ function a(page, skipcheck, skipslash, method, getdata, formname, isback) {
 		var sendget = "";
 		if (getdata > 0 || getdata === 69) {
 			var fd;
-			if (getdata !== 69) fd = new FormData(document.getElementsByTagName("form")[document.getElementsByTagName("form").length - getdata]);
-			else fd = new FormData(document.getElementsByName("searchform")[0]);
+			var pageForms = document.querySelectorAll("#htmlpage form");
+			if (getdata !== 69) {
+				var getFormIndex = pageForms.length - getdata;
+				if (getFormIndex < 0 || !pageForms[getFormIndex]) getFormIndex = document.getElementsByTagName("form").length - getdata;
+				fd = new FormData((pageForms[getFormIndex] || document.getElementsByTagName("form")[getFormIndex]));
+			} else {
+				var searchForm = document.getElementsByName("searchform")[0];
+				fd = new FormData(searchForm);
+			}
 			var delim = "?";
 			["search", "type", "who", "ng", "levelID", "page"].forEach(function (field) {
 				if (fd.get(field) !== null) {
@@ -234,9 +241,21 @@ function a(page, skipcheck, skipslash, method, getdata, formname, isback) {
 		}
 
 		if (method === "POST") {
-			var postFd = (formname === "" || formname === undefined)
-				? new FormData(document.getElementsByTagName("form")[document.getElementsByTagName("form").length - 1])
-				: new FormData(document.getElementsByName(formname)[0]);
+			var pageForms = document.querySelectorAll("#htmlpage form");
+			var postForm = null;
+			if (formname === "" || formname === undefined) {
+				/* Prefer the current page's forms. Shell/footer forms must never
+				   accidentally be serialized for page-level POST actions. */
+				postForm = pageForms.length ? pageForms[pageForms.length - 1] : null;
+				if (!postForm) {
+					var allForms = document.getElementsByTagName("form");
+					postForm = allForms.length ? allForms[allForms.length - 1] : null;
+				}
+			} else {
+				postForm = document.getElementsByName(formname)[0] || null;
+			}
+			if (!postForm) throw new Error("No form available for POST navigation");
+			var postFd = new FormData(postForm);
 			pg.send(postFd);
 		} else {
 			pg.send(sendget);
