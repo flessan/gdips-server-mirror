@@ -30,6 +30,12 @@ header("X-Content-Type-Options: nosniff");
 $levelID = isset($_GET["levelID"]) && is_numeric($_GET["levelID"])
     ? (int)$_GET["levelID"]
     : 1;
+$requestGameVersion = isset($_GET["gameVersion"]) && is_numeric($_GET["gameVersion"])
+    ? (int)$_GET["gameVersion"]
+    : null;
+$requestBinaryVersion = isset($_GET["binaryVersion"]) && is_numeric($_GET["binaryVersion"])
+    ? (int)$_GET["binaryVersion"]
+    : null;
 
 if ($levelID < 1) {
     http_response_code(400);
@@ -61,6 +67,18 @@ $result = [
     "ok" => false,
     "levelID" => (int)$level["levelID"],
     "levelName" => (string)$level["levelName"],
+    "metadata" => [
+        "gameVersion" => (int)($level["gameVersion"] ?? 0),
+        "binaryVersion" => (int)($level["binaryVersion"] ?? 0),
+        "levelVersion" => (int)($level["levelVersion"] ?? 0),
+        "levelLength" => (int)($level["levelLength"] ?? 0),
+        "objects" => (int)($level["objects"] ?? 0),
+        "songID" => (int)($level["songID"] ?? 0),
+        "starStars" => (int)($level["starStars"] ?? 0),
+        "unlisted" => (int)($level["unlisted"] ?? 0),
+        "unlisted2" => (int)($level["unlisted2"] ?? 0),
+        "passwordSet" => !empty($level["password"]),
+    ],
     "storage" => gdTelegraphCloud::enabled() && $manifest !== null
         ? "telegraph-cloud"
         : "database",
@@ -69,6 +87,11 @@ $result = [
         "prefix" => substr($stored, 0, 12),
         "isManifest" => $manifest !== null,
         "sha256" => hash("sha256", $stored),
+    ],
+    "request" => [
+        "gameVersion" => $requestGameVersion,
+        "binaryVersion" => $requestBinaryVersion,
+        "usesStoredGameVersionForProbe" => $requestGameVersion === null,
     ],
     "telegraph" => null,
     "payload" => null,
@@ -150,7 +173,9 @@ $desc = ExploitPatch::translit(
     )
 );
 
-$gameVersionForResponse = (int)($level["gameVersion"] ?? 0);
+$gameVersionForResponse = $requestGameVersion !== null
+    ? $requestGameVersion
+    : (int)($level["gameVersion"] ?? 0);
 $xorPass = $pass;
 
 if ($gameVersionForResponse > 18) {
