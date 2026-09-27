@@ -56,6 +56,11 @@ class gdTelegraphCloud {
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CONNECTTIMEOUT => 15,
             CURLOPT_TIMEOUT => 120,
+            // Wasmer's outbound cURL can keep a HTTP/2 response open after
+            // Cloudflare Pages has delivered the object headers. HTTP/1.1 keeps
+            // the object transport deterministic for binary level payloads.
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_ENCODING => "",
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
         ]);
