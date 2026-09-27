@@ -313,12 +313,9 @@ if($result) {
 		"stage" => "response_ready",
 		"response" => $debugSnapshot["response"],
 	]);
-	// Keep the wire response deterministic for the native Geometry Dash HTTP
-	// client. Explicit length avoids ambiguous chunked framing on lightweight
-	// PHP/Wasmer hosts.
-	header("Content-Type: text/plain");
-	header("Content-Length: " . strlen($response));
-	header("Cache-Control: no-store");
+	// Keep response transport minimal; the original private-server endpoint
+	// only needs to return the plain-text body.
+	header("Content-Type: text/plain; charset=utf-8");
 	echo $response;
 	exit;
 } else exit('-1');
