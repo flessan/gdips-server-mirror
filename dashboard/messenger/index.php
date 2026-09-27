@@ -154,9 +154,9 @@ if($postedReceiver != 0 && ExploitPatch::number($postedReceiver) != $_SESSION['a
 	$readAllMessages = $db->prepare("UPDATE messages SET isNew = 1, readTime = :readTime WHERE accID = :receiver AND toAccountID = :accountID AND readTime = 0");
 	$readAllMessages->execute([':receiver' => $receiver, ':accountID' => $_SESSION['accountID'], ':readTime' => time()]);
 	$chatBox = '<div class="messenger-username">
-        <button type="button" onclick="a(\'profile/'.$receiverUsername.'\', true, true, \'GET\')" class="goback" name="accountID" value="'.$receiver.'"><i class="fa-regular fa-user" aria-hidden="true"></i></button>
+        <button type="button" onclick="a(\'profile/?id='.$receiverUsername.'\', true, true, \'GET\')" class="goback" name="accountID" value="'.$receiver.'"><i class="fa-regular fa-user" aria-hidden="true"></i></button>
         <h1>'.$receiverUsername.'</h1>
-        <button type="button" onclick="a(\'messenger/'.$receiverUsername.'\', true, true, \'GET\')" class="msgupd" name="accountID" value="'.$receiver.'"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i></button>
+        <button type="button" onclick="a(\'messenger/?id='.$receiverUsername.'\', true, true, \'GET\')" class="msgupd" name="accountID" value="'.$receiver.'"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i></button>
     </div>
 	<div class=" form-control new-form-control dmbox list" id="chatMessages">'.$chatMessages.'</div>
 	<form class="form__inner" method="post" action="">
@@ -164,7 +164,7 @@ if($postedReceiver != 0 && ExploitPatch::number($postedReceiver) != $_SESSION['a
 		<div class="field"><input type="text" name="body" id="chatBody" placeholder="'.$dl->getLocalizedString("msg").'"></input></div>
 		<input type="hidden" name="receiver" value="'.$receiver.'"></input>
 		<input type="hidden" id="deleteMessage" name="deleteMessage" value="0"></input>
-	<button type="button" onclick="a(\'messenger/'.$receiverUsername.'\', true, true, \'POST\')"; class="btn-primary btn-block" id="chatSubmit" disabled>'.$dl->getLocalizedString("send").'</button></form>';
+	<button type="button" onclick="a(\'messenger/?id='.$receiverUsername.'\', true, true, \'POST\')"; class="btn-primary btn-block" id="chatSubmit" disabled>'.$dl->getLocalizedString("send").'</button></form>';
 	$dl->title($dl->getLocalizedString("messenger").", ".$receiverUsername);
 	$pageScript .= PHP_EOL.'var element = document.getElementById("chatMessages");
 		element.scrollTop = element.scrollHeight;
@@ -195,7 +195,7 @@ if($postedReceiver != 0 && ExploitPatch::number($postedReceiver) != $_SESSION['a
 		}
 		function deleteMessage(messageID) {
 			document.getElementById("deleteMessage").value = messageID;
-			a("messenger/'.$receiverUsername.'", true, true, "POST");
+			a("messenger/?id='.$receiverUsername.'", true, true, "POST");
 		}
 		'.(!empty($alertScript) ? 'alert("'.$alertScript.'");' : '').'';
 }
