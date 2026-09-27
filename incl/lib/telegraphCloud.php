@@ -160,6 +160,40 @@ class gdTelegraphCloud {
         return "TGCP1:" . self::encode(json_encode($manifest, JSON_UNESCAPED_SLASHES));
     }
 
+    private static function normalizeLevelPayload($payload) {
+        if (!is_string($payload) || $payload === '') return $payload;
+
+        // Telegraph Cloud stores the exact upload payload. Some older GDIPS
+        // level objects were uploaded as URL-safe base64 + gzip around the
+        // actual Geometry Dash kS payload. Geometry Dash's level response,
+        // however, expects the canonical kS payload unless the endpoint
+        // explicitly applies its legacy kS1 compression branch.
+        //
+        // Normalize only this legacy wrapper. Current kS payloads pass through
+        // untouched, so new uploads remain byte-for-byte compatible.
+        $encoded = strtr($payload, '-_', '+/');
+        $pad = strlen($encoded) % 4;
+        if ($pad) $encoded .= str_repeat('=', 4 - $pad);
+
+        $binary = base64_decode($encoded, true);
+        if ($binary === false || strlen($binary) < 2) return $payload;
+
+        $decoded = false;
+        if (substr($binary, 0, 2) === "\x1f\x8b") {
+            $decoded = @gzdecode($binary);
+        } elseif (substr($binary, 0, 2) === "\x78\x9c"
+            || substr($binary, 0, 2) === "\x78\x01"
+            || substr($binary, 0, 2) === "\x78\xda") {
+            $decoded = @gzuncompress($binary);
+        }
+
+        if (is_string($decoded) && preg_match('/^kS[0-9]+[,;]/', $decoded)) {
+            return $decoded;
+        }
+
+        return $payload;
+    }
+
     public static function readLevel($storedValue) {
         $manifest = self::parseManifest($storedValue);
         if ($manifest === null) return $storedValue;
@@ -203,7 +237,7 @@ class gdTelegraphCloud {
             throw new RuntimeException("Telegraph Cloud level integrity check failed.");
         }
 
-        return $result;
+        return self::normalizeLevelPayload($result);
     }
 
     public static function isManifest($storedValue) {
