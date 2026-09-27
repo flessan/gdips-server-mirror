@@ -124,8 +124,6 @@ if(isset($_POST["str"])) $str = ExploitPatch::rucharclean($_POST["str"]) ?: '';
 $offset = is_numeric($_POST["page"] ?? null) ? ExploitPatch::number($_POST["page"]) . "0" : 0;
 switch($type){
 	case 0: // Search
-	case 4: // Recent
-	case 15: // Most liked, changed to 15 in GDW for whatever reason
 		$order = "likes";
 		if(!empty($str)) {
 			if(is_numeric($str)) {
@@ -134,6 +132,11 @@ switch($type){
 			} else $params[] = "levelName LIKE '%$str%'";
 		}
 		break;
+	case 4: // Recent
+		$order = "GREATEST(uploadDate, updateDate)";
+		break;
+	case 15: // Most liked, changed to 15 in GDW for whatever reason
+		$order = "likes";
 	case 1: // Most downloaded
 		$order = "downloads";
 		break;
