@@ -20,7 +20,7 @@ function gdClientLevelID($internalID) {
 
 function gdInternalLevelID($clientID) {
     $clientID = (int)$clientID;
-    $min = GD_CLIENT_LEVEL_ID_OFFSET + 2;
+    $min = GD_CLIENT_LEVEL_ID_OFFSET + 1;
     $max = GD_CLIENT_LEVEL_ID_OFFSET + GD_CLIENT_LEVEL_ID_LOW_MAX;
     if($clientID >= $min && $clientID <= $max) {
         return $clientID - GD_CLIENT_LEVEL_ID_OFFSET;
