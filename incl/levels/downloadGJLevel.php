@@ -10,6 +10,7 @@ require_once "../lib/mainLib.php";
 require_once "../lib/generateHash.php";
 require_once "../lib/GJPCheck.php";
 require_once "../lib/telegraphCloud.php";
+require_once "../lib/levelID.php";
 require "../../config/misc.php";
 
 // Persistent, secret-free request tracing.
@@ -116,12 +117,15 @@ register_shutdown_function(static function() use (&$debugTrace, $writeDebug): vo
 
 $gs = new mainLib();
 if(empty($_POST["levelID"]) || !is_numeric($_POST["levelID"])) exit("-1");
-$levelID = ExploitPatch::numbercolon($_POST["levelID"]);
+$requestedLevelID = ExploitPatch::numbercolon($_POST["levelID"]);
+$levelID = gdInternalLevelID((int)$requestedLevelID);
 $gameVersion = !empty($_POST["gameVersion"]) ? ExploitPatch::number($_POST["gameVersion"]) : 1;
 $writeDebug([
     "stage" => "parsed_request",
     "parsed" => [
+        "requestedLevelID" => $requestedLevelID,
         "levelID" => $levelID,
+        "clientLevelID" => gdClientLevelID($levelID),
         "gameVersion" => $gameVersion,
     ],
 ]);
@@ -278,13 +282,13 @@ if($result) {
 			"payloadPrefix" => substr($levelstring, 0, 16),
 		],
 	]);
-	$response = "1:".$result["levelID"].":2:".ExploitPatch::translit($result["levelName"]).":3:".$desc.":4:".$levelstring.":5:".$result["levelVersion"].":6:".$result["userID"].":8:10:9:".$result["starDifficulty"].":10:".$result["downloads"].":11:1:12:".$result["audioTrack"].":13:".$result["gameVersion"].":14:".$result["likes"].":17:".$result["starDemon"].":43:".$result["starDemonDiff"].":25:".$result["starAuto"].":18:".$result["starStars"].":19:".$result["starFeatured"].":42:".$result["starEpic"].":45:".$result["objects"].":15:".$result["levelLength"].":30:".$result["original"].":31:".$result['twoPlayer'].":28:".$uploadDate. ":29:".$updateDate. ":35:".$result["songID"].":36:".$result["extraString"].":37:".$result["coins"].":38:".$result["starCoins"].":39:".$result["requestedStars"].":46:".$result["wt"].":47:".$result["wt2"].":48:".$result["settingsString"].":40:".$result["isLDM"].":27:$xorPass:52:".$result["songIDs"].":53:".$result["sfxIDs"].":57:".$result['ts'];
+	$response = "1:".gdClientLevelID($result["levelID"]).":2:".ExploitPatch::translit($result["levelName"]).":3:".$desc.":4:".$levelstring.":5:".$result["levelVersion"].":6:".$result["userID"].":8:10:9:".$result["starDifficulty"].":10:".$result["downloads"].":11:1:12:".$result["audioTrack"].":13:".$result["gameVersion"].":14:".$result["likes"].":17:".$result["starDemon"].":43:".$result["starDemonDiff"].":25:".$result["starAuto"].":18:".$result["starStars"].":19:".$result["starFeatured"].":42:".$result["starEpic"].":45:".$result["objects"].":15:".$result["levelLength"].":30:".$result["original"].":31:".$result['twoPlayer'].":28:".$uploadDate. ":29:".$updateDate. ":35:".$result["songID"].":36:".$result["extraString"].":37:".$result["coins"].":38:".$result["starCoins"].":39:".$result["requestedStars"].":46:".$result["wt"].":47:".$result["wt2"].":48:".$result["settingsString"].":40:".$result["isLDM"].":27:$xorPass:52:".$result["songIDs"].":53:".$result["sfxIDs"].":57:".$result['ts'];
 	if($daily == 1) $response .= ":41:".$feaID;
 	if($extras) $response .= ":26:" . $result["levelInfo"];
 	// 2.02 stuff
 	$response .= "#" . GenerateHash::genSolo($levelstring) . "#";
 	// 2.1 stuff
-	$somestring = $result["userID"].",".$result["starStars"].",".$result["starDemon"].",".$result["levelID"].",".$result["starCoins"].",".$result["starFeatured"].",".$pass.",".$feaID;
+	$somestring = $result["userID"].",".$result["starStars"].",".$result["starDemon"].",".gdClientLevelID($result["levelID"]).",".$result["starCoins"].",".$result["starFeatured"].",".$pass.",".$feaID;
 	$response .= GenerateHash::genSolo2($somestring);
 	if($daily == 1) {
 		$response .= "#" . $gs->getUserString($result);
@@ -301,7 +305,9 @@ if($result) {
 	// (especially gameVersion/binaryVersion) without exposing POST credentials.
 	$debugSnapshot = [
 		"timestamp" => gmdate("c"),
+		"requestedLevelID" => (int)$requestedLevelID,
 		"levelID" => (int)$levelID,
+		"clientLevelID" => (int)gdClientLevelID($levelID),
 		"gameVersion" => (int)$gameVersion,
 		"binaryVersion" => (int)$binaryVersion,
 		"extras" => (bool)$extras,
