@@ -334,7 +334,12 @@ if($result) {
 	];
 	$writeDebug([
 		"stage" => "response_ready",
-		"response" => $debugSnapshot["response"],
+		"ok" => true,
+		"responseMode" => $debugSnapshot["response"],
+		"responsePreview" => [
+			"clientLevelID" => (int)gdClientLevelID($result["levelID"]),
+			"prefix" => substr($response, 0, 220),
+		],
 	]);
 	// Strip anything accidentally emitted by the legacy include chain.
 	// The response must begin exactly with "1:<levelID>...".
