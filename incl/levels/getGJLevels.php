@@ -1,4 +1,8 @@
 <?php
+// Keep the Geometry Dash level-list response byte-clean. Any whitespace/BOM
+// emitted by legacy includes would become part of the first level object and
+// can make its key "1" fail to parse, yielding m_levelID=0 for the first item.
+ob_start();
 chdir(dirname(__FILE__));
 require "../lib/connection.php";
 require "../../config/misc.php";
@@ -355,5 +359,10 @@ try {
 	// Never affect the live Geometry Dash level list.
 }
 
+// Strip accidental output from the include chain so the first byte is always the level object.
+while (ob_get_level() > 0) {
+	ob_end_clean();
+}
+header("Content-Type: text/plain; charset=utf-8");
 echo $finalResponse;
 ?>
