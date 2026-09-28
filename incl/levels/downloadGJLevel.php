@@ -116,14 +116,49 @@ register_shutdown_function(static function() use (&$debugTrace, $writeDebug): vo
 });
 
 $gs = new mainLib();
-if(empty($_POST["levelID"]) || !is_numeric($_POST["levelID"])) exit("-1");
-$requestedLevelID = ExploitPatch::numbercolon($_POST["levelID"]);
+$rawRequestedLevelID = $_POST["levelID"] ?? null;
+if($rawRequestedLevelID === null || $rawRequestedLevelID === "" || !is_numeric($rawRequestedLevelID)) exit("-1");
+$requestedLevelID = ExploitPatch::numbercolon($rawRequestedLevelID);
+$zeroLevelFallback = false;
+
+// Some GD clients can produce an online GJGameLevel with m_levelID == 0 for
+// the first item immediately after refreshing Recent Levels. When that happens
+// there is no useful ID in downloadGJLevel22.php itself, but we can safely
+// recover the exact first item from the most recent level-list request made by
+// the same client IP. Do not apply this to arbitrary/stale requests.
+if((int)$requestedLevelID === 0) {
+    try {
+        $traceStmt = $db->prepare("SELECT payload FROM debug_gjlevels_trace WHERE id = 1 LIMIT 1");
+        $traceStmt->execute();
+        $tracePayload = $traceStmt->fetchColumn();
+        $traceData = is_string($tracePayload) ? json_decode($tracePayload, true) : null;
+        if(is_array($traceData)) {
+            $traceTime = isset($traceData["timestamp"]) ? strtotime((string)$traceData["timestamp"]) : false;
+            $traceIPHash = (string)($traceData["ipHash"] ?? "");
+            $sameClient = $traceIPHash !== "" && hash_equals($traceIPHash, hash("sha256", (string)$gs->getIP()));
+            $freshTrace = $traceTime !== false && $traceTime >= (time() - 20) && $traceTime <= (time() + 5);
+            $firstLevel = $traceData["levels"][0] ?? null;
+            if($sameClient && $freshTrace && is_array($firstLevel)) {
+                $candidateClientID = (int)($firstLevel["clientLevelID"] ?? 0);
+                $candidateInternalID = (int)($firstLevel["levelID"] ?? 0);
+                if($candidateInternalID >= 1 && $candidateInternalID <= GD_CLIENT_LEVEL_ID_LOW_MAX && $candidateClientID === gdClientLevelID($candidateInternalID)) {
+                    $requestedLevelID = (string)$candidateClientID;
+                    $zeroLevelFallback = true;
+                }
+            }
+        }
+    } catch(Throwable $fallbackError) {
+        // Compatibility fallback is best-effort; normal request handling continues.
+    }
+}
 $levelID = gdInternalLevelID((int)$requestedLevelID);
 $gameVersion = !empty($_POST["gameVersion"]) ? ExploitPatch::number($_POST["gameVersion"]) : 1;
 $writeDebug([
     "stage" => "parsed_request",
     "parsed" => [
         "requestedLevelID" => $requestedLevelID,
+        "originalRequestedLevelID" => (int)$rawRequestedLevelID,
+        "zeroLevelFallback" => $zeroLevelFallback,
         "levelID" => $levelID,
         "clientLevelID" => gdClientLevelID($levelID),
         "gameVersion" => $gameVersion,
