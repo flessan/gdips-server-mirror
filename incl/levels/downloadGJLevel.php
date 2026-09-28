@@ -285,16 +285,44 @@ if($result) {
 	}
 
 	$levelstring = (string)$levelstring;
-	$wirePrefix = substr($levelstring, 0, 13);
+	$wirePrefix = substr($levelstring, 0, 14);
+	$payloadDebug = [
+		"length" => strlen($levelstring),
+		"sha256" => hash("sha256", $levelstring),
+		"prefix" => $wirePrefix,
+		"prefixMatchesExpected" => ($wirePrefix === "H4sIAAAAAAAACq"),
+	];
+
+	// Validate the exact URL-safe base64 + gzip bytes without changing the
+	// payload sent to Geometry Dash.
+	if(str_starts_with($levelstring, "H4sIA")) {
+		$payloadDebug["wireEncoding"] = "base64+gzip";
+		$normalizedPayload = strtr($levelstring, "-_", "+/");
+		$padding = strlen($normalizedPayload) % 4;
+		if($padding > 0) $normalizedPayload .= str_repeat("=", 4 - $padding);
+		$compressedBytes = base64_decode($normalizedPayload, true);
+		if($compressedBytes === false) {
+			$payloadDebug["gzipValid"] = false;
+			$payloadDebug["gzipError"] = "invalid_base64";
+		} else {
+			$unpackedBytes = @gzdecode($compressedBytes);
+			if($unpackedBytes === false) {
+				$payloadDebug["gzipValid"] = false;
+				$payloadDebug["gzipError"] = "gzdecode_failed";
+			} else {
+				$payloadDebug["gzipValid"] = true;
+				$payloadDebug["unpackedLength"] = strlen($unpackedBytes);
+				$payloadDebug["unpackedPrefix"] = substr($unpackedBytes, 0, 120);
+			}
+		}
+	} else {
+		$payloadDebug["wireEncoding"] = "plain";
+	}
+
 	$writeDebug([
 		"stage" => "storage_read_ok",
 		"storageSource" => $storageSource,
-		"payload" => [
-			"length" => strlen($levelstring),
-			"sha256" => hash("sha256", $levelstring),
-			"prefix" => $wirePrefix,
-			"prefixMatchesExpected" => ($wirePrefix === "H4sIAAAAAAAACq"),
-		],
+		"payload" => $payloadDebug,
 	]);
 	if($levelstring === "") exit("-1");
 	if($gameVersion > 18) {
@@ -317,6 +345,27 @@ if($result) {
 			"binaryVersion" => $binaryVersion,
 			"payloadLength" => strlen($levelstring),
 			"payloadPrefix" => substr($levelstring, 0, 16),
+		],
+		"levelMetadata" => [
+			"levelVersion" => (int)($result["levelVersion"] ?? 0),
+			"userID" => (int)($result["userID"] ?? 0),
+			"levelLength" => (int)($result["levelLength"] ?? 0),
+			"audioTrack" => (int)($result["audioTrack"] ?? 0),
+			"auto" => (int)($result["auto"] ?? 0),
+			"original" => (int)($result["original"] ?? 0),
+			"twoPlayer" => (int)($result["twoPlayer"] ?? 0),
+			"songID" => (int)($result["songID"] ?? 0),
+			"objects" => (int)($result["objects"] ?? 0),
+			"coins" => (int)($result["coins"] ?? 0),
+			"requestedStars" => (int)($result["requestedStars"] ?? 0),
+			"isLDM" => (int)($result["isLDM"] ?? 0),
+			"wt" => (int)($result["wt"] ?? 0),
+			"wt2" => (int)($result["wt2"] ?? 0),
+			"ts" => (int)($result["ts"] ?? 0),
+			"songIDs" => (string)($result["songIDs"] ?? ""),
+			"sfxIDs" => (string)($result["sfxIDs"] ?? ""),
+			"settingsString" => (string)($result["settingsString"] ?? ""),
+			"extraString" => (string)($result["extraString"] ?? ""),
 		],
 	]);
 	$response = "1:".gdClientLevelID($result["levelID"]).":2:".ExploitPatch::translit($result["levelName"]).":3:".$desc.":4:".$levelstring.":5:".$result["levelVersion"].":6:".$result["userID"].":8:10:9:".$result["starDifficulty"].":10:".$result["downloads"].":11:1:12:".$result["audioTrack"].":13:".$result["gameVersion"].":14:".$result["likes"].":17:".$result["starDemon"].":43:".$result["starDemonDiff"].":25:".$result["starAuto"].":18:".$result["starStars"].":19:".$result["starFeatured"].":42:".$result["starEpic"].":45:".$result["objects"].":15:".$result["levelLength"].":30:".$result["original"].":31:".$result['twoPlayer'].":28:".$uploadDate. ":29:".$updateDate. ":35:".$result["songID"].":36:".$result["extraString"].":37:".$result["coins"].":38:".$result["starCoins"].":39:".$result["requestedStars"].":46:".$result["wt"].":47:".$result["wt2"].":48:".$result["settingsString"].":40:".$result["isLDM"].":27:$xorPass:52:".$result["songIDs"].":53:".$result["sfxIDs"].":57:".$result['ts'];
