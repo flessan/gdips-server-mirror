@@ -285,13 +285,15 @@ if($result) {
 	}
 
 	$levelstring = (string)$levelstring;
+	$wirePrefix = substr($levelstring, 0, 13);
 	$writeDebug([
 		"stage" => "storage_read_ok",
 		"storageSource" => $storageSource,
 		"payload" => [
 			"length" => strlen($levelstring),
 			"sha256" => hash("sha256", $levelstring),
-			"prefix" => substr($levelstring, 0, 16),
+			"prefix" => $wirePrefix,
+			"prefixMatchesExpected" => ($wirePrefix === "H4sIAAAAAAAACq"),
 		],
 	]);
 	if($levelstring === "") exit("-1");
