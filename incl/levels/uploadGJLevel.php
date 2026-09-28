@@ -9,6 +9,7 @@ require_once "../lib/automod.php";
 require_once "../lib/mainLib.php";
 require_once "../lib/cron.php";
 require_once "../lib/telegraphCloud.php";
+require_once "../lib/levelID.php";
 $gs = new mainLib();
 if(Automod::isLevelsDisabled(0)) exit('-1');
 //here im getting all the data
@@ -16,7 +17,7 @@ $gjp2check = isset($_POST['gjp2']) ? $_POST['gjp2'] : $_POST['gjp'];
 $gjp = ExploitPatch::charclean($gjp2check);
 $gameVersion = ExploitPatch::number($_POST["gameVersion"]);
 $userName = ExploitPatch::charclean($_POST["userName"]);
-$levelID = ExploitPatch::number($_POST["levelID"]);
+$levelID = gdInternalLevelID((int)ExploitPatch::number($_POST["levelID"]));
 $levelName = ExploitPatch::charclean($_POST["levelName"]);
 //TODO: move description fixing code to a function
 $levelDesc = ExploitPatch::remove($_POST["levelDesc"]);
@@ -118,7 +119,7 @@ if($levelString != "" AND $levelName != "") {
 		}
 		$levelFile = $levelStorageDir . "/" . $levelID;
 		@file_put_contents($levelFile, $levelString, LOCK_EX);
-		echo $levelID;
+		echo gdClientLevelID($levelID);
 		try {
 			$gs->logAction($id, 23, $levelName, $levelDesc, $levelID);
 			$gs->sendLogsLevelChangeWebhook($levelID, $id, $getLevelData);
@@ -149,7 +150,7 @@ if($levelString != "" AND $levelName != "") {
 		}
 		$levelFile = $levelStorageDir . "/" . $levelID;
 		@file_put_contents($levelFile, $levelString, LOCK_EX);
-		echo $levelID;
+		echo gdClientLevelID($levelID);
 		try {
 			$gs->logAction($id, 22, $levelName, $levelDesc, $levelID);
 			$gs->sendLogsLevelChangeWebhook($levelID, $id);
