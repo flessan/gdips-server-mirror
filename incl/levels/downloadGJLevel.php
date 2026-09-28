@@ -212,18 +212,43 @@ if($result) {
 			"storedPrefix" => substr((string)($result["levelString"] ?? ""), 0, 12),
 		],
 	]);
-	try {
-		$levelstring = gdTelegraphCloud::readLevel((string)($result["levelString"] ?? ""));
-	} catch (Throwable $storageError) {
-		$writeDebug([
-			"stage" => "storage_read_failed",
-			"storageError" => get_class($storageError) . ": " . $storageError->getMessage(),
-		]);
-		exit("-1");
+
+	/*
+	 * Prefer the exact wire payload saved by the upload handler. New GD 2.2
+	 * uploads commonly arrive already encoded as URL-safe base64 + gzip
+	 * (H4sIA...), and the local file preserves that representation byte-for-byte.
+	 * Telegraph Cloud remains the fallback for hosts where the local object is
+	 * unavailable.
+	 */
+	$localLevelFile = dirname(__DIR__, 2) . "/data/levels/" . $levelID;
+	$storageSource = "telegraph-cloud";
+	$levelstring = false;
+
+	if(is_file($localLevelFile) && is_readable($localLevelFile)) {
+		$localLevelstring = file_get_contents($localLevelFile);
+		if($localLevelstring !== false && $localLevelstring !== "") {
+			$levelstring = (string)$localLevelstring;
+			$storageSource = "local-wire";
+		}
 	}
+
+	if($levelstring === false || $levelstring === "") {
+		try {
+			$levelstring = gdTelegraphCloud::readLevel((string)($result["levelString"] ?? ""));
+		} catch(Throwable $storageError) {
+			$writeDebug([
+				"stage" => "storage_read_failed",
+				"storageSource" => $storageSource,
+				"storageError" => get_class($storageError) . ": " . $storageError->getMessage(),
+			]);
+			exit("-1");
+		}
+	}
+
 	$levelstring = (string)$levelstring;
 	$writeDebug([
 		"stage" => "storage_read_ok",
+		"storageSource" => $storageSource,
 		"payload" => [
 			"length" => strlen($levelstring),
 			"sha256" => hash("sha256", $levelstring),
