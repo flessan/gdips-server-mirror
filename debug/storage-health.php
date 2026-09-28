@@ -8,7 +8,7 @@ session_start();
 
 require __DIR__ . "/../incl/lib/connection.php";
 require_once __DIR__ . "/../incl/lib/adminLib.php";
-require_once __DIR__ . "/../../incl/lib/telegraphCloud.php";
+require_once __DIR__ . "/../incl/lib/telegraphCloud.php";
 
 gdAdminLib::requireAdmin($db);
 
