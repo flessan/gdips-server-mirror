@@ -374,7 +374,7 @@ if($result) {
 	// 2.02 stuff
 	$response .= "#" . GenerateHash::genSolo($levelstring) . "#";
 	// 2.1 stuff
-	$somestring = $result["userID"].",".$result["starStars"].",".$result["starDemon"].",".$result["levelID"].",".$result["starCoins"].",".$result["starFeatured"].",".$pass.",".$feaID;
+	$somestring = $result["userID"].",".$result["starStars"].",".$result["starDemon"].",".gdClientLevelID($result["levelID"]).",".$result["starCoins"].",".$result["starFeatured"].",".$pass.",".$feaID;
 	$response .= GenerateHash::genSolo2($somestring);
 	if($daily == 1) {
 		$response .= "#" . $gs->getUserString($result);
