@@ -261,6 +261,7 @@ try {
 	$trace = [
 		"timestamp" => gmdate("c"),
 		"requestUri" => $_SERVER["REQUEST_URI"] ?? null,
+		"ipHash" => hash("sha256", (string)$gs->getIP()),
 		"gameVersion" => $gameVersion,
 		"binaryVersion" => $binaryVersion,
 		"type" => $type,
