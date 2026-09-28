@@ -21,4 +21,4 @@ jobs:
           port: 22
           # Gunakan format ini untuk 'uploads'
           uploads: |
-            public_html/ => public_html/
+            ./ => public_html/
