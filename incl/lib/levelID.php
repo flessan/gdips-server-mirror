@@ -7,7 +7,7 @@
  * manager while preserving existing DB relationships.
  */
 const GD_CLIENT_LEVEL_ID_OFFSET = 100000;
-const GD_CLIENT_LEVEL_ID_LOW_MAX = 127;
+const GD_CLIENT_LEVEL_ID_LOW_MAX = 22;
 
 function gdClientLevelID($internalID) {
     $internalID = (int)$internalID;
