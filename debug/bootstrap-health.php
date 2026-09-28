@@ -50,7 +50,7 @@ if(isset($db) && $db instanceof PDO) {
 }
 
 $stage = "before_telegraph";
-require_once __DIR__ . "/../../incl/lib/telegraphCloud.php";
+require_once __DIR__ . "/../incl/lib/telegraphCloud.php";
 $stage = "after_telegraph";
 
 $payload["telegraphCloud"] = [
