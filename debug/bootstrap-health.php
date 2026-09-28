@@ -35,7 +35,7 @@ register_shutdown_function(static function() use (&$stage, &$payload): void {
 });
 
 $stage = "before_connection";
-require __DIR__ . "/../../incl/lib/connection.php";
+require __DIR__ . "/../incl/lib/connection.php";
 $stage = "after_connection";
 
 $payload["connection"] = [
