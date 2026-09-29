@@ -10,15 +10,14 @@ declare(strict_types=1);
  * The official Lightsync client expects JSON with:
  *   version, downloadUrl, maintenance, message, mTimestamp, modlist
  *
- * Keep update fields string-valued for clients that unwrap them directly.
+ * Keep the nullable version/update fields compatible with the original Lightsync endpoint.
  */
 
-header("Content-Type: application/json; charset=utf-8");
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Content-Type: text/html; charset=utf-8");
 
 $response = [
-    "version" => "1.9.4",
-    "downloadUrl" => "",
+    "version" => null,
+    "downloadUrl" => null,
     "maintenance" => false,
     "message" => "Update maintenance",
     "mTimestamp" => "4:00 PM | GMT-6",
