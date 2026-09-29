@@ -10,18 +10,18 @@ declare(strict_types=1);
  * The official Lightsync client expects JSON with:
  *   version, downloadUrl, maintenance, message, mTimestamp, modlist
  *
- * Keep update fields null so the client does not attempt to update itself.
+ * Keep update fields string-valued for clients that unwrap them directly.
  */
 
 header("Content-Type: application/json; charset=utf-8");
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 
 $response = [
-    "version" => null,
-    "downloadUrl" => null,
+    "version" => "1.9.4",
+    "downloadUrl" => "",
     "maintenance" => false,
-    "message" => "GDIPS Lightsync server",
-    "mTimestamp" => "GDIPS",
+    "message" => "Update maintenance",
+    "mTimestamp" => "4:00 PM | GMT-6",
     "modlist" => [
         "geode.custom-keybinds" => ["allowed" => true],
         "capeling.startpos_switcher" => ["allowed" => true],
